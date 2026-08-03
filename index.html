@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Stock Finished Goods</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d6efd">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">📦 Monitoring Stock FG</span>
+            <button class="btn btn-outline-light btn-sm" onclick="resetData()">Reset Data</button>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Form Input -->
+        <div class="row g-4">
+            <!-- 1. Input Stock Opname (Sistem Awal/Opname) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">1. Input Hasil Stock Opname</div>
+                    <div class="card-body">
+                        <form id="formOpname" onsubmit="saveOpname(event)">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Barang / SKU</label>
+                                <input type="text" class="form-control" id="opName" required placeholder="Contoh: Kemeja Polos L">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jumlah Fisik (Stock Opname)</label>
+                                <input type="number" class="form-control" id="opQty" required min="0" placeholder="0">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Simpan / Update Opname</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Input Barang Keluar (Finished Goods) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">2. Input Barang Keluar (FG)</div>
+                    <div class="card-body">
+                        <form id="formOut" onsubmit="saveOutbound(event)">
+                            <div class="mb-3">
+                                <label class="form-label">Pilih Barang</label>
+                                <select class="form-select" id="outItem" required>
+                                    <option value="">-- Pilih Barang --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jumlah Keluar</label>
+                                <input type="number" class="form-control" id="outQty" required min="1" placeholder="0">
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">Keluarkan Barang</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Monitoring Stok -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white fw-bold">Tabel Monitoring Stock Real-Time</div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-striped align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang / SKU</th>
+                            <th>Stock Opname (Awal)</th>
+                            <th>Total Barang Keluar</th>
+                            <th>Sisa Stock Aktual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- Data akan diisi via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logika & PWA Register -->
+    <script>
+        // Registrasi Service Worker untuk PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker Registered'))
+            .catch(err => console.log('SW Registration Failed', err));
+        }
+
+        // Database Lokal menggunakan LocalStorage
+        let stockData = JSON.parse(localStorage.getItem('stockData')) || {};
+
+        function saveData() {
+            localStorage.setItem('stockData', JSON.stringify(stockData));
+            renderTable();
+            updateDropdown();
+        }
+
+        // 1. Simpan/Update Stock Opname
+        function saveOpname(e) {
+            e.preventDefault();
+            const name = document.getElementById('opName').value.trim();
+            const qty = parseInt(document.getElementById('opQty').value);
+
+            if (stockData[name]) {
+                stockData[name].opname = qty; // Update nilai opname
+            } else {
+                stockData[name] = {
+                    opname: qty,
+                    out: 0
+                };
+            }
+
+            document.getElementById('formOpname').reset();
+            saveData();
+            alert('Data Stock Opname berhasil disimpan!');
+        }
+
+        // 2. Simpan Barang Keluar
+        function saveOutbound(e) {
+            e.preventDefault();
+            const name = document.getElementById('outItem').value;
+            const qty = parseInt(document.getElementById('outQty').value);
+
+            if (!stockData[name]) return;
+
+            const currentStock = stockData[name].opname - stockData[name].out;
+            if (qty > currentStock) {
+                alert('Gagal! Jumlah keluar melebihi sisa stock aktual.');
+                return;
+            }
+
+            stockData[name].out += qty;
+            document.getElementById('formOut').reset();
+            saveData();
+            alert('Barang keluar berhasil dicatat!');
+        }
+
+        // Render Tabel Monitoring
+        function renderTable() {
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = '';
+            let no = 1;
+
+            if (Object.keys(stockData).length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-muted">Belum ada data stock.</td></tr>`;
+                return;
+            }
+
+            for (let name in stockData) {
+                const item = stockData[name];
+                const sisa = item.opname - item.out;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${no++}</td>
+                        <td class="text-start">${name}</td>
+                        <td>${item.opname}</td>
+                        <td><span class="text-danger fw-bold">-${item.out}</span></td>
+                        <td><span class="badge ${sisa > 0 ? 'bg-success' : 'bg-secondary'}">${sisa}</span></td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Update Pilihan Dropdown Barang Keluar
+        function updateDropdown() {
+            const select = document.getElementById('outItem');
+            select.innerHTML = `<option value="">-- Pilih Barang --</option>`;
+            for (let name in stockData) {
+                select.innerHTML += `<option value="${name}">${name}</option>`;
+            }
+        }
+
+        // Reset Data
+        function resetData() {
+            if (confirm('Yakin ingin menghapus seluruh data stock?')) {
+                localStorage.removeItem('stockData');
+                stockData = {};
+                renderTable();
+                updateDropdown();
+            }
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        renderTable();
+        updateDropdown();
+    </script>
+</body>
+</html>
