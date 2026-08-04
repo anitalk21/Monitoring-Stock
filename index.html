@@ -14,60 +14,84 @@
 
     <nav class="navbar navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <span class="navbar-brand mb-0 h1">📦 Monitoring Stock FG</span>
-            <button class="btn btn-outline-light btn-sm" onclick="resetData()">Reset Data</button>
+            <span class="navbar-brand mb-0 h1">📦 Monitoring Stock Gudang (FG)</span>
+            <button class="btn btn-outline-light btn-sm" onclick="resetData()">Reset Semua Data</button>
         </div>
     </nav>
 
     <div class="container my-4">
-        <!-- Form Input -->
-        <div class="row g-4">
-            <!-- 1. Input Stock Opname (Sistem Awal/Opname) -->
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white fw-bold">1. Input Hasil Stock Opname</div>
+        <!-- Baris Form Input (3 Pilar Utama) -->
+        <div class="row g-4 mb-4">
+            
+            <!-- 1. Input Stock Opname -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-primary">
+                    <div class="card-header bg-primary text-white fw-bold">1. Set / Stock Opname Awal</div>
                     <div class="card-body">
                         <form id="formOpname" onsubmit="saveOpname(event)">
-                            <div class="mb-3">
-                                <label class="form-label">Nama Barang / SKU</label>
-                                <input type="text" class="form-control" id="opName" required placeholder="Contoh: Kemeja Polos L">
+                            <div class="mb-2">
+                                <label class="form-label small">Nama Barang / SKU</label>
+                                <input type="text" class="form-control form-control-sm" id="opName" required placeholder="Contoh: Kemeja Polos L">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Jumlah Fisik (Stock Opname)</label>
-                                <input type="number" class="form-control" id="opQty" required min="0" placeholder="0">
+                                <label class="form-label small">Jumlah Fisik (Opname)</label>
+                                <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Simpan / Update Opname</button>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Opname</button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Input Barang Keluar (Finished Goods) -->
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white fw-bold">2. Input Barang Keluar (FG)</div>
+            <!-- 2. Input Hasil Produksi (Barang Masuk) -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-success">
+                    <div class="card-header bg-success text-white fw-bold">2. Input Hasil Produksi (Masuk)</div>
                     <div class="card-body">
-                        <form id="formOut" onsubmit="saveOutbound(event)">
-                            <div class="mb-3">
-                                <label class="form-label">Pilih Barang</label>
-                                <select class="form-select" id="outItem" required>
+                        <form id="formIn" onsubmit="saveInbound(event)">
+                            <div class="mb-2">
+                                <label class="form-label small">Pilih Barang</label>
+                                <select class="form-select form-select-sm" id="inItem" required>
                                     <option value="">-- Pilih Barang --</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Jumlah Keluar</label>
-                                <input type="number" class="form-control" id="outQty" required min="1" placeholder="0">
+                                <label class="form-label small">Jumlah Masuk (Produksi)</label>
+                                <input type="number" class="form-control form-control-sm" id="inQty" required min="1" placeholder="0">
                             </div>
-                            <button type="submit" class="btn btn-danger w-100">Keluarkan Barang</button>
+                            <button type="submit" class="btn btn-success btn-sm w-100">Tambah Stok Masuk</button>
                         </form>
                     </div>
                 </div>
             </div>
+
+            <!-- 3. Input Barang Keluar (Finished Goods) -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-danger">
+                    <div class="card-header bg-danger text-white fw-bold">3. Input Barang Keluar (Kirim)</div>
+                    <div class="card-body">
+                        <form id="formOut" onsubmit="saveOutbound(event)">
+                            <div class="mb-2">
+                                <label class="form-label small">Pilih Barang</label>
+                                <select class="form-select form-select-sm" id="outItem" required>
+                                    <option value="">-- Pilih Barang --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Jumlah Keluar</label>
+                                <input type="number" class="form-control form-control-sm" id="outQty" required min="1" placeholder="0">
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-sm w-100">Keluarkan Barang</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Tabel Monitoring Stok -->
-        <div class="card shadow-sm mt-4">
-            <div class="card-header bg-white fw-bold">Tabel Monitoring Stock Real-Time</div>
+        <!-- Tabel Monitoring Stok Real-Time -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold py-3">📊 Tabel Monitoring Stock Aktual di Gudang</div>
             <div class="card-body table-responsive">
                 <table class="table table-bordered table-striped align-middle text-center">
                     <thead class="table-dark">
@@ -75,12 +99,13 @@
                             <th>No</th>
                             <th>Nama Barang / SKU</th>
                             <th>Stock Opname (Awal)</th>
-                            <th>Total Barang Keluar</th>
+                            <th>Total Masuk (Produksi)</th>
+                            <th>Total Keluar (Kirim)</th>
                             <th>Sisa Stock Aktual</th>
                         </tr>
                     </thead>
                     <tbody id="stockTableBody">
-                        <!-- Data akan diisi via JavaScript -->
+                        <!-- Data terisi otomatis via Javascript -->
                     </tbody>
                 </table>
             </div>
@@ -97,35 +122,50 @@
         }
 
         // Database Lokal menggunakan LocalStorage
-        let stockData = JSON.parse(localStorage.getItem('stockData')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG')) || {};
 
         function saveData() {
-            localStorage.setItem('stockData', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG', JSON.stringify(stockData));
             renderTable();
-            updateDropdown();
+            updateDropdowns();
         }
 
-        // 1. Simpan/Update Stock Opname
+        // 1. Simpan/Update Stock Opname (Baseline Awal)
         function saveOpname(e) {
             e.preventDefault();
             const name = document.getElementById('opName').value.trim();
             const qty = parseInt(document.getElementById('opQty').value);
 
             if (stockData[name]) {
-                stockData[name].opname = qty; // Update nilai opname
+                stockData[name].opname = qty; // Update opname jika barang sudah ada
             } else {
                 stockData[name] = {
                     opname: qty,
+                    inProd: 0,
                     out: 0
                 };
             }
 
             document.getElementById('formOpname').reset();
             saveData();
-            alert('Data Stock Opname berhasil disimpan!');
+            alert('Stock Opname berhasil disimpan!');
         }
 
-        // 2. Simpan Barang Keluar
+        // 2. Simpan Hasil Produksi (Barang Masuk)
+        function saveInbound(e) {
+            e.preventDefault();
+            const name = document.getElementById('inItem').value;
+            const qty = parseInt(document.getElementById('inQty').value);
+
+            if (!stockData[name]) return;
+
+            stockData[name].inProd += qty;
+            document.getElementById('formIn').reset();
+            saveData();
+            alert('Hasil produksi berhasil ditambahkan ke stok!');
+        }
+
+        // 3. Simpan Barang Keluar (Finished Goods)
         function saveOutbound(e) {
             e.preventDefault();
             const name = document.getElementById('outItem').value;
@@ -133,9 +173,11 @@
 
             if (!stockData[name]) return;
 
-            const currentStock = stockData[name].opname - stockData[name].out;
+            // Hitung sisa stok berjalan saat ini
+            const currentStock = (stockData[name].opname + stockData[name].inProd) - stockData[name].out;
+            
             if (qty > currentStock) {
-                alert('Gagal! Jumlah keluar melebihi sisa stock aktual.');
+                alert('Gagal! Jumlah keluar melebihi sisa stock aktual di gudang.');
                 return;
             }
 
@@ -152,48 +194,54 @@
             let no = 1;
 
             if (Object.keys(stockData).length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-muted">Belum ada data stock.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-muted py-3">Belum ada data stock. Silakan input Stock Opname terlebih dahulu.</td></tr>`;
                 return;
             }
 
             for (let name in stockData) {
                 const item = stockData[name];
-                const sisa = item.opname - item.out;
+                const sisa = (item.opname + item.inProd) - item.out;
 
                 tbody.innerHTML += `
                     <tr>
                         <td>${no++}</td>
-                        <td class="text-start">${name}</td>
+                        <td class="text-start fw-semibold">${name}</td>
                         <td>${item.opname}</td>
+                        <td><span class="text-success fw-bold">+${item.inProd}</span></td>
                         <td><span class="text-danger fw-bold">-${item.out}</span></td>
-                        <td><span class="badge ${sisa > 0 ? 'bg-success' : 'bg-secondary'}">${sisa}</span></td>
+                        <td><span class="badge fs-6 ${sisa > 0 ? 'bg-success' : 'bg-secondary'}">${sisa}</span></td>
                     </tr>
                 `;
             }
         }
 
-        // Update Pilihan Dropdown Barang Keluar
-        function updateDropdown() {
-            const select = document.getElementById('outItem');
-            select.innerHTML = `<option value="">-- Pilih Barang --</option>`;
+        // Update Pilihan Dropdown Barang Masuk & Keluar
+        function updateDropdowns() {
+            const selectIn = document.getElementById('inItem');
+            const selectOut = document.getElementById('outItem');
+            
+            selectIn.innerHTML = `<option value="">-- Pilih Barang --</option>`;
+            selectOut.innerHTML = `<option value="">-- Pilih Barang --</option>`;
+
             for (let name in stockData) {
-                select.innerHTML += `<option value="${name}">${name}</option>`;
+                selectIn.innerHTML += `<option value="${name}">${name}</option>`;
+                selectOut.innerHTML += `<option value="${name}">${name}</option>`;
             }
         }
 
         // Reset Data
         function resetData() {
-            if (confirm('Yakin ingin menghapus seluruh data stock?')) {
-                localStorage.removeItem('stockData');
+            if (confirm('Yakin ingin menghapus seluruh data monitoring stock gudang?')) {
+                localStorage.removeItem('stockDataFG');
                 stockData = {};
                 renderTable();
-                updateDropdown();
+                updateDropdowns();
             }
         }
 
         // Inisialisasi awal saat halaman dimuat
         renderTable();
-        updateDropdown();
+        updateDropdowns();
     </script>
 </body>
 </html>
