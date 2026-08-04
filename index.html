@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Stock Finished Goods</title>
+    <title>Monitoring Stock Gudang Pallet (Finished Goods)</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- PWA Manifest -->
@@ -14,7 +14,7 @@
 
     <nav class="navbar navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <span class="navbar-brand mb-0 h1">📦 Monitoring Stock Gudang (FG)</span>
+            <span class="navbar-brand mb-0 h1">📦 Monitoring Gudang Pallet Finished Goods</span>
         </div>
     </nav>
 
@@ -22,7 +22,7 @@
         <!-- Baris Form Input (3 Pilar Utama) -->
         <div class="row g-4 mb-4">
             
-            <!-- 1. Input Stock Opname + Kapasitas Racking -->
+            <!-- 1. Input Stock Opname & Kapasitas Blok Pallet -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-primary">
                     <div class="card-header bg-primary text-white fw-bold">1. Set / Stock Opname Awal</div>
@@ -37,15 +37,15 @@
                                 <input type="text" class="form-control form-control-sm" id="opName" required placeholder="Contoh: Kemeja Polos Hitam L">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Letak Blok Racking Utama</label>
-                                <input type="text" class="form-control form-control-sm" id="opRack" required placeholder="Contoh: Blok A - Rak 03">
+                                <label class="form-label small">Nama Blok Racking Utama</label>
+                                <input type="text" class="form-control form-control-sm" id="opRack" required placeholder="Contoh: BLOK A FG">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Kapasitas Maksimal Rak</label>
-                                <input type="number" class="form-control form-control-sm" id="opCapacity" required min="1" placeholder="Contoh: 500">
+                                <label class="form-label small">Kapasitas Maksimal Blok (Total Pallet)</label>
+                                <input type="number" class="form-control form-control-sm" id="opCapacity" required min="1" placeholder="Contoh: 396 (hasil 11 x 36)">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small">Jumlah Fisik Awal (Opname)</label>
+                                <label class="form-label small">Jumlah Fisik Awal (Pallet / Unit)</label>
                                 <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Opname</button>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- 2. Input Hasil Produksi (Barang Masuk + Racking Penempatan) -->
+            <!-- 2. Input Hasil Produksi (Barang Masuk) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-success">
                     <div class="card-header bg-success text-white fw-bold">2. Input Hasil Produksi (Masuk)</div>
@@ -67,11 +67,11 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Letak Blok Racking Penempatan</label>
-                                <input type="text" class="form-control form-control-sm" id="inRack" required placeholder="Contoh: Blok A - Rak 03 / Rak Overflow">
+                                <label class="form-label small">Ditempatkan di Blok Racking</label>
+                                <input type="text" class="form-control form-control-sm" id="inRack" required placeholder="Contoh: BLOK A FG">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small">Jumlah Masuk (Produksi)</label>
+                                <label class="form-label small">Jumlah Masuk (Pallet / Unit)</label>
                                 <input type="number" class="form-control form-control-sm" id="inQty" required min="1" placeholder="0">
                             </div>
                             <button type="submit" class="btn btn-success btn-sm w-100">Tambah Stok Masuk</button>
@@ -80,7 +80,7 @@
                 </div>
             </div>
 
-            <!-- 3. Input Barang Keluar (Finished Goods + Dari Racking Mana) -->
+            <!-- 3. Input Barang Keluar (Finished Goods) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-danger">
                     <div class="card-header bg-danger text-white fw-bold">3. Input Barang Keluar (Kirim)</div>
@@ -93,8 +93,8 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Diambil dari Racking Mana</label>
-                                <input type="text" class="form-control form-control-sm" id="outRackSource" required placeholder="Contoh: Blok A - Rak 03">
+                                <label class="form-label small">Diambil dari Blok Racking Mana</label>
+                                <input type="text" class="form-control form-control-sm" id="outRackSource" required placeholder="Contoh: BLOK A FG">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Jumlah Keluar</label>
@@ -110,7 +110,7 @@
 
         <!-- Tabel Monitoring Stok Real-Time -->
         <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold py-3">📊 Tabel Monitoring Stock & Kapasitas Racking</div>
+            <div class="card-header bg-white fw-bold py-3">📊 Tabel Monitoring Stock & Kapasitas Blok Racking</div>
             <div class="card-body table-responsive">
                 <table class="table table-bordered table-striped align-middle text-center">
                     <thead class="table-dark">
@@ -118,13 +118,13 @@
                             <th>No</th>
                             <th>SKU</th>
                             <th>Nama Barang</th>
-                            <th>Letak Racking Utama</th>
-                            <th>Kapasitas Rak</th>
-                            <th>Stock Opname (Awal)</th>
+                            <th>Blok Rak Utama</th>
+                            <th>Kapasitas Blok</th>
+                            <th>Opname Awal</th>
                             <th>Total Masuk</th>
                             <th>Total Keluar</th>
                             <th>Sisa Stock Aktual</th>
-                            <th>Status Kapasitas</th>
+                            <th>Status Kapasitas Blok</th>
                         </tr>
                     </thead>
                     <tbody id="stockTableBody">
@@ -144,16 +144,16 @@
             .catch(err => console.log('SW Registration Failed', err));
         }
 
-        // Database Lokal menggunakan LocalStorage (Key v5)
-        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v5')) || {};
+        // Database Lokal menggunakan LocalStorage (Key v6)
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v6')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataFG_v5', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG_v6', JSON.stringify(stockData));
             renderTable();
             updateDropdowns();
         }
 
-        // 1. Simpan/Update Stock Opname + Kapasitas Rak
+        // 1. Simpan/Update Stock Opname + Kapasitas Blok
         function saveOpname(e) {
             e.preventDefault();
             const sku = document.getElementById('opSku').value.trim();
@@ -175,18 +175,16 @@
                     capacity: capacity,
                     opname: qty,
                     inProd: 0,
-                    out: 0,
-                    historyIn: [],
-                    historyOut: []
+                    out: 0
                 };
             }
 
             document.getElementById('formOpname').reset();
             saveData();
-            alert('Stock Opname & Kapasitas berhasil disimpan!');
+            alert('Stock Opname & Kapasitas Blok berhasil disimpan!');
         }
 
-        // 2. Simpan Hasil Produksi (Barang Masuk + Catat Racking Penempatan)
+        // 2. Simpan Hasil Produksi (Barang Masuk)
         function saveInbound(e) {
             e.preventDefault();
             const sku = document.getElementById('inSku').value;
@@ -198,23 +196,19 @@
             const item = stockData[sku];
             const currentStock = (item.opname + item.inProd) - item.out;
 
+            // Validasi apakah melebihi kapasitas blok
             if ((currentStock + qty) > item.capacity) {
-                alert(`Peringatan! Total barang masuk akan melebihi kapasitas maksimal rak (${item.capacity} unit).`);
+                alert(`Peringatan! Total stok akan melebihi kapasitas maksimal ${item.rack} (${item.capacity} pallet).`);
                 return;
             }
 
             item.inProd += qty;
-            
-            // Simpan catatan log masuk beserta info rak penempatannya
-            if (!item.historyIn) item.historyIn = [];
-            item.historyIn.push({ rack: rackIn, qty: qty, date: new Date().toLocaleDateString('id-ID') });
-
             document.getElementById('formIn').reset();
             saveData();
-            alert(`Hasil produksi berhasil ditambahkan ke rak ${rackIn}!`);
+            alert(`Hasil produksi berhasil ditambahkan ke ${rackIn}!`);
         }
 
-        // 3. Simpan Barang Keluar (Finished Goods + Validasi Asal Racking)
+        // 3. Simpan Barang Keluar (Finished Goods)
         function saveOutbound(e) {
             e.preventDefault();
             const sku = document.getElementById('outSku').value;
@@ -232,14 +226,9 @@
             }
 
             item.out += qty;
-
-            // Simpan catatan log keluar beserta info asal rak pengambilannya
-            if (!item.historyOut) item.historyOut = [];
-            item.historyOut.push({ rack: rackSource, qty: qty, date: new Date().toLocaleDateString('id-ID') });
-
             document.getElementById('formOut').reset();
             saveData();
-            alert(`Barang keluar berhasil dicatat dari rak ${rackSource}!`);
+            alert(`Barang keluar berhasil dicatat dari ${rackSource}!`);
         }
 
         // Render Tabel Monitoring
@@ -272,7 +261,7 @@
                         <td><span class="badge bg-secondary">${item.sku}</span></td>
                         <td class="text-start fw-semibold">${item.name}</td>
                         <td><span class="badge bg-info text-dark">${item.rack}</span></td>
-                        <td>${item.capacity}</td>
+                        <td>${item.capacity} Pallet</td>
                         <td>${item.opname}</td>
                         <td><span class="text-success fw-bold">+${item.inProd}</span></td>
                         <td><span class="text-danger fw-bold">-${item.out}</span></td>
@@ -293,7 +282,7 @@
 
             for (let sku in stockData) {
                 const item = stockData[sku];
-                const optionText = `${item.sku} - ${item.name} (Rak Utama: ${item.rack})`;
+                const optionText = `${item.sku} - ${item.name} (${item.rack})`;
                 selectIn.innerHTML += `<option value="${sku}">${optionText}</option>`;
                 selectOut.innerHTML += `<option value="${sku}">${optionText}</option>`;
             }
