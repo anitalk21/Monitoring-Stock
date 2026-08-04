@@ -22,7 +22,7 @@
         <!-- Baris Form Input (3 Pilar Utama) -->
         <div class="row g-4 mb-4">
             
-            <!-- 1. Input Stock Opname & Kapasitas Blok Pallet -->
+            <!-- 1. Input Stock Opname (Kapasitas Otomatis dari Pilihan) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-primary">
                     <div class="card-header bg-primary text-white fw-bold">1. Set / Stock Opname Awal</div>
@@ -37,14 +37,13 @@
                                 <input type="text" class="form-control form-control-sm" id="opName" required placeholder="Contoh: Kemeja Polos Hitam L">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Nama Blok Racking Utama</label>
-                                <input type="text" class="form-control form-control-sm" id="opRack" required placeholder="Contoh: BLOK A FG">
+                                <label class="form-label small">Pilih Blok Racking Utama</label>
+                                <select class="form-select form-select-sm" id="opRack" required>
+                                    <option value="">-- Pilih Blok --</option>
+                                    <!-- Pilihan akan diisi otomatis oleh JavaScript -->
+                                </select>
                             </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Kapasitas Maksimal Blok (Total Pallet)</label>
-                                <input type="number" class="form-control form-control-sm" id="opCapacity" required min="1" placeholder="Contoh: 396 (hasil 11 x 36)">
-                            </div>
-                            <div class="mb-3">
+                            <div class="mb-3 mt-3">
                                 <label class="form-label small">Jumlah Fisik Awal (Pallet / Unit)</label>
                                 <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
                             </div>
@@ -68,7 +67,10 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label small">Ditempatkan di Blok Racking</label>
-                                <input type="text" class="form-control form-control-sm" id="inRack" required placeholder="Contoh: BLOK A FG">
+                                <select class="form-select form-select-sm" id="inRack" required>
+                                    <option value="">-- Pilih Blok Penempatan --</option>
+                                    <!-- Pilihan akan diisi otomatis oleh JavaScript -->
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Jumlah Masuk (Pallet / Unit)</label>
@@ -93,8 +95,11 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Diambil dari Blok Racking Mana</label>
-                                <input type="text" class="form-control form-control-sm" id="outRackSource" required placeholder="Contoh: BLOK A FG">
+                                <label class="form-label small">Diambil dari Blok Racking</label>
+                                <select class="form-select form-select-sm" id="outRackSource" required>
+                                    <option value="">-- Pilih Asal Blok --</option>
+                                    <!-- Pilihan akan diisi otomatis oleh JavaScript -->
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Jumlah Keluar</label>
@@ -144,22 +149,69 @@
             .catch(err => console.log('SW Registration Failed', err));
         }
 
-        // Database Lokal menggunakan LocalStorage (Key v6)
-        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v6')) || {};
+        // ==========================================
+        // MASTER DATA KAPASITAS BLOK RACKING
+        // ==========================================
+        // Anda bisa menambah, menghapus, atau mengubah kapasitas di sini sesuai kebutuhan fisik gudang.
+        const masterRacking = {
+            "BLOK A FG": 396,   // 11 x 36
+            "BLOK B FG": 360,   // 10 x 36
+            "BLOK C FG": 1044,  // 29 x 36
+            "BLOK D FG": 756,   // 21 x 36
+            "BLOK E FG": 396,   // 11 x 36
+            "BLOK F FG": 612,   // 17 x 36
+            "BLOK G FG": 1044,  // 29 x 36
+            "BLOK H FG": 1008,  // 28 x 36
+            "BLOK I FG": 396,   // 11 x 36
+            "BLOK J FG": 612,   // 17 x 36
+            "BLOK K FG": 1044,  // 29 x 36
+            "BLOK L FG": 1008,  // 28 x 36
+            "BLOK M FG": 396,   // 11 x 36
+            "BLOK N FG": 612,   // 17 x 36
+            "BLOK O FG": 1044,  // 29 x 36
+            "BLOK P FG": 1008,  // 28 x 36
+            "BLOK Q FG": 396,   // 11 x 36
+            "BLOK R FG": 612,   // 17 x 36
+            "BLOK S FG": 792,   // 22 x 36
+            "BLOK T FG": 384,   // 16 x 24
+            "BLOK U FG": 396,   // 11 x 36
+            "BLOK V FG": 612,   // 17 x 36
+            "BLOK W FG": 792,   // 22 x 36
+            "BLOK X FG": 288    // 16 x 18
+        };
+
+        // Inisialisasi Pilihan Blok ke dalam Dropdown
+        function initMasterRacking() {
+            const selectOpRack = document.getElementById('opRack');
+            const selectInRack = document.getElementById('inRack');
+            const selectOutRack = document.getElementById('outRackSource');
+
+            for (let rackName in masterRacking) {
+                const capacity = masterRacking[rackName];
+                const optionHtml = `<option value="${rackName}">${rackName} (Maks: ${capacity} Pallet)</option>`;
+                
+                selectOpRack.innerHTML += optionHtml;
+                selectInRack.innerHTML += optionHtml;
+                selectOutRack.innerHTML += `<option value="${rackName}">${rackName}</option>`;
+            }
+        }
+
+        // Database Lokal menggunakan LocalStorage (Key v7)
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v7')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataFG_v6', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG_v7', JSON.stringify(stockData));
             renderTable();
             updateDropdowns();
         }
 
-        // 1. Simpan/Update Stock Opname + Kapasitas Blok
+        // 1. Simpan/Update Stock Opname
         function saveOpname(e) {
             e.preventDefault();
             const sku = document.getElementById('opSku').value.trim();
             const name = document.getElementById('opName').value.trim();
-            const rack = document.getElementById('opRack').value.trim();
-            const capacity = parseInt(document.getElementById('opCapacity').value);
+            const rack = document.getElementById('opRack').value;
+            const capacity = masterRacking[rack]; // Ambil kapasitas otomatis dari Master Data
             const qty = parseInt(document.getElementById('opQty').value);
 
             if (stockData[sku]) {
@@ -181,14 +233,14 @@
 
             document.getElementById('formOpname').reset();
             saveData();
-            alert('Stock Opname & Kapasitas Blok berhasil disimpan!');
+            alert('Stock Opname berhasil disimpan!');
         }
 
         // 2. Simpan Hasil Produksi (Barang Masuk)
         function saveInbound(e) {
             e.preventDefault();
             const sku = document.getElementById('inSku').value;
-            const rackIn = document.getElementById('inRack').value.trim();
+            const rackIn = document.getElementById('inRack').value;
             const qty = parseInt(document.getElementById('inQty').value);
 
             if (!stockData[sku]) return;
@@ -212,7 +264,7 @@
         function saveOutbound(e) {
             e.preventDefault();
             const sku = document.getElementById('outSku').value;
-            const rackSource = document.getElementById('outRackSource').value.trim();
+            const rackSource = document.getElementById('outRackSource').value;
             const qty = parseInt(document.getElementById('outQty').value);
 
             if (!stockData[sku]) return;
@@ -272,7 +324,7 @@
             }
         }
 
-        // Update Pilihan Dropdown
+        // Update Pilihan Dropdown SKU
         function updateDropdowns() {
             const selectIn = document.getElementById('inSku');
             const selectOut = document.getElementById('outSku');
@@ -282,13 +334,14 @@
 
             for (let sku in stockData) {
                 const item = stockData[sku];
-                const optionText = `${item.sku} - ${item.name} (${item.rack})`;
+                const optionText = `${item.sku} - ${item.name}`;
                 selectIn.innerHTML += `<option value="${sku}">${optionText}</option>`;
                 selectOut.innerHTML += `<option value="${sku}">${optionText}</option>`;
             }
         }
 
         // Inisialisasi awal saat halaman dimuat
+        initMasterRacking();
         renderTable();
         updateDropdowns();
     </script>
