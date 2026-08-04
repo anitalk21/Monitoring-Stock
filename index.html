@@ -37,7 +37,7 @@
                                 <input type="text" class="form-control form-control-sm" id="opName" required placeholder="Contoh: Kemeja Polos Hitam L">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">Letak Blok Racking</label>
+                                <label class="form-label small">Letak Blok Racking Utama</label>
                                 <input type="text" class="form-control form-control-sm" id="opRack" required placeholder="Contoh: Blok A - Rak 03">
                             </div>
                             <div class="mb-2">
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- 2. Input Hasil Produksi (Barang Masuk) -->
+            <!-- 2. Input Hasil Produksi (Barang Masuk + Racking Penempatan) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-success">
                     <div class="card-header bg-success text-white fw-bold">2. Input Hasil Produksi (Masuk)</div>
@@ -66,6 +66,10 @@
                                     <option value="">-- Pilih Barang --</option>
                                 </select>
                             </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Letak Blok Racking Penempatan</label>
+                                <input type="text" class="form-control form-control-sm" id="inRack" required placeholder="Contoh: Blok A - Rak 03 / Rak Overflow">
+                            </div>
                             <div class="mb-3">
                                 <label class="form-label small">Jumlah Masuk (Produksi)</label>
                                 <input type="number" class="form-control form-control-sm" id="inQty" required min="1" placeholder="0">
@@ -76,7 +80,7 @@
                 </div>
             </div>
 
-            <!-- 3. Input Barang Keluar (Finished Goods) -->
+            <!-- 3. Input Barang Keluar (Finished Goods + Dari Racking Mana) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-danger">
                     <div class="card-header bg-danger text-white fw-bold">3. Input Barang Keluar (Kirim)</div>
@@ -87,6 +91,10 @@
                                 <select class="form-select form-select-sm" id="outSku" required>
                                     <option value="">-- Pilih Barang --</option>
                                 </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Diambil dari Racking Mana</label>
+                                <input type="text" class="form-control form-control-sm" id="outRackSource" required placeholder="Contoh: Blok A - Rak 03">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Jumlah Keluar</label>
@@ -110,7 +118,7 @@
                             <th>No</th>
                             <th>SKU</th>
                             <th>Nama Barang</th>
-                            <th>Letak Racking</th>
+                            <th>Letak Racking Utama</th>
                             <th>Kapasitas Rak</th>
                             <th>Stock Opname (Awal)</th>
                             <th>Total Masuk</th>
@@ -136,11 +144,11 @@
             .catch(err => console.log('SW Registration Failed', err));
         }
 
-        // Database Lokal menggunakan LocalStorage (Key v4)
-        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v4')) || {};
+        // Database Lokal menggunakan LocalStorage (Key v5)
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v5')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataFG_v4', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG_v5', JSON.stringify(stockData));
             renderTable();
             updateDropdowns();
         }
@@ -155,7 +163,6 @@
             const qty = parseInt(document.getElementById('opQty').value);
 
             if (stockData[sku]) {
-                // Update jika SKU sudah ada
                 stockData[sku].name = name;
                 stockData[sku].rack = rack;
                 stockData[sku].capacity = capacity;
@@ -168,7 +175,9 @@
                     capacity: capacity,
                     opname: qty,
                     inProd: 0,
-                    out: 0
+                    out: 0,
+                    historyIn: [],
+                    historyOut: []
                 };
             }
 
@@ -177,10 +186,11 @@
             alert('Stock Opname & Kapasitas berhasil disimpan!');
         }
 
-        // 2. Simpan Hasil Produksi (Barang Masuk)
+        // 2. Simpan Hasil Produksi (Barang Masuk + Catat Racking Penempatan)
         function saveInbound(e) {
             e.preventDefault();
             const sku = document.getElementById('inSku').value;
+            const rackIn = document.getElementById('inRack').value.trim();
             const qty = parseInt(document.getElementById('inQty').value);
 
             if (!stockData[sku]) return;
@@ -188,22 +198,27 @@
             const item = stockData[sku];
             const currentStock = (item.opname + item.inProd) - item.out;
 
-            // Pengecekan apakah melebihi kapasitas rak
             if ((currentStock + qty) > item.capacity) {
                 alert(`Peringatan! Total barang masuk akan melebihi kapasitas maksimal rak (${item.capacity} unit).`);
                 return;
             }
 
             item.inProd += qty;
+            
+            // Simpan catatan log masuk beserta info rak penempatannya
+            if (!item.historyIn) item.historyIn = [];
+            item.historyIn.push({ rack: rackIn, qty: qty, date: new Date().toLocaleDateString('id-ID') });
+
             document.getElementById('formIn').reset();
             saveData();
-            alert('Hasil produksi berhasil ditambahkan ke stok!');
+            alert(`Hasil produksi berhasil ditambahkan ke rak ${rackIn}!`);
         }
 
-        // 3. Simpan Barang Keluar (Finished Goods)
+        // 3. Simpan Barang Keluar (Finished Goods + Validasi Asal Racking)
         function saveOutbound(e) {
             e.preventDefault();
             const sku = document.getElementById('outSku').value;
+            const rackSource = document.getElementById('outRackSource').value.trim();
             const qty = parseInt(document.getElementById('outQty').value);
 
             if (!stockData[sku]) return;
@@ -217,9 +232,14 @@
             }
 
             item.out += qty;
+
+            // Simpan catatan log keluar beserta info asal rak pengambilannya
+            if (!item.historyOut) item.historyOut = [];
+            item.historyOut.push({ rack: rackSource, qty: qty, date: new Date().toLocaleDateString('id-ID') });
+
             document.getElementById('formOut').reset();
             saveData();
-            alert('Barang keluar berhasil dicatat!');
+            alert(`Barang keluar berhasil dicatat dari rak ${rackSource}!`);
         }
 
         // Render Tabel Monitoring
@@ -237,7 +257,6 @@
                 const item = stockData[sku];
                 const sisa = (item.opname + item.inProd) - item.out;
                 
-                // Menentukan badge status kapasitas rak
                 let statusBadge = '';
                 if (sisa >= item.capacity) {
                     statusBadge = `<span class="badge bg-danger">Penuh (Full)</span>`;
@@ -274,7 +293,7 @@
 
             for (let sku in stockData) {
                 const item = stockData[sku];
-                const optionText = `${item.sku} - ${item.name} (${item.rack})`;
+                const optionText = `${item.sku} - ${item.name} (Rak Utama: ${item.rack})`;
                 selectIn.innerHTML += `<option value="${sku}">${optionText}</option>`;
                 selectOut.innerHTML += `<option value="${sku}">${optionText}</option>`;
             }
