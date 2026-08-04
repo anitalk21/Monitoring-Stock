@@ -22,7 +22,7 @@
         <!-- Baris Form Input (3 Pilar Utama) -->
         <div class="row g-4 mb-4">
             
-            <!-- 1. Input Stock Opname -->
+            <!-- 1. Input Stock Opname + Kapasitas Racking -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-primary">
                     <div class="card-header bg-primary text-white fw-bold">1. Set / Stock Opname Awal</div>
@@ -40,8 +40,12 @@
                                 <label class="form-label small">Letak Blok Racking</label>
                                 <input type="text" class="form-control form-control-sm" id="opRack" required placeholder="Contoh: Blok A - Rak 03">
                             </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Kapasitas Maksimal Rak</label>
+                                <input type="number" class="form-control form-control-sm" id="opCapacity" required min="1" placeholder="Contoh: 500">
+                            </div>
                             <div class="mb-3">
-                                <label class="form-label small">Jumlah Fisik (Opname)</label>
+                                <label class="form-label small">Jumlah Fisik Awal (Opname)</label>
                                 <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Opname</button>
@@ -98,7 +102,7 @@
 
         <!-- Tabel Monitoring Stok Real-Time -->
         <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold py-3">📊 Tabel Monitoring Stock Aktual di Gudang</div>
+            <div class="card-header bg-white fw-bold py-3">📊 Tabel Monitoring Stock & Kapasitas Racking</div>
             <div class="card-body table-responsive">
                 <table class="table table-bordered table-striped align-middle text-center">
                     <thead class="table-dark">
@@ -107,10 +111,12 @@
                             <th>SKU</th>
                             <th>Nama Barang</th>
                             <th>Letak Racking</th>
+                            <th>Kapasitas Rak</th>
                             <th>Stock Opname (Awal)</th>
-                            <th>Total Masuk (Produksi)</th>
-                            <th>Total Keluar (Kirim)</th>
+                            <th>Total Masuk</th>
+                            <th>Total Keluar</th>
                             <th>Sisa Stock Aktual</th>
+                            <th>Status Kapasitas</th>
                         </tr>
                     </thead>
                     <tbody id="stockTableBody">
@@ -130,33 +136,36 @@
             .catch(err => console.log('SW Registration Failed', err));
         }
 
-        // Database Lokal menggunakan LocalStorage (Menggunakan key baru v3 agar bersih dari error lama)
-        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v3')) || {};
+        // Database Lokal menggunakan LocalStorage (Key v4)
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v4')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataFG_v3', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG_v4', JSON.stringify(stockData));
             renderTable();
             updateDropdowns();
         }
 
-        // 1. Simpan/Update Stock Opname (Baseline Awal)
+        // 1. Simpan/Update Stock Opname + Kapasitas Rak
         function saveOpname(e) {
             e.preventDefault();
             const sku = document.getElementById('opSku').value.trim();
             const name = document.getElementById('opName').value.trim();
             const rack = document.getElementById('opRack').value.trim();
+            const capacity = parseInt(document.getElementById('opCapacity').value);
             const qty = parseInt(document.getElementById('opQty').value);
 
             if (stockData[sku]) {
                 // Update jika SKU sudah ada
                 stockData[sku].name = name;
                 stockData[sku].rack = rack;
+                stockData[sku].capacity = capacity;
                 stockData[sku].opname = qty;
             } else {
                 stockData[sku] = {
                     sku: sku,
                     name: name,
                     rack: rack,
+                    capacity: capacity,
                     opname: qty,
                     inProd: 0,
                     out: 0
@@ -165,7 +174,7 @@
 
             document.getElementById('formOpname').reset();
             saveData();
-            alert('Stock Opname berhasil disimpan!');
+            alert('Stock Opname & Kapasitas berhasil disimpan!');
         }
 
         // 2. Simpan Hasil Produksi (Barang Masuk)
@@ -176,7 +185,16 @@
 
             if (!stockData[sku]) return;
 
-            stockData[sku].inProd += qty;
+            const item = stockData[sku];
+            const currentStock = (item.opname + item.inProd) - item.out;
+
+            // Pengecekan apakah melebihi kapasitas rak
+            if ((currentStock + qty) > item.capacity) {
+                alert(`Peringatan! Total barang masuk akan melebihi kapasitas maksimal rak (${item.capacity} unit).`);
+                return;
+            }
+
+            item.inProd += qty;
             document.getElementById('formIn').reset();
             saveData();
             alert('Hasil produksi berhasil ditambahkan ke stok!');
@@ -190,15 +208,15 @@
 
             if (!stockData[sku]) return;
 
-            // Hitung sisa stok berjalan saat ini
-            const currentStock = (stockData[sku].opname + stockData[sku].inProd) - stockData[sku].out;
+            const item = stockData[sku];
+            const currentStock = (item.opname + item.inProd) - item.out;
             
             if (qty > currentStock) {
                 alert('Gagal! Jumlah keluar melebihi sisa stock aktual di gudang.');
                 return;
             }
 
-            stockData[sku].out += qty;
+            item.out += qty;
             document.getElementById('formOut').reset();
             saveData();
             alert('Barang keluar berhasil dicatat!');
@@ -211,13 +229,23 @@
             let no = 1;
 
             if (Object.keys(stockData).length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-muted py-3">Belum ada data stock. Silakan input Stock Opname terlebih dahulu.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-muted py-3">Belum ada data stock. Silakan input Stock Opname terlebih dahulu.</td></tr>`;
                 return;
             }
 
             for (let sku in stockData) {
                 const item = stockData[sku];
                 const sisa = (item.opname + item.inProd) - item.out;
+                
+                // Menentukan badge status kapasitas rak
+                let statusBadge = '';
+                if (sisa >= item.capacity) {
+                    statusBadge = `<span class="badge bg-danger">Penuh (Full)</span>`;
+                } else if (sisa >= (item.capacity * 0.8)) {
+                    statusBadge = `<span class="badge bg-warning text-dark">Hampir Penuh</span>`;
+                } else {
+                    statusBadge = `<span class="badge bg-success">Aman</span>`;
+                }
 
                 tbody.innerHTML += `
                     <tr>
@@ -225,16 +253,18 @@
                         <td><span class="badge bg-secondary">${item.sku}</span></td>
                         <td class="text-start fw-semibold">${item.name}</td>
                         <td><span class="badge bg-info text-dark">${item.rack}</span></td>
+                        <td>${item.capacity}</td>
                         <td>${item.opname}</td>
                         <td><span class="text-success fw-bold">+${item.inProd}</span></td>
                         <td><span class="text-danger fw-bold">-${item.out}</span></td>
-                        <td><span class="badge fs-6 ${sisa > 0 ? 'bg-success' : 'bg-secondary'}">${sisa}</span></td>
+                        <td><span class="fw-bold text-primary">${sisa}</span></td>
+                        <td>${statusBadge}</td>
                     </tr>
                 `;
             }
         }
 
-        // Update Pilihan Dropdown Barang Masuk & Keluar berdasarkan SKU
+        // Update Pilihan Dropdown
         function updateDropdowns() {
             const selectIn = document.getElementById('inSku');
             const selectOut = document.getElementById('outSku');
