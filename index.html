@@ -15,7 +15,6 @@
     <nav class="navbar navbar-dark bg-primary shadow-sm">
         <div class="container">
             <span class="navbar-brand mb-0 h1">📦 Monitoring Stock Gudang (FG)</span>
-            <button class="btn btn-outline-light btn-sm" onclick="resetData()">Reset Semua Data</button>
         </div>
     </nav>
 
@@ -131,11 +130,11 @@
             .catch(err => console.log('SW Registration Failed', err));
         }
 
-        // Database Lokal menggunakan LocalStorage
-        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v2')) || {};
+        // Database Lokal menggunakan LocalStorage (Menggunakan key baru v3 agar bersih dari error lama)
+        let stockData = JSON.parse(localStorage.getItem('stockDataFG_v3')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataFG_v2', JSON.stringify(stockData));
+            localStorage.setItem('stockDataFG_v3', JSON.stringify(stockData));
             renderTable();
             updateDropdowns();
         }
@@ -248,16 +247,6 @@
                 const optionText = `${item.sku} - ${item.name} (${item.rack})`;
                 selectIn.innerHTML += `<option value="${sku}">${optionText}</option>`;
                 selectOut.innerHTML += `<option value="${sku}">${optionText}</option>`;
-            }
-        }
-
-        // Reset Data
-        function resetData() {
-            if (confirm('Yakin ingin menghapus seluruh data monitoring stock gudang?')) {
-                localStorage.removeItem('stockDataFG_v2');
-                stockData = {};
-                renderTable();
-                updateDropdowns();
             }
         }
 
