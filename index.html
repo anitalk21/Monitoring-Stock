@@ -25,12 +25,12 @@
         .bin-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-width: 2px !important; }
         .bin-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
         .warehouse-map-container { overflow-x: auto; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; }
-        .warehouse-map-inner { min-width: 900px; /* Memaksa scroll horizontal di layar kecil agar layout tidak hancur */ }
+        .warehouse-map-inner { min-width: 900px; }
         
         .row-card { cursor: pointer; transition: background 0.2s; }
         .row-card:hover { background-color: #e2e8f0 !important; }
         
-        .export-fields { display: none; } 
+        .dynamic-fields { display: none; } 
     </style>
 </head>
 <body>
@@ -114,28 +114,17 @@
                 <span class="badge bg-danger ms-1">Penuh</span>
             </div>
             
-            <!-- WAREHOUSE PHYSICAL MAP CONTAINER -->
             <div class="warehouse-map-container shadow-sm">
                 <div class="warehouse-map-inner">
                     <div class="row gx-4 text-center">
-                        <!-- Kolom 1 (Kiri) -->
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol1"></div>
-                        <!-- Kolom 2 (Tengah Kiri) -->
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol2"></div>
-                        <!-- Kolom 3 (Tengah Kanan) -->
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol3"></div>
-                        <!-- Kolom 4 (Kanan) -->
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol4"></div>
                     </div>
-                    
-                    <!-- Indikator Pintu Bawah Layout -->
                     <div class="row mt-4 px-3">
-                        <div class="col-6 text-center">
-                            <span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🚪 AREA ROLLING DOOR</span>
-                        </div>
-                        <div class="col-6 text-center">
-                            <span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🏗️ AREA LIFT</span>
-                        </div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🚪 AREA ROLLING DOOR</span></div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🏗️ AREA LIFT</span></div>
                     </div>
                 </div>
             </div>
@@ -159,7 +148,7 @@
                                             <option value="Produksi">Produksi</option>
                                             <option value="PlantLain">Plant Lain</option>
                                         </select>
-                                        <select class="form-select form-select-sm border-primary" id="inKategori" required onchange="toggleExportFields('in')">
+                                        <select class="form-select form-select-sm border-primary" id="inKategori" required onchange="toggleInboundFields()">
                                             <option value="Lokal">Lokal</option>
                                             <option value="Ekspor">Ekspor</option>
                                         </select>
@@ -170,7 +159,15 @@
                                     <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('in')">
                                     <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
                                 </div>
-                                <div id="inExportFields" class="export-fields bg-light p-3 border rounded mb-3">
+                                
+                                <!-- KODE PRODUKSI LOKAL -->
+                                <div id="inLokalFields" class="bg-light p-3 border rounded mb-3">
+                                    <span class="badge bg-secondary mb-2">Informasi Barang Lokal</span>
+                                    <input type="text" class="form-control form-control-sm" id="inKodeProdLokal" placeholder="Masukkan Kode Produksi / Batch">
+                                </div>
+
+                                <!-- FORM EKSPOR -->
+                                <div id="inExportFields" class="dynamic-fields bg-light p-3 border rounded mb-3">
                                     <span class="badge bg-dark mb-2">Form Batch Ekspor</span>
                                     <input type="text" class="form-control form-control-sm mb-2" id="inExpQt" placeholder="Nomor QT / Batch">
                                     <input type="date" class="form-control form-control-sm mb-2" id="inExpProdate" title="Production Date">
@@ -178,6 +175,7 @@
                                     <input type="text" class="form-control form-control-sm mb-2" id="inExpBuyer" placeholder="Nama Buyer">
                                     <input type="text" class="form-control form-control-sm" id="inExpCountry" placeholder="Negara Tujuan">
                                 </div>
+
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Penempatan Rak & Lorong (Row)</label>
                                     <div class="d-flex gap-2">
@@ -240,7 +238,7 @@
                             <form id="formHold" onsubmit="saveHoldStatus(event)">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Tindakan</label>
-                                    <select class="form-select form-select-sm" id="qcAction" required>
+                                    <select class="form-select form-select-sm" id="qcAction" required onchange="toggleHoldReason()">
                                         <option value="Hold">Karantina Barang (HOLD)</option>
                                         <option value="Release">Lepas Karantina (RELEASE)</option>
                                     </select>
@@ -249,13 +247,18 @@
                                     <label class="form-label small fw-bold">Pilih SKU Produk</label>
                                     <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-3">
                                     <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="qcQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('qc')">
                                         <span class="input-group-text bg-light fw-bold" id="qcQtyPalletDisplay">0 Pallet</span>
                                         <input type="hidden" id="qcQtyPallet" value="0">
                                     </div>
+                                </div>
+                                <!-- KETERANGAN HOLD -->
+                                <div class="mb-4" id="holdReasonContainer">
+                                    <label class="form-label small fw-bold text-danger">Alasan / Keterangan Hold</label>
+                                    <textarea class="form-control form-control-sm" id="qcReason" rows="2" placeholder="Misal: Kontaminasi kemasan, hasil lab out of spec..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">Update Status QC</button>
                             </form>
@@ -301,7 +304,7 @@
                                 </select>
                             </div>
                             
-                            <div class="col-md-8 mt-3 export-fields" id="opExportFields">
+                            <div class="col-md-8 mt-3 dynamic-fields" id="opExportFields">
                                 <div class="bg-light p-3 border rounded d-flex flex-wrap gap-2">
                                     <input type="text" class="form-control form-control-sm" style="width: 130px;" id="opExpQt" placeholder="Nomor QT">
                                     <input type="date" class="form-control form-control-sm" style="width: 130px;" id="opExpProdate" title="Production Date">
@@ -367,7 +370,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Detail Ekspor</th>
+                                <th>Detail Batch / Ekspor</th>
                                 <th>Blok & Lorong</th>
                                 <th>In (Prod)</th>
                                 <th>In (Plant)</th>
@@ -400,7 +403,7 @@
 
     </div>
 
-    <!-- MODAL DETAIL BLOK (LIST LORONG) -->
+    <!-- MODAL DETAIL BLOK -->
     <div class="modal fade" id="modalBlockDetail" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content bg-light">
@@ -415,7 +418,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL ISI LORONG (ITEM LEVEL) -->
+    <!-- MODAL DETAIL ISI LORONG -->
     <div class="modal fade" id="modalRowDetail" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -441,12 +444,12 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL EXPORT -->
+    <!-- MODAL DETAIL BATCH / EKSPOR & LOKAL -->
     <div class="modal fade" id="modalExportDetail" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Log Batch Ekspor</h5>
+                    <h5 class="modal-title fs-6">Log Riwayat Batch / Produksi</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -458,7 +461,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // MASTER DATA RACKING DENGAN ROW
         const masterRacking = {
             "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
             "BLOK T FG": { prefix: "T", rows: 16, perRow: 24 },
@@ -489,7 +491,6 @@
             "BLOK A FG": { prefix: "A", rows: 11, perRow: 36 }
         };
 
-        // PEMETAAN LAYOUT KOLOM GUDANG
         const layoutMap = {
             layoutCol1: ["BLOK X FG", "BLOK T FG", "BLOK P FG", "BLOK L FG", "BLOK H FG", "BLOK D FG"],
             layoutCol2: ["BLOK W FG", "BLOK S FG", "BLOK O FG", "BLOK K FG", "BLOK G FG", "BLOK C FG"],
@@ -505,10 +506,10 @@
             if (pageId === 'page-rekon') renderRekonsiliasi(); 
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v12')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v13')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v12', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v13', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -518,7 +519,6 @@
             opRackBlock.innerHTML = '<option value="">-- Pilih Blok --</option>';
             inRackBlock.innerHTML = '<option value="">-- Pilih Blok --</option>';
             
-            // Generate list alphabetically for dropdowns
             let sortedBlocks = Object.keys(masterRacking).sort();
             sortedBlocks.forEach(block => {
                 let max = masterRacking[block].rows * masterRacking[block].perRow;
@@ -547,8 +547,9 @@
         function extractSku(val) { return val.split(' | ')[0].trim(); }
 
         function autoConvertPallet(type) {
-            const skuInput = document.getElementById(type + 'Sku').value;
-            const sku = extractSku(type === 'op' ? document.getElementById('opSkuInput').value : skuInput);
+            const skuInput = document.getElementById(type + 'Sku') || document.getElementById(type + 'SkuInput');
+            if(!skuInput) return;
+            const sku = extractSku(skuInput.value);
             const cartonInput = document.getElementById(type + 'QtyCarton').value;
             const displayEl = document.getElementById(type + 'QtyPalletDisplay');
             const hiddenEl = document.getElementById(type + 'QtyPallet');
@@ -585,9 +586,27 @@
             return total;
         }
 
+        // TOGGLE INBOUND FIELDS (LOKAL VS EKSPOR)
+        function toggleInboundFields() {
+            const kategori = document.getElementById('inKategori').value;
+            if(kategori === 'Ekspor') {
+                document.getElementById('inLokalFields').style.display = 'none';
+                document.getElementById('inExportFields').style.display = 'block';
+            } else {
+                document.getElementById('inLokalFields').style.display = 'block';
+                document.getElementById('inExportFields').style.display = 'none';
+            }
+        }
+
         function toggleExportFields(type) {
             const isExport = document.getElementById(type + 'Kategori').value === 'Ekspor';
             document.getElementById(type + 'ExportFields').style.display = isExport ? 'block' : 'none';
+        }
+
+        // TOGGLE HOLD REASON FIELD
+        function toggleHoldReason() {
+            const action = document.getElementById('qcAction').value;
+            document.getElementById('holdReasonContainer').style.display = action === 'Hold' ? 'block' : 'none';
         }
 
         function processPasteData() {
@@ -638,13 +657,30 @@
                 alert(`GAGAL! Lorong ${row} maksimal ${maxCap} pallet.\nTerisi ${currentRowLoad.toFixed(2)} pallet.`); return;
             }
 
+            // Simpan log batch/kode produksi (Lokal atau Ekspor)
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
                     date: new Date().toLocaleDateString('id-ID'),
-                    qt: document.getElementById('inExpQt').value || '-', prodate: document.getElementById('inExpProdate').value || '-',
-                    expdate: document.getElementById('inExpExpdate').value || '-', buyer: document.getElementById('inExpBuyer').value || '-',
-                    country: document.getElementById('inExpCountry').value || '-', qtyIn: qtyPallet.toFixed(2)
+                    type: 'Ekspor',
+                    code: document.getElementById('inExpQt').value || '-',
+                    prodate: document.getElementById('inExpProdate').value || '-',
+                    expdate: document.getElementById('inExpExpdate').value || '-',
+                    buyer: document.getElementById('inExpBuyer').value || '-',
+                    country: document.getElementById('inExpCountry').value || '-',
+                    reason: '-',
+                    qtyIn: qtyPallet.toFixed(2)
                 });
+            } else {
+                let kodeLokal = document.getElementById('inKodeProdLokal').value.trim();
+                if(kodeLokal) {
+                    item.exportLog.push({
+                        date: new Date().toLocaleDateString('id-ID'),
+                        type: 'Lokal',
+                        code: kodeLokal,
+                        prodate: '-', expdate: '-', buyer: '-', country: '-', reason: '-',
+                        qtyIn: qtyPallet.toFixed(2)
+                    });
+                }
             }
 
             item.rack = rackIn;
@@ -652,6 +688,7 @@
             
             document.getElementById('formIn').reset();
             document.getElementById('inQtyPalletDisplay').innerText = '0 Pallet';
+            document.getElementById('inLokalFields').style.display = 'block';
             document.getElementById('inExportFields').style.display = 'none';
             saveData();
             alert(`Masuk ${qtyPallet.toFixed(2)} Pallet ke ${row}!`);
@@ -682,21 +719,45 @@
             const action = document.getElementById('qcAction').value;
             const sku = extractSku(document.getElementById('qcSku').value);
             const qtyPallet = parseFloat(document.getElementById('qcQtyPallet').value);
+            const reason = document.getElementById('qcReason').value.trim();
             
             if (!stockData[sku]) return;
             let item = stockData[sku];
 
             if (action === 'Hold') {
                 if(qtyPallet > getAvailableStock(item)) { alert(`Gagal! Stok available ${getAvailableStock(item).toFixed(2)} pallet.`); return; }
+                if(!reason) { alert('Harap isi keterangan/alasan mengapa barang ini di-Hold!'); return; }
+                
                 item.holdQty += qtyPallet;
-                alert(`${qtyPallet.toFixed(2)} Pallet di HOLD.`);
+                // Catat alasan hold ke log
+                item.exportLog.push({
+                    date: new Date().toLocaleDateString('id-ID'),
+                    type: 'HOLD QC',
+                    code: 'Hold Batch',
+                    prodate: '-', expdate: '-', buyer: '-', country: '-',
+                    reason: reason,
+                    qtyIn: qtyPallet.toFixed(2)
+                });
+
+                alert(`${qtyPallet.toFixed(2)} Pallet di HOLD. Alasan: ${reason}`);
             } else {
                 if(qtyPallet > item.holdQty) { alert(`Gagal! Di-Hold saat ini ${item.holdQty.toFixed(2)} pallet.`); return; }
                 item.holdQty -= qtyPallet;
+                
+                item.exportLog.push({
+                    date: new Date().toLocaleDateString('id-ID'),
+                    type: 'RELEASE QC',
+                    code: 'Release Batch',
+                    prodate: '-', expdate: '-', buyer: '-', country: '-',
+                    reason: 'Barang dilepas (Passed QC)',
+                    qtyIn: qtyPallet.toFixed(2)
+                });
+
                 alert(`${qtyPallet.toFixed(2)} Pallet di RELEASE.`);
             }
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
+            document.getElementById('holdReasonContainer').style.display = 'block';
             saveData();
         }
 
@@ -722,9 +783,13 @@
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
                     date: new Date().toLocaleDateString('id-ID') + ' (Opname)',
-                    qt: document.getElementById('opExpQt').value || '-', prodate: document.getElementById('opExpProdate').value || '-',
-                    expdate: document.getElementById('opExpExpdate').value || '-', buyer: document.getElementById('opExpBuyer').value || '-',
-                    country: document.getElementById('opExpCountry').value || '-', qtyIn: newOpQtyPallet.toFixed(2)
+                    type: 'Opname Ekspor',
+                    code: document.getElementById('opExpQt').value || '-',
+                    prodate: document.getElementById('opExpProdate').value || '-',
+                    expdate: document.getElementById('opExpExpdate').value || '-',
+                    buyer: document.getElementById('opExpBuyer').value || '-',
+                    country: document.getElementById('opExpCountry').value || '-',
+                    reason: '-', qtyIn: newOpQtyPallet.toFixed(2)
                 });
             }
 
@@ -858,11 +923,15 @@
             if(logs.length === 0) return;
 
             logs.forEach(l => {
+                let detailText = l.type === 'HOLD QC' ? 
+                    `<strong class="text-danger">Keterangan Hold:</strong> ${l.reason}` : 
+                    `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
+
                 ul.innerHTML += `
                     <li class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">QT Batch: ${l.qt}</h6><small>${l.date}</small></div>
-                        <p class="mb-1 small">Buyer: ${l.buyer} (${l.country}) | Prodate: ${l.prodate} | Exp: ${l.expdate}</p>
-                        <small class="text-success fw-bold">Masuk: ${l.qtyIn} Pallet</small>
+                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}] ${l.code}</h6><small>${l.date}</small></div>
+                        <p class="mb-1 small">${detailText}</p>
+                        <small class="text-success fw-bold">Jumlah: ${l.qtyIn} Pallet</small>
                     </li>
                 `;
             });
@@ -919,9 +988,9 @@
                 totalPallet += fisik; totalHold += item.holdQty;
                 datalist.innerHTML += `<option value="${item.sku} | ${item.name}"></option>`;
 
-                let btnEkspor = item.exportLog && item.exportLog.length > 0 ? 
-                    `<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails('${item.sku}')">Riwayat Ekspor</button>` : 
-                    `<span class="badge bg-secondary">Lokal</span>`;
+                let btnLog = item.exportLog && item.exportLog.length > 0 ? 
+                    `<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails('${item.sku}')">Riwayat Batch 🔎</button>` : 
+                    `<span class="badge bg-secondary">Tanpa Batch</span>`;
 
                 let showF = Number.isInteger(fisik) ? fisik : fisik.toFixed(2);
                 let showA = Number.isInteger(avail) ? avail : avail.toFixed(2);
@@ -932,7 +1001,7 @@
                         <td>${no++}</td>
                         <td><span class="badge bg-secondary">${item.sku}</span></td>
                         <td class="text-start name-col fw-semibold">${item.name}</td>
-                        <td>${btnEkspor}</td>
+                        <td>${btnLog}</td>
                         <td><span class="badge bg-info text-dark" style="font-size:10px;">${item.rack}</span></td>
                         <td class="text-success">+${Number.isInteger(item.inProd)?item.inProd:item.inProd.toFixed(2)}</td>
                         <td class="text-success">+${Number.isInteger(item.inPlant)?item.inPlant:item.inPlant.toFixed(2)}</td>
@@ -945,7 +1014,6 @@
                 `;
             }
 
-            // RENDER PHYSICAL LAYOUT
             for (let colId in layoutMap) {
                 let colContainer = document.getElementById(colId);
                 if(colContainer) {
