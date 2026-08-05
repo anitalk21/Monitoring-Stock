@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+x<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +22,7 @@
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
             <span class="navbar-brand mb-0 h1 fw-bold">📊 Kapasitas GDFG</span>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-light btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalMasterSku">📋 Input Master SKU Massal</button>
+                <button class="btn btn-outline-light btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalMasterSku">📋 Import / Paste Master SKU</button>
             </div>
         </div>
     </nav>
@@ -176,42 +176,24 @@
 
     </div>
 
-    <!-- MODAL POPUP: INPUT MASTER SKU MASSAL (BISA BANYAK BARIS) -->
+    <!-- MODAL POPUP: IMPORT / PASTE MASTER SKU DARI SPREADSHEET -->
     <div class="modal fade" id="modalMasterSku" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Form Input Master Product (Massal)</h5>
+                    <h5 class="modal-title fs-6">Paste Data Master SKU dari Google Sheets</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small">Masukkan data produk sesuai format sheet Anda. Klik tombol tambah baris jika ingin memasukkan banyak data sekaligus.</p>
-                    <form id="formMasterSku" onsubmit="saveMasterSkus(event)">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered align-middle text-center" id="tableInputMaster">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>ID (SKU)</th>
-                                        <th>NAME (Nama Produk)</th>
-                                        <th>SAT</th>
-                                        <th>UNIT</th>
-                                        <th style="width: 50px;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyMasterInput">
-                                    <tr>
-                                        <td><input type="text" class="form-control form-control-sm" name="sku" required placeholder="Contoh: 312743"></td>
-                                        <td><input type="text" class="form-control form-control-sm" name="name" required placeholder="Contoh: SUPERSTAR TRIPLE CHOCOLATE"></td>
-                                        <td><input type="text" class="form-control form-control-sm" name="sat" value="1" required></td>
-                                        <td><input type="text" class="form-control form-control-sm" name="unit" value="CAR" required></td>
-                                        <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">✕</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addRowMaster()">+ Tambah Baris Produk</button>
-                        <button type="submit" class="btn btn-dark btn-sm w-100">Simpan Semua Master SKU</button>
-                    </form>
+                    <p class="text-muted small">
+                        <strong>Cara Pakai:</strong> Blok baris data (ID, Name, SAT, UNIT) langsung dari Google Sheets Anda, lalu <em>Paste (Ctrl+V)</em> ke dalam kotak di bawah ini!
+                    </p>
+                    <div class="mb-3">
+                        <textarea class="form-control font-monospace" id="pasteArea" rows="8" placeholder="Contoh hasil paste langsung dari excel/sheets:
+312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET
+313376    BENG BENG REGULER 8GBX17PCX25G    1    PALLET"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-dark btn-sm w-100" onclick="processPasteData()">Proses & Simpan Data</button>
                 </div>
             </div>
         </div>
@@ -244,80 +226,57 @@
             }
         }
 
-        // Tambah baris kosong di modal input master massal
-        function addRowMaster() {
-            const tbody = document.getElementById('tbodyMasterInput');
-            tbody.innerHTML += `
-                <tr>
-                    <td><input type="text" class="form-control form-control-sm" name="sku" required placeholder="ID SKU"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="name" required placeholder="Nama Produk"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="sat" value="1" required></td>
-                    <td><input type="text" class="form-control form-control-sm" name="unit" value="CAR" required></td>
-                    <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">✕</button></td>
-                </tr>
-            `;
-        }
-
-        function removeRow(btn) {
-            const row = btn.closest('tr');
-            if(document.querySelectorAll('#tbodyMasterInput tr').length > 1) {
-                row.remove();
-            } else {
-                alert('Minimal harus ada 1 baris input.');
-            }
-        }
-
         // Database LocalStorage
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v3')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v4')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v3', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v4', JSON.stringify(stockData));
             renderDashboard();
         }
 
-        // 1. Simpan Master SKU Massal
-        function saveMasterSkus(e) {
-            e.preventDefault();
-            const rows = document.querySelectorAll('#tbodyMasterInput tr');
-            
-            rows.forEach(row => {
-                const sku = row.querySelector('input[name="sku"]').value.trim();
-                const name = row.querySelector('input[name="name"]').value.trim();
-                const sat = row.querySelector('input[name="sat"]').value.trim();
-                const unit = row.querySelector('input[name="unit"]').value.trim();
+        // Proses Paste Data Massal dari Excel / Google Sheets
+        function processPasteData() {
+            const text = document.getElementById('pasteArea').value.trim();
+            if (!text) {
+                alert('Kotak teks masih kosong! Silakan paste data dari sheets terlebih dahulu.');
+                return;
+            }
 
-                if (sku && !stockData[sku]) {
-                    stockData[sku] = {
-                        sku: sku,
-                        name: name,
-                        sat: sat,
-                        unit: unit,
-                        rack: '-',
-                        opname: 0,
-                        inProd: 0,
-                        out: 0
-                    };
+            const lines = text.split('\n');
+            let countAdded = 0;
+
+            lines.forEach(line => {
+                // Memisahkan kolom berdasarkan tab (bawaan copy-paste excel/sheets)
+                const cols = line.split('\t');
+                if (cols.length >= 2) {
+                    const sku = cols[0].trim();
+                    const name = cols[1].trim();
+                    const sat = cols[2] ? cols[2].trim() : '1';
+                    const unit = cols[3] ? cols[3].trim() : 'CAR';
+
+                    if (sku && !stockData[sku]) {
+                        stockData[sku] = {
+                            sku: sku,
+                            name: name,
+                            sat: sat,
+                            unit: unit,
+                            rack: '-',
+                            opname: 0,
+                            inProd: 0,
+                            out: 0
+                        };
+                        countAdded++;
+                    }
                 }
             });
 
-            document.getElementById('formMasterSku').reset();
-            // Reset tabel modal kembali 1 baris
-            document.getElementById('tbodyMasterInput').innerHTML = `
-                <tr>
-                    <td><input type="text" class="form-control form-control-sm" name="sku" required placeholder="Contoh: 312743"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="name" required placeholder="Contoh: SUPERSTAR TRIPLE CHOCOLATE"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="sat" value="1" required></td>
-                    <td><input type="text" class="form-control form-control-sm" name="unit" value="CAR" required></td>
-                    <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">✕</button></td>
-                </tr>
-            `;
-
+            document.getElementById('pasteArea').value = '';
             let modalEl = document.getElementById('modalMasterSku');
             let modal = bootstrap.Modal.getInstance(modalEl);
             modal.hide();
 
             saveData();
-            alert('Master SKU berhasil disimpan secara massal!');
+            alert(`Berhasil mengimpor ${countAdded} data Master SKU secara instan!`);
         }
 
         // 2. Simpan Stock Opname
@@ -329,7 +288,7 @@
 
             if (!stockData[sku]) return;
 
-            stockData[sku].rack = rack; // Update posisi blok rak saat opname
+            stockData[sku].rack = rack;
             stockData[sku].opname = qty;
             
             document.getElementById('formOpname').reset();
@@ -395,7 +354,7 @@
             }
 
             if (totalSkuCount === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-3">Belum ada data SKU. Silakan klik tombol "Input Master SKU Massal" di atas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-3">Belum ada data SKU. Silakan klik tombol "Import / Paste Master SKU" di atas.</td></tr>`;
             } else {
                 for (let sku in stockData) {
                     let item = stockData[sku];
