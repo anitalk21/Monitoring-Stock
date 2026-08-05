@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Kapasitas GDFG</title>
+    <title>WMS - Gudang GDFG</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- PWA Manifest -->
@@ -13,192 +13,234 @@
         body { background-color: #f1f5f9; }
         .navbar-custom { background-color: #0f172a; }
         .card-stat { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; }
+        
+        /* CSS untuk menyembunyikan halaman yang tidak aktif */
+        .app-page { display: none; }
+        .app-page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .table th, .table td { vertical-align: middle; white-space: nowrap; }
         .name-col { white-space: normal; min-width: 200px; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark navbar-custom shadow-sm py-3">
-        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
-            <span class="navbar-brand mb-0 h1 fw-bold">📊 Kapasitas GDFG</span>
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-light btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalMasterSku">📋 Import / Paste Master SKU</button>
+    <!-- NAVBAR MULTI-MENU -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm py-3 sticky-top">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand h1 fw-bold mb-0">📊 WMS GDFG</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item">
+                        <button class="btn btn-dark w-100 text-start" onclick="switchPage('page-dashboard')">🏠 Dashboard</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-dark w-100 text-start" onclick="switchPage('page-master')">📦 Master Data</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-dark w-100 text-start" onclick="switchPage('page-transaction')">🔄 Transaksi Harian</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-dark w-100 text-start" onclick="switchPage('page-opname')">🔍 Stock Opname</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-dark w-100 text-start" onclick="switchPage('page-report')">📋 Laporan Breakdown</button>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
+    <!-- DATALIST GLOBAL UNTUK PENCARIAN SKU -->
+    <datalist id="datalistSkus">
+        <!-- Akan diisi otomatis oleh Javascript -->
+    </datalist>
+
     <div class="container-fluid px-4 my-4">
-        
-        <!-- KARTU RINGKASAN STATISTIK -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card card-stat shadow-sm h-100">
-                    <div class="card-body">
-                        <small class="text-uppercase text-white-50 fw-bold">Total Pallet Terisi</small>
-                        <h2 class="fw-bold mt-1 mb-0" id="statTotalPallet">0</h2>
-                        <p class="small text-white-50 mt-2 mb-0">Dari Kapasitas Total <span id="statMaxCapacity">0</span> Pallet</p>
+
+        <!-- ========================================== -->
+        <!-- 1. HALAMAN DASHBOARD KAPASITAS             -->
+        <!-- ========================================== -->
+        <div id="page-dashboard" class="app-page active">
+            <h4 class="fw-bold mb-3">Ringkasan Kapasitas Gudang</h4>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card card-stat shadow-sm h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-white-50 fw-bold">Total Pallet Terisi</small>
+                            <h2 class="fw-bold mt-1 mb-0" id="statTotalPallet">0</h2>
+                            <p class="small text-white-50 mt-2 mb-0">Dari Kapasitas Total <span id="statMaxCapacity">0</span> Pallet</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-stat shadow-sm h-100">
-                    <div class="card-body">
-                        <small class="text-uppercase text-white-50 fw-bold">Persentase Keterisian Gudang</small>
-                        <h2 class="fw-bold mt-1 mb-0" id="statPercentage">0%</h2>
-                        <p class="small text-white-50 mt-2 mb-0">All Stock Status</p>
+                <div class="col-md-4">
+                    <div class="card card-stat shadow-sm h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-white-50 fw-bold">Tingkat Keterisian Gudang</small>
+                            <h2 class="fw-bold mt-1 mb-0" id="statPercentage">0%</h2>
+                            <p class="small text-white-50 mt-2 mb-0">Persentase All Stock</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-stat shadow-sm h-100">
-                    <div class="card-body">
-                        <small class="text-uppercase text-white-50 fw-bold">Total Jenis SKU Aktif</small>
-                        <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
-                        <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
+                <div class="col-md-4">
+                    <div class="card card-stat shadow-sm h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-white-50 fw-bold">Total Jenis SKU Aktif</small>
+                            <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
+                            <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- FORM TRANSAKSI HARIAN -->
-        <div class="row g-4 mb-4">
-            <!-- 1. Stock Opname -->
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-primary">
-                    <div class="card-header bg-primary text-white fw-bold">1. Stock Opname (Audit Fisik)</div>
-                    <div class="card-body">
-                        <form id="formOpname" onsubmit="saveOpname(event)">
-                            <div class="mb-2">
-                                <label class="form-label small">Pilih SKU / Produk</label>
-                                <select class="form-select form-select-sm" id="opSkuSelect" required>
-                                    <option value="">-- Pilih Produk --</option>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Pilih Blok Rak Penempatan Opname</label>
-                                <select class="form-select form-select-sm" id="opRack" required>
-                                    <option value="">-- Pilih Blok Rak --</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Jumlah Fisik (Pallet)</label>
-                                <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Stock Opname</button>
-                        </form>
+        <!-- ========================================== -->
+        <!-- 2. HALAMAN MASTER DATA PRODUK              -->
+        <!-- ========================================== -->
+        <div id="page-master" class="app-page">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0">Database Master SKU</h4>
+            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="alert alert-secondary small">
+                        <strong>Cara Import Data:</strong> Blok 6 kolom data (ID, NAME, JUMLAH, SATUAN, JML CAR/PALLET, SATUAN) langsung dari Sheets Anda, lalu <em>Paste</em> ke dalam kotak di bawah!
                     </div>
+                    <textarea class="form-control font-monospace text-nowrap mb-3" id="pasteArea" rows="6" placeholder="Paste data dari Google Sheets di sini..."></textarea>
+                    <button type="button" class="btn btn-dark px-4" onclick="processPasteData()">Simpan Data Master</button>
                 </div>
             </div>
+        </div>
 
-            <!-- 2. Barang Masuk (Produksi) -->
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-success">
-                    <div class="card-header bg-success text-white fw-bold">2. Input Hasil Produksi (Masuk)</div>
-                    <div class="card-body">
-                        <form id="formIn" onsubmit="saveInbound(event)">
-                            <div class="mb-2">
-                                <label class="form-label small">Pilih SKU / Produk</label>
-                                <select class="form-select form-select-sm" id="inSku" required>
-                                    <option value="">-- Pilih Produk --</option>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Ditempatkan di Blok Racking</label>
-                                <select class="form-select form-select-sm" id="inRack" required>
-                                    <option value="">-- Pilih Blok Penempatan --</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Jumlah Masuk (Pallet)</label>
-                                <input type="number" class="form-control form-control-sm" id="inQty" required min="1" placeholder="0">
-                            </div>
-                            <button type="submit" class="btn btn-success btn-sm w-100">Tambah Stok Masuk</button>
-                        </form>
+        <!-- ========================================== -->
+        <!-- 3. HALAMAN TRANSAKSI HARIAN (MASUK & KELUAR)-->
+        <!-- ========================================== -->
+        <div id="page-transaction" class="app-page">
+            <h4 class="fw-bold mb-3">Transaksi Keluar & Masuk</h4>
+            <div class="row g-4">
+                <!-- Penerimaan (Inbound) -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-success h-100">
+                        <div class="card-header bg-success text-white fw-bold">Penerimaan Barang (Inbound)</div>
+                        <div class="card-body">
+                            <form id="formIn" onsubmit="saveInbound(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                                    <input type="text" class="form-control" id="inSku" list="datalistSkus" required placeholder="Ketik nama atau angka SKU..." autocomplete="off">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ditempatkan di Blok Racking</label>
+                                    <select class="form-select" id="inRack" required>
+                                        <option value="">-- Pilih Blok Penempatan --</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">Jumlah Masuk (Pallet)</label>
+                                    <input type="number" class="form-control" id="inQty" required min="1" placeholder="0">
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 py-2">Proses Barang Masuk</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 3. Barang Keluar (Kirim) -->
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-danger">
-                    <div class="card-header bg-danger text-white fw-bold">3. Input Barang Keluar (Kirim)</div>
-                    <div class="card-body">
-                        <form id="formOut" onsubmit="saveOutbound(event)">
-                            <div class="mb-2">
-                                <label class="form-label small">Pilih SKU / Produk</label>
-                                <select class="form-select form-select-sm" id="outSku" required>
-                                    <option value="">-- Pilih Produk --</option>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Diambil dari Blok Racking</label>
-                                <select class="form-select form-select-sm" id="outRackSource" required>
-                                    <option value="">-- Pilih Asal Blok --</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Jumlah Keluar (Pallet)</label>
-                                <input type="number" class="form-control form-control-sm" id="outQty" required min="1" placeholder="0">
-                            </div>
-                            <button type="submit" class="btn btn-danger btn-sm w-100">Keluarkan Barang</button>
-                        </form>
+                <!-- Pengeluaran (Outbound) -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger h-100">
+                        <div class="card-header bg-danger text-white fw-bold">Pengiriman Barang (Outbound)</div>
+                        <div class="card-body">
+                            <form id="formOut" onsubmit="saveOutbound(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                                    <input type="text" class="form-control" id="outSku" list="datalistSkus" required placeholder="Ketik nama atau angka SKU..." autocomplete="off">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Diambil dari Blok Racking</label>
+                                    <select class="form-select" id="outRackSource" required>
+                                        <option value="">-- Pilih Asal Blok --</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">Jumlah Keluar (Pallet)</label>
+                                    <input type="number" class="form-control" id="outQty" required min="1" placeholder="0">
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100 py-2">Proses Barang Keluar</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TABEL MONITORING UTAMA -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold py-3">📋 Tabel Rincian Stock & Kapasitas Blok Racking</div>
-            <div class="card-body table-responsive">
-                <table class="table table-bordered table-striped align-middle text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>No</th>
-                            <th>ID (SKU)</th>
-                            <th class="text-start name-col">Nama Produk (NAME)</th>
-                            <th>Satuan Master</th>
-                            <th>Isi / Pallet</th>
-                            <th>Blok Rak</th>
-                            <th>Opname Awal</th>
-                            <th>Total Masuk</th>
-                            <th>Total Keluar</th>
-                            <th>Sisa Aktual (Pallet)</th>
-                            <th>Status Blok</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stockTableBody">
-                        <!-- Data terisi otomatis via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- MODAL POPUP: IMPORT / PASTE MASTER SKU DARI SPREADSHEET -->
-    <div class="modal fade" id="modalMasterSku" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Paste Data Master SKU dari Google Sheets</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted small">
-                        <strong>Cara Pakai:</strong> Blok 6 kolom data (ID, NAME, JUMLAH, SATUAN, JML CAR/PALLET, SATUAN) langsung dari Sheets Anda, lalu <em>Paste (Ctrl+V)</em> ke dalam kotak di bawah!
-                    </p>
-                    <div class="mb-3">
-                        <textarea class="form-control font-monospace text-nowrap" id="pasteArea" rows="8" placeholder="Contoh format 6 kolom hasil paste:
-312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET    60    CAR
-410285    SUPERSTAR FULL CHOCOLATE 8DBX20PCX    1    PALLET    80    CAR"></textarea>
+        <!-- ========================================== -->
+        <!-- 4. HALAMAN STOCK OPNAME (AUDIT FISIK)      -->
+        <!-- ========================================== -->
+        <div id="page-opname" class="app-page">
+            <h4 class="fw-bold mb-3">Audit Fisik (Stock Opname)</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body">
+                            <p class="small text-muted mb-4">Gunakan form ini untuk mencocokkan jumlah fisik aktual di gudang. Angka yang Anda masukkan akan me-reset/menimpa perhitungan sisa stok sistem.</p>
+                            
+                            <form id="formOpname" onsubmit="saveOpname(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                                    <!-- Input ini sudah dilengkapi list autocomplete -->
+                                    <input type="text" class="form-control form-control-lg border-primary" id="opSkuInput" list="datalistSkus" required placeholder="Contoh: 312743 atau BENG BENG..." autocomplete="off">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Blok Rak Penempatan Aktual</label>
+                                    <select class="form-select form-select-lg" id="opRack" required>
+                                        <option value="">-- Pilih Blok Rak --</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">Hasil Hitung Fisik (Pallet)</label>
+                                    <input type="number" class="form-control form-control-lg" id="opQty" required min="0" placeholder="0">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Simpan Hasil Opname</button>
+                            </form>
+                        </div>
                     </div>
-                    <button type="button" class="btn btn-dark btn-sm w-100" onclick="processPasteData()">Proses & Simpan Data</button>
                 </div>
             </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- 5. HALAMAN LAPORAN BREAKDOWN               -->
+        <!-- ========================================== -->
+        <div id="page-report" class="app-page">
+            <h4 class="fw-bold mb-3">Laporan Breakdown Stok & Kapasitas</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>ID (SKU)</th>
+                                <th class="text-start name-col">Nama Produk (NAME)</th>
+                                <th>Satuan Master</th>
+                                <th>Isi / Pallet</th>
+                                <th>Blok Rak</th>
+                                <th>Opname Awal</th>
+                                <th>Masuk</th>
+                                <th>Keluar</th>
+                                <th>Sisa Aktual</th>
+                                <th>Status Blok</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTableBody">
+                            <!-- Data Laporan -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Bootstrap JS Bundle -->
@@ -206,6 +248,7 @@
 
     <!-- JavaScript Logika Aplikasi -->
     <script>
+        // Data Master Racking (Hardcoded Kapasitas)
         const masterRacking = {
             "BLOK A FG": 396, "BLOK B FG": 360, "BLOK C FG": 1044, "BLOK D FG": 756,
             "BLOK E FG": 396, "BLOK F FG": 612, "BLOK G FG": 1044, "BLOK H FG": 1008,
@@ -215,6 +258,29 @@
             "BLOK U FG": 396, "BLOK V FG": 612, "BLOK W FG": 792, "BLOK X FG": 288
         };
 
+        // Fungsi Navigasi antar Menu
+        function switchPage(pageId) {
+            document.querySelectorAll('.app-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Tutup navbar mobile otomatis jika di hp
+            const navbarCollapse = document.getElementById('navbarNav');
+            if(navbarCollapse.classList.contains('show')) {
+                bootstrap.Collapse.getInstance(navbarCollapse).hide();
+            }
+        }
+
+        // Database LocalStorage
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v6')) || {};
+
+        function saveData() {
+            localStorage.setItem('stockDataGDFG_v6', JSON.stringify(stockData));
+            renderAll();
+        }
+
+        // Inisialisasi Pilihan Rak Dropdown
         function initRackingDropdowns() {
             const opRackSelect = document.getElementById('opRack');
             const inRackSelect = document.getElementById('inRack');
@@ -228,28 +294,21 @@
             }
         }
 
-        // Database LocalStorage (Key v5 agar refresh dari sisa data lama)
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v5')) || {};
-
-        function saveData() {
-            localStorage.setItem('stockDataGDFG_v5', JSON.stringify(stockData));
-            renderDashboard();
+        // Fungsi untuk mengambil SKU Murni dari hasil input Datalist "SKU | Nama"
+        function extractSku(inputValue) {
+            return inputValue.split(' | ')[0].trim();
         }
 
-        // Proses Paste Data Massal (Support 6 Kolom)
+        // Proses Paste Data Master (Sheet Parser)
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
-            if (!text) {
-                alert('Kotak teks masih kosong! Silakan paste data dari sheets terlebih dahulu.');
-                return;
-            }
+            if (!text) { alert('Kotak teks kosong!'); return; }
 
             const lines = text.split('\n');
             let countAdded = 0;
 
             lines.forEach(line => {
                 const cols = line.split('\t');
-                // Mengecek setidaknya ada ID dan Nama
                 if (cols.length >= 2) {
                     const sku = cols[0] ? cols[0].trim() : '';
                     const name = cols[1] ? cols[1].trim() : '';
@@ -260,55 +319,29 @@
 
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
-                            sku: sku,
-                            name: name,
-                            jumlah: jumlah,
-                            satuan1: satuan1,
-                            jmlCar: jmlCar,
-                            satuan2: satuan2,
-                            rack: '-',
-                            opname: 0,
-                            inProd: 0,
-                            out: 0
+                            sku: sku, name: name, jumlah: jumlah, satuan1: satuan1,
+                            jmlCar: jmlCar, satuan2: satuan2,
+                            rack: '-', opname: 0, inProd: 0, out: 0
                         };
                         countAdded++;
                     }
                 }
             });
-
             document.getElementById('pasteArea').value = '';
-            let modalEl = document.getElementById('modalMasterSku');
-            let modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-
             saveData();
-            alert(`Berhasil mengimpor ${countAdded} data Master SKU secara instan!`);
+            alert(`Berhasil mengimpor ${countAdded} SKU. Silakan cek menu Laporan!`);
+            switchPage('page-report');
         }
 
-        // Simpan Stock Opname
-        function saveOpname(e) {
-            e.preventDefault();
-            const sku = document.getElementById('opSkuSelect').value;
-            const rack = document.getElementById('opRack').value;
-            const qty = parseInt(document.getElementById('opQty').value);
-
-            if (!stockData[sku]) return;
-
-            stockData[sku].rack = rack;
-            stockData[sku].opname = qty;
-            
-            document.getElementById('formOpname').reset();
-            saveData();
-            alert('Stock Opname berhasil disimpan!');
-        }
-
-        // Simpan Barang Masuk (Produksi)
+        // Transaksi - Barang Masuk
         function saveInbound(e) {
             e.preventDefault();
-            const sku = document.getElementById('inSku').value;
+            const rawSku = document.getElementById('inSku').value;
+            const sku = extractSku(rawSku);
             const rackIn = document.getElementById('inRack').value;
             const qty = parseInt(document.getElementById('inQty').value);
-            if (!stockData[sku]) return;
+
+            if (!stockData[sku]) { alert('SKU tidak valid atau belum terdaftar di Master!'); return; }
 
             let item = stockData[sku];
             let maxCap = masterRacking[rackIn] || 500;
@@ -323,15 +356,17 @@
             item.inProd += qty;
             document.getElementById('formIn').reset();
             saveData();
-            alert('Stok masuk produksi berhasil dicatat!');
+            alert('Stok masuk berhasil dicatat!');
         }
 
-        // Simpan Barang Keluar (Kirim)
+        // Transaksi - Barang Keluar
         function saveOutbound(e) {
             e.preventDefault();
-            const sku = document.getElementById('outSku').value;
+            const rawSku = document.getElementById('outSku').value;
+            const sku = extractSku(rawSku);
             const qty = parseInt(document.getElementById('outQty').value);
-            if (!stockData[sku]) return;
+            
+            if (!stockData[sku]) { alert('SKU tidak valid!'); return; }
 
             let item = stockData[sku];
             let currentStock = (item.opname + item.inProd) - item.out;
@@ -346,10 +381,33 @@
             alert('Barang keluar berhasil dicatat!');
         }
 
-        // Render Dashboard & Tabel
-        function renderDashboard() {
+        // Transaksi - Stock Opname
+        function saveOpname(e) {
+            e.preventDefault();
+            const rawSku = document.getElementById('opSkuInput').value;
+            const sku = extractSku(rawSku);
+            const rack = document.getElementById('opRack').value;
+            const qty = parseInt(document.getElementById('opQty').value);
+
+            if (!stockData[sku]) { alert('SKU tidak valid / tidak ditemukan!'); return; }
+
+            stockData[sku].rack = rack;
+            stockData[sku].opname = qty;
+            
+            document.getElementById('formOpname').reset();
+            saveData();
+            alert('Audit Stock Opname berhasil disimpan!');
+            switchPage('page-report'); // Otomatis pindah ke laporan setelah opname
+        }
+
+        // Render Seluruh Data (Dashboard, Laporan, dan Datalist)
+        function renderAll() {
             const tbody = document.getElementById('stockTableBody');
+            const datalist = document.getElementById('datalistSkus');
+            
             tbody.innerHTML = '';
+            datalist.innerHTML = '';
+
             let no = 1;
             let totalPalletTerisi = 0;
             let totalMaxCapacity = 0;
@@ -360,12 +418,15 @@
             }
 
             if (totalSkuCount === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-4">Belum ada data SKU.<br>Silakan klik tombol <b>"Import / Paste Master SKU"</b> di pojok kanan atas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-4">Belum ada data.<br>Masuk ke menu Master Data untuk paste SKU.</td></tr>`;
             } else {
                 for (let sku in stockData) {
                     let item = stockData[sku];
                     let sisa = (item.opname + item.inProd) - item.out;
                     totalPalletTerisi += sisa;
+
+                    // Mengisi Datalist untuk fitur Ketik & Cari (SKU | Nama Produk)
+                    datalist.innerHTML += `<option value="${item.sku} | ${item.name}"></option>`;
 
                     let maxCap = masterRacking[item.rack] || 1000;
                     let statusBadge = item.rack === '-' ? '<span class="badge bg-secondary">Belum Diset</span>' :
@@ -391,33 +452,18 @@
                 }
             }
 
-            // Update Statistik Kartu Atas
+            // Update Statistik Dashboard
             document.getElementById('statTotalPallet').innerText = totalPalletTerisi.toLocaleString('id-ID');
             document.getElementById('statMaxCapacity').innerText = totalMaxCapacity.toLocaleString('id-ID');
             
             let percent = totalMaxCapacity > 0 ? ((totalPalletTerisi / totalMaxCapacity) * 100).toFixed(2) : 0;
             document.getElementById('statPercentage').innerText = percent + '%';
             document.getElementById('statTotalSku').innerText = totalSkuCount;
-
-            // Update Dropdown Pilihan SKU
-            const opSkuSelect = document.getElementById('opSkuSelect');
-            const selectIn = document.getElementById('inSku');
-            const selectOut = document.getElementById('outSku');
-
-            opSkuSelect.innerHTML = `<option value="">-- Pilih Produk --</option>`;
-            selectIn.innerHTML = `<option value="">-- Pilih Produk --</option>`;
-            selectOut.innerHTML = `<option value="">-- Pilih Produk --</option>`;
-
-            for (let sku in stockData) {
-                let text = `${stockData[sku].sku} - ${stockData[sku].name}`;
-                opSkuSelect.innerHTML += `<option value="${sku}">${text}</option>`;
-                selectIn.innerHTML += `<option value="${sku}">${text}</option>`;
-                selectOut.innerHTML += `<option value="${sku}">${text}</option>`;
-            }
         }
 
+        // Inisialisasi awal
         initRackingDropdowns();
-        renderDashboard();
+        renderAll();
     </script>
 </body>
 </html>
