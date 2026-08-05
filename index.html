@@ -1,4 +1,4 @@
-x<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +13,8 @@ x<!DOCTYPE html>
         body { background-color: #f1f5f9; }
         .navbar-custom { background-color: #0f172a; }
         .card-stat { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; }
+        .table th, .table td { vertical-align: middle; white-space: nowrap; }
+        .name-col { white-space: normal; min-width: 200px; }
     </style>
 </head>
 <body>
@@ -156,14 +158,14 @@ x<!DOCTYPE html>
                         <tr>
                             <th>No</th>
                             <th>ID (SKU)</th>
-                            <th>NAME (Nama Produk)</th>
-                            <th>SAT</th>
-                            <th>UNIT</th>
+                            <th class="text-start name-col">Nama Produk (NAME)</th>
+                            <th>Satuan Master</th>
+                            <th>Isi / Pallet</th>
                             <th>Blok Rak</th>
                             <th>Opname Awal</th>
                             <th>Total Masuk</th>
                             <th>Total Keluar</th>
-                            <th>Sisa Stock Aktual</th>
+                            <th>Sisa Aktual (Pallet)</th>
                             <th>Status Blok</th>
                         </tr>
                     </thead>
@@ -186,12 +188,12 @@ x<!DOCTYPE html>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small">
-                        <strong>Cara Pakai:</strong> Blok baris data (ID, Name, SAT, UNIT) langsung dari Google Sheets Anda, lalu <em>Paste (Ctrl+V)</em> ke dalam kotak di bawah ini!
+                        <strong>Cara Pakai:</strong> Blok 6 kolom data (ID, NAME, JUMLAH, SATUAN, JML CAR/PALLET, SATUAN) langsung dari Sheets Anda, lalu <em>Paste (Ctrl+V)</em> ke dalam kotak di bawah!
                     </p>
                     <div class="mb-3">
-                        <textarea class="form-control font-monospace" id="pasteArea" rows="8" placeholder="Contoh hasil paste langsung dari excel/sheets:
-312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET
-313376    BENG BENG REGULER 8GBX17PCX25G    1    PALLET"></textarea>
+                        <textarea class="form-control font-monospace text-nowrap" id="pasteArea" rows="8" placeholder="Contoh format 6 kolom hasil paste:
+312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET    60    CAR
+410285    SUPERSTAR FULL CHOCOLATE 8DBX20PCX    1    PALLET    80    CAR"></textarea>
                     </div>
                     <button type="button" class="btn btn-dark btn-sm w-100" onclick="processPasteData()">Proses & Simpan Data</button>
                 </div>
@@ -226,15 +228,15 @@ x<!DOCTYPE html>
             }
         }
 
-        // Database LocalStorage
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v4')) || {};
+        // Database LocalStorage (Key v5 agar refresh dari sisa data lama)
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v5')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v4', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v5', JSON.stringify(stockData));
             renderDashboard();
         }
 
-        // Proses Paste Data Massal dari Excel / Google Sheets
+        // Proses Paste Data Massal (Support 6 Kolom)
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
             if (!text) {
@@ -246,20 +248,24 @@ x<!DOCTYPE html>
             let countAdded = 0;
 
             lines.forEach(line => {
-                // Memisahkan kolom berdasarkan tab (bawaan copy-paste excel/sheets)
                 const cols = line.split('\t');
+                // Mengecek setidaknya ada ID dan Nama
                 if (cols.length >= 2) {
-                    const sku = cols[0].trim();
-                    const name = cols[1].trim();
-                    const sat = cols[2] ? cols[2].trim() : '1';
-                    const unit = cols[3] ? cols[3].trim() : 'CAR';
+                    const sku = cols[0] ? cols[0].trim() : '';
+                    const name = cols[1] ? cols[1].trim() : '';
+                    const jumlah = cols[2] ? cols[2].trim() : '1';
+                    const satuan1 = cols[3] ? cols[3].trim() : 'PALLET';
+                    const jmlCar = cols[4] ? cols[4].trim() : '0';
+                    const satuan2 = cols[5] ? cols[5].trim() : 'CAR';
 
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
                             sku: sku,
                             name: name,
-                            sat: sat,
-                            unit: unit,
+                            jumlah: jumlah,
+                            satuan1: satuan1,
+                            jmlCar: jmlCar,
+                            satuan2: satuan2,
                             rack: '-',
                             opname: 0,
                             inProd: 0,
@@ -279,7 +285,7 @@ x<!DOCTYPE html>
             alert(`Berhasil mengimpor ${countAdded} data Master SKU secara instan!`);
         }
 
-        // 2. Simpan Stock Opname
+        // Simpan Stock Opname
         function saveOpname(e) {
             e.preventDefault();
             const sku = document.getElementById('opSkuSelect').value;
@@ -296,7 +302,7 @@ x<!DOCTYPE html>
             alert('Stock Opname berhasil disimpan!');
         }
 
-        // 3. Simpan Barang Masuk (Produksi)
+        // Simpan Barang Masuk (Produksi)
         function saveInbound(e) {
             e.preventDefault();
             const sku = document.getElementById('inSku').value;
@@ -320,7 +326,7 @@ x<!DOCTYPE html>
             alert('Stok masuk produksi berhasil dicatat!');
         }
 
-        // 4. Simpan Barang Keluar (Kirim)
+        // Simpan Barang Keluar (Kirim)
         function saveOutbound(e) {
             e.preventDefault();
             const sku = document.getElementById('outSku').value;
@@ -354,7 +360,7 @@ x<!DOCTYPE html>
             }
 
             if (totalSkuCount === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-3">Belum ada data SKU. Silakan klik tombol "Import / Paste Master SKU" di atas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="text-muted py-4">Belum ada data SKU.<br>Silakan klik tombol <b>"Import / Paste Master SKU"</b> di pojok kanan atas.</td></tr>`;
             } else {
                 for (let sku in stockData) {
                     let item = stockData[sku];
@@ -371,14 +377,14 @@ x<!DOCTYPE html>
                         <tr>
                             <td>${no++}</td>
                             <td><span class="badge bg-secondary">${item.sku}</span></td>
-                            <td class="text-start fw-semibold">${item.name}</td>
-                            <td>${item.sat}</td>
-                            <td>${item.unit}</td>
+                            <td class="text-start name-col fw-semibold">${item.name}</td>
+                            <td><span class="badge bg-light text-dark border">${item.jumlah} ${item.satuan1}</span></td>
+                            <td><span class="badge bg-light text-dark border">${item.jmlCar} ${item.satuan2}</span></td>
                             <td><span class="badge bg-info text-dark">${item.rack}</span></td>
                             <td>${item.opname}</td>
                             <td><span class="text-success fw-bold">+${item.inProd}</span></td>
                             <td><span class="text-danger fw-bold">-${item.out}</span></td>
-                            <td><span class="fw-bold text-primary">${sisa}</span></td>
+                            <td><span class="fw-bold text-primary fs-6">${sisa}</span></td>
                             <td>${statusBadge}</td>
                         </tr>
                     `;
@@ -393,7 +399,7 @@ x<!DOCTYPE html>
             document.getElementById('statPercentage').innerText = percent + '%';
             document.getElementById('statTotalSku').innerText = totalSkuCount;
 
-            // Update Dropdown Pilihan SKU di Form-form
+            // Update Dropdown Pilihan SKU
             const opSkuSelect = document.getElementById('opSkuSelect');
             const selectIn = document.getElementById('inSku');
             const selectOut = document.getElementById('outSku');
