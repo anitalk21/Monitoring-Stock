@@ -35,26 +35,37 @@
 </head>
 <body>
 
-    <!-- NAVBAR MULTI-MENU -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm py-3 sticky-top">
+    <!-- NAVBAR ATAS DENGAN HAMBURGER SIDEBAR TOGGLE -->
+    <nav class="navbar navbar-dark navbar-custom shadow-sm py-3 sticky-top">
         <div class="container-fluid px-4">
-            <span class="navbar-brand h1 fw-bold mb-0">📊 WMS GDFG</span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto gap-2">
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-dashboard')">🏠 Dashboard</button></li>
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-binloc')">🗺️ Layout & Bin Loc</button></li>
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-transaction')">🔄 Transaksi Harian</button></li>
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-opname')">🔍 Stock Opname</button></li>
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-rekon')">⚖️ Rekonsiliasi SAP</button></li>
-                    <li class="nav-item"><button class="btn btn-dark w-100 text-start" onclick="switchPage('page-report')">📋 Laporan Breakdown</button></li>
-                    <li class="nav-item"><button class="btn btn-outline-light w-100 text-start" onclick="switchPage('page-master')">⚙️ Master Data</button></li>
-                </ul>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                    ☰ Menu
+                </button>
+                <span class="navbar-brand h1 fw-bold mb-0">📊 WMS GDFG</span>
             </div>
         </div>
     </nav>
+
+    <!-- OFFCANVAS SIDEBAR (MENU GESER SAMPING) -->
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column gap-2 p-3">
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">🏠 Dashboard</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">🗺️ Layout & Bin Loc</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-transaction')">🔄 Transaksi Harian</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">🔍 Stock Opname</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">⚖️ Rekonsiliasi SAP</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">📋 Laporan Breakdown</button>
+            
+            <hr class="border-secondary my-2">
+            
+            <button class="btn btn-outline-light w-100 text-start py-2" onclick="switchPage('page-master')">⚙️ Master Data SKU</button>
+        </div>
+    </div>
 
     <datalist id="datalistSkus"></datalist>
 
@@ -160,13 +171,11 @@
                                     <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
                                 </div>
                                 
-                                <!-- KODE PRODUKSI LOKAL -->
                                 <div id="inLokalFields" class="bg-light p-3 border rounded mb-3">
                                     <span class="badge bg-secondary mb-2">Informasi Barang Lokal</span>
                                     <input type="text" class="form-control form-control-sm" id="inKodeProdLokal" placeholder="Masukkan Kode Produksi / Batch">
                                 </div>
 
-                                <!-- FORM EKSPOR -->
                                 <div id="inExportFields" class="dynamic-fields bg-light p-3 border rounded mb-3">
                                     <span class="badge bg-dark mb-2">Form Batch Ekspor</span>
                                     <input type="text" class="form-control form-control-sm mb-2" id="inExpQt" placeholder="Nomor QT / Batch">
@@ -246,6 +255,15 @@
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Pilih SKU Produk</label>
                                     <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
+                                </div>
+                                <!-- KODE PRODUKSI & TANGGAL QC -->
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Kode Produksi / Batch</label>
+                                    <input type="text" class="form-control form-control-sm" id="qcKodeProd" required placeholder="Masukkan kode produksi...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold" id="qcDateLabel">Tanggal Hold</label>
+                                    <input type="date" class="form-control form-control-sm" id="qcDate" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
@@ -370,7 +388,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Detail Batch / Ekspor</th>
+                                <th>Detail Batch / QC / Ekspor</th>
                                 <th>Blok & Lorong</th>
                                 <th>In (Prod)</th>
                                 <th>In (Plant)</th>
@@ -444,12 +462,12 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL BATCH / EKSPOR & LOKAL -->
+    <!-- MODAL DETAIL BATCH / QC / EKSPOR -->
     <div class="modal fade" id="modalExportDetail" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Log Riwayat Batch / Produksi</h5>
+                    <h5 class="modal-title fs-6">Log Riwayat Batch, QC & Produksi</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -501,15 +519,19 @@
         function switchPage(pageId) {
             document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            const nav = document.getElementById('navbarNav');
-            if(nav.classList.contains('show')) bootstrap.Collapse.getInstance(nav).hide();
+            
+            // Tutup sidebar otomatis setelah menu diklik
+            const sidebarEl = document.getElementById('sidebarMenu');
+            let bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+            if (bsOffcanvas) bsOffcanvas.hide();
+
             if (pageId === 'page-rekon') renderRekonsiliasi(); 
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v13')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v14')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v13', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v14', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -586,7 +608,6 @@
             return total;
         }
 
-        // TOGGLE INBOUND FIELDS (LOKAL VS EKSPOR)
         function toggleInboundFields() {
             const kategori = document.getElementById('inKategori').value;
             if(kategori === 'Ekspor') {
@@ -603,10 +624,10 @@
             document.getElementById(type + 'ExportFields').style.display = isExport ? 'block' : 'none';
         }
 
-        // TOGGLE HOLD REASON FIELD
         function toggleHoldReason() {
             const action = document.getElementById('qcAction').value;
             document.getElementById('holdReasonContainer').style.display = action === 'Hold' ? 'block' : 'none';
+            document.getElementById('qcDateLabel').innerText = action === 'Hold' ? 'Tanggal Hold' : 'Tanggal Release';
         }
 
         function processPasteData() {
@@ -657,7 +678,6 @@
                 alert(`GAGAL! Lorong ${row} maksimal ${maxCap} pallet.\nTerisi ${currentRowLoad.toFixed(2)} pallet.`); return;
             }
 
-            // Simpan log batch/kode produksi (Lokal atau Ekspor)
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
                     date: new Date().toLocaleDateString('id-ID'),
@@ -719,6 +739,8 @@
             const action = document.getElementById('qcAction').value;
             const sku = extractSku(document.getElementById('qcSku').value);
             const qtyPallet = parseFloat(document.getElementById('qcQtyPallet').value);
+            const kodeProd = document.getElementById('qcKodeProd').value.trim();
+            const qcDate = document.getElementById('qcDate').value;
             const reason = document.getElementById('qcReason').value.trim();
             
             if (!stockData[sku]) return;
@@ -729,35 +751,35 @@
                 if(!reason) { alert('Harap isi keterangan/alasan mengapa barang ini di-Hold!'); return; }
                 
                 item.holdQty += qtyPallet;
-                // Catat alasan hold ke log
                 item.exportLog.push({
-                    date: new Date().toLocaleDateString('id-ID'),
+                    date: qcDate,
                     type: 'HOLD QC',
-                    code: 'Hold Batch',
+                    code: kodeProd,
                     prodate: '-', expdate: '-', buyer: '-', country: '-',
                     reason: reason,
                     qtyIn: qtyPallet.toFixed(2)
                 });
 
-                alert(`${qtyPallet.toFixed(2)} Pallet di HOLD. Alasan: ${reason}`);
+                alert(`${qtyPallet.toFixed(2)} Pallet di HOLD per tanggal ${qcDate}. Alasan: ${reason}`);
             } else {
                 if(qtyPallet > item.holdQty) { alert(`Gagal! Di-Hold saat ini ${item.holdQty.toFixed(2)} pallet.`); return; }
                 item.holdQty -= qtyPallet;
                 
                 item.exportLog.push({
-                    date: new Date().toLocaleDateString('id-ID'),
+                    date: qcDate,
                     type: 'RELEASE QC',
-                    code: 'Release Batch',
+                    code: kodeProd,
                     prodate: '-', expdate: '-', buyer: '-', country: '-',
                     reason: 'Barang dilepas (Passed QC)',
                     qtyIn: qtyPallet.toFixed(2)
                 });
 
-                alert(`${qtyPallet.toFixed(2)} Pallet di RELEASE.`);
+                alert(`${qtyPallet.toFixed(2)} Pallet di RELEASE per tanggal ${qcDate}.`);
             }
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
             document.getElementById('holdReasonContainer').style.display = 'block';
+            document.getElementById('qcDateLabel').innerText = 'Tanggal Hold';
             saveData();
         }
 
@@ -923,13 +945,18 @@
             if(logs.length === 0) return;
 
             logs.forEach(l => {
-                let detailText = l.type === 'HOLD QC' ? 
-                    `<strong class="text-danger">Keterangan Hold:</strong> ${l.reason}` : 
-                    `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
+                let detailText = '';
+                if(l.type === 'HOLD QC') {
+                    detailText = `<strong class="text-danger">Alasan Hold:</strong> ${l.reason}`;
+                } else if(l.type === 'RELEASE QC') {
+                    detailText = `<strong class="text-success">Status:</strong> ${l.reason}`;
+                } else {
+                    detailText = `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
+                }
 
                 ul.innerHTML += `
                     <li class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}] ${l.code}</h6><small>${l.date}</small></div>
+                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}] ${l.code}</h6><small>Tanggal: ${l.date}</small></div>
                         <p class="mb-1 small">${detailText}</p>
                         <small class="text-success fw-bold">Jumlah: ${l.qtyIn} Pallet</small>
                     </li>
