@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kapasitas & Monitoring GDFG</title>
+    <title>Monitoring Kapasitas GDFG</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#0f172a">
     <style>
         body { background-color: #f1f5f9; }
         .navbar-custom { background-color: #0f172a; }
@@ -17,16 +17,19 @@
 </head>
 <body>
 
-    <!-- Navbar Ala Dashboard -->
+    <!-- Navbar Ala Dashboard Profesional -->
     <nav class="navbar navbar-dark navbar-custom shadow-sm py-3">
-        <div class="container-fluid px-4">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
             <span class="navbar-brand mb-0 h1 fw-bold">📊 Kapasitas GDFG</span>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalMasterSku">➕ Input Master SKU</button>
+            </div>
         </div>
     </nav>
 
     <div class="container-fluid px-4 my-4">
         
-        <!-- BAGIAN 1: KARTU RINGKASAN STATISTIK (SUMMARY CARDS) -->
+        <!-- KARTU RINGKASAN STATISTIK (SUMMARY CARDS) -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="card card-stat shadow-sm h-100">
@@ -40,9 +43,9 @@
             <div class="col-md-4">
                 <div class="card card-stat shadow-sm h-100">
                     <div class="card-body">
-                        <small class="text-uppercase text-white-50 fw-bold">Persentase All Stock</small>
+                        <small class="text-uppercase text-white-50 fw-bold">Persentase Keterisian Gudang</small>
                         <h2 class="fw-bold mt-1 mb-0" id="statPercentage">0%</h2>
-                        <p class="small text-white-50 mt-2 mb-0">Tingkat Keterisian Gudang</p>
+                        <p class="small text-white-50 mt-2 mb-0">All Stock Status</p>
                     </div>
                 </div>
             </div>
@@ -51,39 +54,35 @@
                     <div class="card-body">
                         <small class="text-uppercase text-white-50 fw-bold">Total Jenis SKU Aktif</small>
                         <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
-                        <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar di Sistem</p>
+                        <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- BAGIAN 2: FORM INPUT (3 PILAR UTAMA) -->
+        <!-- FORM TRANSAKSI HARIAN (PRODUKSI MASUK & BARANG KELUAR) -->
         <div class="row g-4 mb-4">
-            <!-- 1. Stock Opname -->
+            <!-- 1. Stock Opname (Audit Fisik) -->
             <div class="col-md-4">
                 <div class="card shadow-sm h-100 border-primary">
-                    <div class="card-header bg-primary text-white fw-bold">1. Set / Stock Opname Awal</div>
+                    <div class="card-header bg-primary text-white fw-bold">1. Stock Opname (Audit Fisik)</div>
                     <div class="card-body">
                         <form id="formOpname" onsubmit="saveOpname(event)">
                             <div class="mb-2">
-                                <label class="form-label small">SKU (Kode Barang)</label>
-                                <input type="text" class="form-control form-control-sm" id="opSku" required placeholder="Contoh: ROMA-CHOC-6">
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Nama Barang</label>
-                                <input type="text" class="form-control form-control-sm" id="opName" required placeholder="Contoh: Roma Sandwich Chocolate">
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label small">Pilih Blok Racking Utama</label>
-                                <select class="form-select form-select-sm" id="opRack" required>
-                                    <option value="">-- Pilih Blok --</option>
+                                <label class="form-label small">Pilih SKU (Master Data)</label>
+                                <select class="form-select form-select-sm" id="opSkuSelect" required onchange="fillOpnameRack(this)">
+                                    <option value="">-- Pilih SKU --</option>
                                 </select>
                             </div>
-                            <div class="mb-3 mt-3">
-                                <label class="form-label small">Jumlah Fisik Awal (Pallet)</label>
+                            <div class="mb-2">
+                                <label class="form-label small">Blok Racking Utama</label>
+                                <input type="text" class="form-control form-control-sm bg-light" id="opRackDisplay" readonly placeholder="Otomatis dari Master">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Jumlah Fisik Hasil Opname (Pallet)</label>
                                 <input type="number" class="form-control form-control-sm" id="opQty" required min="0" placeholder="0">
                             </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Opname</button>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Stock Opname</button>
                         </form>
                     </div>
                 </div>
@@ -96,9 +95,9 @@
                     <div class="card-body">
                         <form id="formIn" onsubmit="saveInbound(event)">
                             <div class="mb-2">
-                                <label class="form-label small">Pilih Barang (SKU - Nama)</label>
+                                <label class="form-label small">Pilih SKU Barang</label>
                                 <select class="form-select form-select-sm" id="inSku" required>
-                                    <option value="">-- Pilih Barang --</option>
+                                    <option value="">-- Pilih SKU --</option>
                                 </select>
                             </div>
                             <div class="mb-2">
@@ -124,9 +123,9 @@
                     <div class="card-body">
                         <form id="formOut" onsubmit="saveOutbound(event)">
                             <div class="mb-2">
-                                <label class="form-label small">Pilih Barang (SKU - Nama)</label>
+                                <label class="form-label small">Pilih SKU Barang</label>
                                 <select class="form-select form-select-sm" id="outSku" required>
-                                    <option value="">-- Pilih Barang --</option>
+                                    <option value="">-- Pilih SKU --</option>
                                 </select>
                             </div>
                             <div class="mb-2">
@@ -136,7 +135,7 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small">Jumlah Keluar</label>
+                                <label class="form-label small">Jumlah Keluar (Pallet)</label>
                                 <input type="number" class="form-control form-control-sm" id="outQty" required min="1" placeholder="0">
                             </div>
                             <button type="submit" class="btn btn-danger btn-sm w-100">Keluarkan Barang</button>
@@ -146,7 +145,7 @@
             </div>
         </div>
 
-        <!-- BAGIAN 3: TABEL MONITORING UTAMA -->
+        <!-- TABEL MONITORING UTAMA -->
         <div class="card shadow-sm">
             <div class="card-header bg-white fw-bold py-3">📋 Tabel Rincian Stock & Kapasitas Blok Racking</div>
             <div class="card-body table-responsive">
@@ -174,7 +173,41 @@
 
     </div>
 
-    <!-- JavaScript Logika Dashboard -->
+    <!-- MODAL POPUP: INPUT MASTER SKU -->
+    <div class="modal fade" id="modalMasterSku" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fs-6">Form Pendaftaran Master SKU Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formMasterSku" onsubmit="saveMasterSku(event)">
+                        <div class="mb-2">
+                            <label class="form-label small">SKU (Kode Barang)</label>
+                            <input type="text" class="form-control form-control-sm" id="masterSku" required placeholder="Contoh: ROMA-CHOC-6">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Nama Barang</label>
+                            <input type="text" class="form-control form-control-sm" id="masterName" required placeholder="Contoh: Roma Sandwich Chocolate">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Blok Racking Utama</label>
+                            <select class="form-select form-select-sm" id="masterRack" required>
+                                <option value="">-- Pilih Blok --</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm w-100">Simpan Master SKU</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript Logika Aplikasi -->
     <script>
         const masterRacking = {
             "BLOK A FG": 396, "BLOK B FG": 360, "BLOK C FG": 1044, "BLOK D FG": 756,
@@ -185,40 +218,78 @@
             "BLOK U FG": 396, "BLOK V FG": 612, "BLOK W FG": 792, "BLOK X FG": 288
         };
 
-        function initMasterRacking() {
-            const selectOp = document.getElementById('opRack');
-            const selectIn = document.getElementById('inRack');
-            const selectOut = document.getElementById('outRackSource');
+        // Inisialisasi Pilihan Master Blok Racking
+        function initRackingDropdowns() {
+            const masterRackSelect = document.getElementById('masterRack');
+            const inRackSelect = document.getElementById('inRack');
+            const outRackSelect = document.getElementById('outRackSource');
 
             for (let rack in masterRacking) {
                 let opt = `<option value="${rack}">${rack} (Maks: ${masterRacking[rack]} Pallet)</option>`;
-                selectOp.innerHTML += opt;
-                selectIn.innerHTML += opt;
-                selectOut.innerHTML += `<option value="${rack}">${rack}</option>`;
+                masterRackSelect.innerHTML += opt;
+                inRackSelect.innerHTML += opt;
+                outRackSelect.innerHTML += `<option value="${rack}">${rack}</option>`;
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v1')) || {};
+        // Database LocalStorage
+        let masterSkus = JSON.parse(localStorage.getItem('masterSkusGDFG')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v2')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v1', JSON.stringify(stockData));
+            localStorage.setItem('masterSkusGDFG', JSON.stringify(masterSkus));
+            localStorage.setItem('stockDataGDFG_v2', JSON.stringify(stockData));
             renderDashboard();
         }
 
-        function saveOpname(e) {
+        // 1. Simpan Master SKU Baru
+        function saveMasterSku(e) {
             e.preventDefault();
-            const sku = document.getElementById('opSku').value.trim();
-            const name = document.getElementById('opName').value.trim();
-            const rack = document.getElementById('opRack').value;
-            const capacity = masterRacking[rack];
-            const qty = parseInt(document.getElementById('opQty').value);
+            const sku = document.getElementById('masterSku').value.trim();
+            const name = document.getElementById('masterName').value.trim();
+            const rack = document.getElementById('masterRack').value;
 
-            stockData[sku] = { sku, name, rack, capacity, opname: qty, inProd: 0, out: 0 };
-            document.getElementById('formOpname').reset();
+            masterSkus[sku] = { sku, name, rack };
+            
+            // Jika belum ada di stockData, daftarkan default nilai 0
+            if (!stockData[sku]) {
+                stockData[sku] = { sku, name, rack, capacity: masterRacking[rack], opname: 0, inProd: 0, out: 0 };
+            }
+
+            document.getElementById('formMasterSku').reset();
+            let modalEl = document.getElementById('modalMasterSku');
+            let modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
             saveData();
-            alert('Stock Opname berhasil disimpan!');
+            alert('Master SKU berhasil ditambahkan!');
         }
 
+        // 2. Simpan Stock Opname
+        function saveOpname(e) {
+            e.preventDefault();
+            const sku = document.getElementById('opSkuSelect').value;
+            const qty = parseInt(document.getElementById('opQty').value);
+
+            if (!stockData[sku]) return;
+
+            stockData[sku].opname = qty;
+            document.getElementById('formOpname').reset();
+            document.getElementById('opRackDisplay').value = '';
+            saveData();
+            alert('Stock Opname berhasil diperbarui!');
+        }
+
+        function fillOpnameRack(select) {
+            const sku = select.value;
+            if (sku && stockData[sku]) {
+                document.getElementById('opRackDisplay').value = stockData[sku].rack;
+            } else {
+                document.getElementById('opRackDisplay').value = '';
+            }
+        }
+
+        // 3. Simpan Barang Masuk (Produksi)
         function saveInbound(e) {
             e.preventDefault();
             const sku = document.getElementById('inSku').value;
@@ -235,9 +306,10 @@
             item.inProd += qty;
             document.getElementById('formIn').reset();
             saveData();
-            alert('Stok masuk berhasil dicatat!');
+            alert('Stok masuk produksi berhasil dicatat!');
         }
 
+        // 4. Simpan Barang Keluar (Kirim)
         function saveOutbound(e) {
             e.preventDefault();
             const sku = document.getElementById('outSku').value;
@@ -257,6 +329,7 @@
             alert('Barang keluar berhasil dicatat!');
         }
 
+        // Render Dashboard & Tabel
         function renderDashboard() {
             const tbody = document.getElementById('stockTableBody');
             tbody.innerHTML = '';
@@ -265,13 +338,12 @@
             let totalMaxCapacity = 0;
             let totalSkuCount = Object.keys(stockData).length;
 
-            // Hitung total kapasitas seluruh master rak gudang
             for (let r in masterRacking) {
                 totalMaxCapacity += masterRacking[r];
             }
 
             if (totalSkuCount === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-muted py-3">Belum ada data stock. Silakan input Stock Opname.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-muted py-3">Belum ada data SKU. Silakan klik tombol "Input Master SKU" di atas.</td></tr>`;
             } else {
                 for (let sku in stockData) {
                     let item = stockData[sku];
@@ -299,7 +371,7 @@
                 }
             }
 
-            // Update Statistik di Kartu Atas
+            // Update Statistik Kartu Atas
             document.getElementById('statTotalPallet').innerText = totalPalletTerisi.toLocaleString('id-ID');
             document.getElementById('statMaxCapacity').innerText = totalMaxCapacity.toLocaleString('id-ID');
             
@@ -307,20 +379,24 @@
             document.getElementById('statPercentage').innerText = percent + '%';
             document.getElementById('statTotalSku').innerText = totalSkuCount;
 
-            // Update Dropdown SKU
+            // Update Dropdown Pilihan SKU di Form-form
+            const opSkuSelect = document.getElementById('opSkuSelect');
             const selectIn = document.getElementById('inSku');
             const selectOut = document.getElementById('outSku');
-            selectIn.innerHTML = `<option value="">-- Pilih Barang --</option>`;
-            selectOut.innerHTML = `<option value="">-- Pilih Barang --</option>`;
+
+            opSkuSelect.innerHTML = `<option value="">-- Pilih SKU --</option>`;
+            selectIn.innerHTML = `<option value="">-- Pilih SKU --</option>`;
+            selectOut.innerHTML = `<option value="">-- Pilih SKU --</option>`;
 
             for (let sku in stockData) {
                 let text = `${stockData[sku].sku} - ${stockData[sku].name}`;
+                opSkuSelect.innerHTML += `<option value="${sku}">${text}</option>`;
                 selectIn.innerHTML += `<option value="${sku}">${text}</option>`;
                 selectOut.innerHTML += `<option value="${sku}">${text}</option>`;
             }
         }
 
-        initMasterRacking();
+        initRackingDropdowns();
         renderDashboard();
     </script>
 </body>
