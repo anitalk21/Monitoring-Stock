@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMS - Gudang GDFG</title>
+    <title>Monitoring Finished Goods</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js untuk Grafik -->
@@ -42,7 +42,7 @@
     <div id="loginOverlay">
         <div class="card shadow-lg p-4" style="width: 380px; border-radius: 12px;">
             <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark">🔐 Login WMS GDFG</h3>
+                <h3 class="fw-bold text-dark">🔐 Login Monitoring FG</h3>
                 <p class="text-muted small">Masukkan akun Anda untuk mengakses sistem</p>
             </div>
             <form onsubmit="handleLogin(event)">
@@ -69,7 +69,7 @@
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
                     ☰ Menu
                 </button>
-                <span class="navbar-brand h1 fw-bold mb-0">📊 WMS GDFG</span>
+                <span class="navbar-brand h1 fw-bold mb-0">📊 Monitoring Finished Goods</span>
             </div>
             <div>
                 <span class="text-white-50 small me-3" id="navUserDisplay">User: Admin</span>
@@ -81,7 +81,7 @@
     <!-- OFFCANVAS SIDEBAR -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
+            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
@@ -758,10 +758,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v22')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v23')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v22', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v23', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -859,15 +859,12 @@
             let jmlCar = parseInt(item.jmlCar) || 1;
             document.getElementById('outSkuHint').innerText = `Nama: ${item.name} | Standar: ${jmlCar} Carton/Pallet | Available Total: ${getAvailableStock(item).toFixed(2)} Pallet`;
 
-            // Parsing lokasi dari string rack item (bisa gabungan multiple lokasi dari opname/inbound)
-            // Format tersimpan: "BLOK P | P01 (2.00 Plt), LANTAI / FLOOR | FLOOR-AREA (1.00 Plt)" atau format tunggal
             let locString = item.rack;
             if(!locString || locString === '-') {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted small">Barang belum memiliki catatan lokasi rak/floor. Lakukan Stock Opname atau Inbound terlebih dahulu.</td></tr>`;
                 return;
             }
 
-            // Tampilkan baris input berdasarkan lokasi aktual di mana barang tersebut berada
             tbody.innerHTML += `
                 <tr>
                     <td class="fw-bold text-dark"><span class="badge bg-info text-dark">${locString}</span></td>
@@ -1373,7 +1370,7 @@
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_transaksi_wms.csv");
+            link.setAttribute("download", "laporan_transaksi_monitoring_fg.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
