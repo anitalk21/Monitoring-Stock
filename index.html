@@ -6,6 +6,8 @@
     <title>WMS - Gudang GDFG</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -31,11 +33,36 @@
         .row-card:hover { background-color: #e2e8f0 !important; }
         
         .dynamic-fields { display: none; } 
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR ATAS DENGAN HAMBURGER SIDEBAR TOGGLE -->
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div id="loginOverlay">
+        <div class="card shadow-lg p-4" style="width: 380px; border-radius: 12px;">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-dark">🔐 Login WMS GDFG</h3>
+                <p class="text-muted small">Masukkan akun Anda untuk mengakses sistem</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Username</label>
+                    <input type="text" class="form-control" id="loginUser" required placeholder="admin">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Password</label>
+                    <input type="password" class="form-control" id="loginPass" required placeholder="admin123">
+                </div>
+                <button type="submit" class="btn btn-dark w-100 py-2 fw-bold">Masuk Aplikasi</button>
+            </form>
+            <div class="mt-3 text-center">
+                <small class="text-muted" style="font-size: 11px;">Default akun: <b>admin</b> / <b>admin123</b></small>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR ATAS -->
     <nav class="navbar navbar-dark navbar-custom shadow-sm py-3 sticky-top">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center gap-3">
@@ -44,10 +71,14 @@
                 </button>
                 <span class="navbar-brand h1 fw-bold mb-0">📊 WMS GDFG</span>
             </div>
+            <div>
+                <span class="text-white-50 small me-3" id="navUserDisplay">User: Admin</span>
+                <button class="btn btn-outline-danger btn-sm" onclick="handleLogout()">Keluar</button>
+            </div>
         </div>
     </nav>
 
-    <!-- OFFCANVAS SIDEBAR -->
+    <!-- OFFCANVAS SIDEBAR DENGAN SUB-MENU TRANSAKSI -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
@@ -56,8 +87,22 @@
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">🏠 Dashboard</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">🗺️ Layout & Bin Loc</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-transaction')">🔄 Transaksi Harian</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">🔍 Stock Opname</button>
+            
+            <!-- TRANSAKSI HARIAN DENGAN SUB-MENU -->
+            <div>
+                <button class="btn btn-dark w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subTransaksiMenu">
+                    <span>🔄 Transaksi Harian</span>
+                    <span>▼</span>
+                </button>
+                <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">📊 Laporan & Grafik</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">📥 Inbound (Penerimaan)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Outbound (Pengiriman)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">⚠️ Status QC (Hold/Release)</button>
+                </div>
+            </div>
+
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">🔍 Stock Opname Harian</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">⚖️ Rekonsiliasi SAP</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">📋 Laporan Breakdown</button>
             
@@ -141,162 +186,198 @@
             </div>
         </div>
 
-        <!-- 3. TRANSAKSI HARIAN -->
-        <div id="page-transaction" class="app-page">
-            <h4 class="fw-bold mb-3">Transaksi Operasional (Inbound, Outbound, Hold)</h4>
+        <!-- 3A. SUB-MENU: LAPORAN & GRAFIK TRANSAKSI -->
+        <div id="page-trans-report" class="app-page">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0">Laporan & Grafik Transaksi Harian</h4>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="transFilterType" onchange="renderTransactionReport()">
+                        <option value="harian">Harian</option>
+                        <option value="mingguan">Mingguan</option>
+                        <option value="bulanan" selected>Bulanan</option>
+                    </select>
+                    <button class="btn btn-sm btn-success" onclick="exportTransExcel()">📥 Export Excel</button>
+                    <button class="btn btn-sm btn-outline-dark" onclick="window.print()">🖨️ Cetak PDF</button>
+                </div>
+            </div>
+            
             <div class="row g-4 mb-4">
-                
-                <!-- INBOUND -->
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-success h-100">
-                        <div class="card-header bg-success text-white fw-bold">Penerimaan (Inbound)</div>
+                <div class="col-md-8">
+                    <div class="card shadow-sm border-0 h-100">
                         <div class="card-body">
-                            <form id="formIn" onsubmit="saveInbound(event)">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Asal Masuk & Jenis</label>
-                                    <div class="d-flex gap-2">
-                                        <select class="form-select form-select-sm" id="inSource" required>
-                                            <option value="Produksi">Produksi</option>
-                                            <option value="PlantLain">Plant Lain</option>
-                                        </select>
-                                        <select class="form-select form-select-sm border-primary" id="inKategori" required onchange="toggleInboundFields()">
-                                            <option value="Lokal">Lokal</option>
-                                            <option value="Ekspor">Ekspor</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                                    <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('in')">
-                                    <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
-                                </div>
-                                
-                                <div id="inLokalFields" class="bg-light p-3 border rounded mb-3">
-                                    <span class="badge bg-secondary mb-2">Informasi Barang Lokal</span>
-                                    <input type="text" class="form-control form-control-sm" id="inKodeProdLokal" placeholder="Masukkan Kode Produksi / Batch">
-                                </div>
-
-                                <div id="inExportFields" class="dynamic-fields bg-light p-3 border rounded mb-3">
-                                    <span class="badge bg-dark mb-2">Form Batch Ekspor</span>
-                                    <input type="text" class="form-control form-control-sm mb-2" id="inExpQt" placeholder="Nomor QT / Batch">
-                                    <input type="date" class="form-control form-control-sm mb-2" id="inExpProdate" title="Production Date">
-                                    <input type="date" class="form-control form-control-sm mb-2" id="inExpExpdate" title="Expired Date">
-                                    <input type="text" class="form-control form-control-sm mb-2" id="inExpBuyer" placeholder="Nama Buyer">
-                                    <input type="text" class="form-control form-control-sm" id="inExpCountry" placeholder="Negara Tujuan">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Penempatan Rak & Lorong (Row)</label>
-                                    <div class="d-flex gap-2">
-                                        <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateRows('in', '')"></select>
-                                        <select class="form-select form-select-sm" id="inRackRow" required><option value="">- Lorong -</option></select>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label small fw-bold">Input Jumlah KARTON</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="inQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('in')">
-                                        <span class="input-group-text bg-light text-primary fw-bold" id="inQtyPalletDisplay">0 Pallet</span>
-                                        <input type="hidden" id="inQtyPallet" value="0">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-success w-100">Proses Barang Masuk</button>
-                            </form>
+                            <h6 class="fw-bold text-secondary mb-3">Grafik Volume Transaksi (Inbound vs Outbound)</h6>
+                            <canvas id="transChart" style="max-height: 300px;"></canvas>
                         </div>
                     </div>
                 </div>
-
-                <!-- OUTBOUND -->
                 <div class="col-md-4">
-                    <div class="card shadow-sm border-danger h-100">
-                        <div class="card-header bg-danger text-white fw-bold">Pengiriman (Outbound)</div>
+                    <div class="card shadow-sm border-0 h-100 bg-light">
                         <div class="card-body">
-                            <form id="formOut" onsubmit="saveOutbound(event)">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Tujuan Barang Keluar</label>
-                                    <select class="form-select form-select-sm" id="outTarget" required>
-                                        <option value="Customer">Ke Customer / Ekspor</option>
-                                        <option value="PlantLain">Ke Plant Lain (Mutasi)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                                    <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('out')">
-                                    <small class="text-muted" id="outSkuHint">Standar: 0 Carton / Pallet</small>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label small fw-bold">Input Jumlah KARTON Keluar</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="outQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('out')">
-                                        <span class="input-group-text bg-light text-danger fw-bold" id="outQtyPalletDisplay">0 Pallet</span>
-                                        <input type="hidden" id="outQtyPallet" value="0">
-                                    </div>
-                                    <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang status HOLD tidak bisa dikirim</small>
-                                </div>
-                                <button type="submit" class="btn btn-danger w-100">Proses Barang Keluar</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HOLD / RELEASE QC -->
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-warning h-100">
-                        <div class="card-header bg-warning text-dark fw-bold">Status QC (Hold / Release)</div>
-                        <div class="card-body">
-                            <form id="formHold" onsubmit="saveHoldStatus(event)">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Tindakan</label>
-                                    <select class="form-select form-select-sm" id="qcAction" required onchange="toggleHoldReason()">
-                                        <option value="Hold">Karantina Barang (HOLD)</option>
-                                        <option value="Release">Lepas Karantina (RELEASE)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Pilih SKU Produk</label>
-                                    <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Kode Produksi / Batch</label>
-                                    <input type="text" class="form-control form-control-sm" id="qcKodeProd" required placeholder="Masukkan kode produksi...">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold" id="qcDateLabel">Tanggal Hold</label>
-                                    <input type="date" class="form-control form-control-sm" id="qcDate" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="qcQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('qc')">
-                                        <span class="input-group-text bg-light fw-bold" id="qcQtyPalletDisplay">0 Pallet</span>
-                                        <input type="hidden" id="qcQtyPallet" value="0">
-                                    </div>
-                                </div>
-                                <div class="mb-4" id="holdReasonContainer">
-                                    <label class="form-label small fw-bold text-danger">Alasan / Keterangan Hold</label>
-                                    <textarea class="form-control form-control-sm" id="qcReason" rows="2" placeholder="Misal: Kontaminasi kemasan, hasil lab out of spec..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">Update Status QC</button>
-                            </form>
+                            <h6 class="fw-bold text-secondary mb-3">Ringkasan Aktivitas</h6>
+                            <ul class="list-group list-group-flush bg-transparent small">
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Inbound (Prod):</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Inbound (Plant):</span> <strong class="text-success" id="summaryInPlant">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Outbound (Cust):</span> <strong class="text-danger" id="summaryOutCust">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Outbound (Plant):</span> <strong class="text-danger" id="summaryOutPlant">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Di-Hold QC:</span> <strong class="text-warning" id="summaryHold">0 Pallet</strong></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 4. STOCK OPNAME HARIAN (MULTI-ROW TABLE DENGAN PIC) -->
+        <!-- 3B. SUB-MENU: INBOUND FORM -->
+        <div id="page-trans-in" class="app-page">
+            <h4 class="fw-bold mb-3">Form Penerimaan Barang (Inbound)</h4>
+            <div class="card shadow-sm border-success col-md-6 mx-auto">
+                <div class="card-header bg-success text-white fw-bold">Penerimaan (Inbound)</div>
+                <div class="card-body">
+                    <form id="formIn" onsubmit="saveInbound(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Asal Masuk & Jenis</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="inSource" required>
+                                    <option value="Produksi">Produksi</option>
+                                    <option value="PlantLain">Plant Lain</option>
+                                </select>
+                                <select class="form-select form-select-sm border-primary" id="inKategori" required onchange="toggleInboundFields()">
+                                    <option value="Lokal">Lokal</option>
+                                    <option value="Ekspor">Ekspor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                            <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('in')">
+                            <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
+                        </div>
+                        
+                        <div id="inLokalFields" class="bg-light p-3 border rounded mb-3">
+                            <span class="badge bg-secondary mb-2">Informasi Barang Lokal</span>
+                            <input type="text" class="form-control form-control-sm" id="inKodeProdLokal" placeholder="Masukkan Kode Produksi / Batch">
+                        </div>
+
+                        <div id="inExportFields" class="dynamic-fields bg-light p-3 border rounded mb-3">
+                            <span class="badge bg-dark mb-2">Form Batch Ekspor</span>
+                            <input type="text" class="form-control form-control-sm mb-2" id="inExpQt" placeholder="Nomor QT / Batch">
+                            <input type="date" class="form-control form-control-sm mb-2" id="inExpProdate" title="Production Date">
+                            <input type="date" class="form-control form-control-sm mb-2" id="inExpExpdate" title="Expired Date">
+                            <input type="text" class="form-control form-control-sm mb-2" id="inExpBuyer" placeholder="Nama Buyer">
+                            <input type="text" class="form-control form-control-sm" id="inExpCountry" placeholder="Negara Tujuan">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Penempatan Rak & Lorong (Row)</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateRows('in', '')"></select>
+                                <select class="form-select form-select-sm" id="inRackRow" required><option value="">- Lorong -</option></select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Input Jumlah KARTON</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="inQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('in')">
+                                <span class="input-group-text bg-light text-primary fw-bold" id="inQtyPalletDisplay">0 Pallet</span>
+                                <input type="hidden" id="inQtyPallet" value="0">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Proses Barang Masuk</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3C. SUB-MENU: OUTBOUND FORM -->
+        <div id="page-trans-out" class="app-page">
+            <h4 class="fw-bold mb-3">Form Pengiriman Barang (Outbound)</h4>
+            <div class="card shadow-sm border-danger col-md-6 mx-auto">
+                <div class="card-header bg-danger text-white fw-bold">Pengiriman (Outbound)</div>
+                <div class="card-body">
+                    <form id="formOut" onsubmit="saveOutbound(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tujuan Barang Keluar</label>
+                            <select class="form-select form-select-sm" id="outTarget" required>
+                                <option value="Customer">Ke Customer / Ekspor</option>
+                                <option value="PlantLain">Ke Plant Lain (Mutasi)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                            <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('out')">
+                            <small class="text-muted" id="outSkuHint">Standar: 0 Carton / Pallet</small>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Input Jumlah KARTON Keluar</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="outQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('out')">
+                                <span class="input-group-text bg-light text-danger fw-bold" id="outQtyPalletDisplay">0 Pallet</span>
+                                <input type="hidden" id="outQtyPallet" value="0">
+                            </div>
+                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang status HOLD tidak bisa dikirim</small>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">Proses Barang Keluar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D. SUB-MENU: HOLD / RELEASE FORM -->
+        <div id="page-trans-hold" class="app-page">
+            <h4 class="fw-bold mb-3">Status Karantina QC (Hold / Release)</h4>
+            <div class="card shadow-sm border-warning col-md-6 mx-auto">
+                <div class="card-header bg-warning text-dark fw-bold">Status QC (Hold / Release)</div>
+                <div class="card-body">
+                    <form id="formHold" onsubmit="saveHoldStatus(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tindakan</label>
+                            <select class="form-select form-select-sm" id="qcAction" required onchange="toggleHoldReason()">
+                                <option value="Hold">Karantina Barang (HOLD)</option>
+                                <option value="Release">Lepas Karantina (RELEASE)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Pilih SKU Produk</label>
+                            <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Kode Produksi / Batch</label>
+                            <input type="text" class="form-control form-control-sm" id="qcKodeProd" required placeholder="Masukkan kode produksi...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" id="qcDateLabel">Tanggal Hold</label>
+                            <input type="date" class="form-control form-control-sm" id="qcDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="qcQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('qc')">
+                                <span class="input-group-text bg-light fw-bold" id="qcQtyPalletDisplay">0 Pallet</span>
+                                <input type="hidden" id="qcQtyPallet" value="0">
+                            </div>
+                        </div>
+                        <div class="mb-4" id="holdReasonContainer">
+                            <label class="form-label small fw-bold text-danger">Alasan / Keterangan Hold</label>
+                            <textarea class="form-control form-control-sm" id="qcReason" rows="2" placeholder="Misal: Kontaminasi kemasan, hasil lab out of spec..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">Update Status QC</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. STOCK OPNAME HARIAN (NAMA DIUBAH MENJADI "STOCK OPNAME HARIAN") -->
         <div id="page-opname" class="app-page">
-            <h4 class="fw-bold mb-3">Audit Fisik Harian (Stock Opname Multi-Row)</h4>
+            <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
             <div class="card shadow-sm border-primary mb-3">
                 <div class="card-body">
                     <p class="small text-muted mb-3">Masukkan nama PIC (Stock Keeper) yang bertugas, lalu catat hasil hitung fisik pagi ini sebelum disubmit.</p>
                     
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
-                        <!-- INPUT PIC & TANGGAL GLOBAL -->
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-primary">👤 Nama PIC / Stock Keeper</label>
-                                <input type="text" class="form-control" id="opGlobalPic" required placeholder="Contoh: Budi / Ahmad (Wajib diisi)...">
+                                <input type="text" class="form-control" id="opGlobalPic" required placeholder="Contoh: Budi / Ahmad...">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-primary">📅 Tanggal Pelaksanaan Opname</label>
@@ -324,9 +405,7 @@
                                         <th style="width: 50px;">#</th>
                                     </tr>
                                 </thead>
-                                <tbody id="multiOpnameBody">
-                                    <!-- Baris dinamis -->
-                                </tbody>
+                                <tbody id="multiOpnameBody"></tbody>
                             </table>
                         </div>
 
@@ -513,6 +592,36 @@
             layoutCol4: ["BLOK U FG", "BLOK Q FG", "BLOK M FG", "BLOK I FG", "BLOK E FG", "BLOK A FG"]
         };
 
+        // --- SISTEM LOGIN / AKUN ---
+        function checkLoginStatus() {
+            let loggedInUser = localStorage.getItem('wms_logged_user');
+            if (loggedInUser) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('navUserDisplay').innerText = `User: ${loggedInUser}`;
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            let u = document.getElementById('loginUser').value.trim();
+            let p = document.getElementById('loginPass').value.trim();
+            
+            if (u === 'admin' && p === 'admin123') {
+                localStorage.setItem('wms_logged_user', u);
+                checkLoginStatus();
+                alert('Login Berhasil!');
+            } else {
+                alert('Username atau Password salah! (Gunakan admin / admin123)');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('wms_logged_user');
+            checkLoginStatus();
+        }
+
         function switchPage(pageId) {
             document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -522,6 +631,7 @@
             if (bsOffcanvas) bsOffcanvas.hide();
 
             if (pageId === 'page-rekon') renderRekonsiliasi(); 
+            if (pageId === 'page-trans-report') renderTransactionReport();
             if (pageId === 'page-opname') {
                 if(!document.getElementById('opGlobalDate').value) {
                     document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
@@ -532,10 +642,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v16')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v17')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v16', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v17', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -811,6 +921,7 @@
             document.getElementById('inExportFields').style.display = 'none';
             saveData();
             alert(`Masuk ${qtyPallet.toFixed(2)} Pallet ke ${row}!`);
+            switchPage('page-trans-report');
         }
 
         function saveOutbound(e) {
@@ -831,6 +942,7 @@
             document.getElementById('outQtyPalletDisplay').innerText = '0 Pallet';
             saveData();
             alert('Keluar berhasil dicatat!');
+            switchPage('page-trans-report');
         }
 
         function saveHoldStatus(e) {
@@ -880,6 +992,7 @@
             document.getElementById('holdReasonContainer').style.display = 'block';
             document.getElementById('qcDateLabel').innerText = 'Tanggal Hold';
             saveData();
+            switchPage('page-trans-report');
         }
 
         function processPasteSAP() {
@@ -925,6 +1038,59 @@
                     `;
                 }
             }
+        }
+
+        // --- RENDER GRAFIK & LAPORAN TRANSAKSI ---
+        let transChartInstance = null;
+        function renderTransactionReport() {
+            let totInProd = 0, totInPlant = 0, totOutCust = 0, totOutPlant = 0, totHold = 0;
+            for (let sku in stockData) {
+                let it = stockData[sku];
+                totInProd += it.inProd;
+                totInPlant += it.inPlant;
+                totOutCust += it.out;
+                totOutPlant += it.outPlant;
+                totHold += it.holdQty;
+            }
+
+            document.getElementById('summaryInProd').innerText = totInProd.toFixed(2) + ' Pallet';
+            document.getElementById('summaryInPlant').innerText = totInPlant.toFixed(2) + ' Pallet';
+            document.getElementById('summaryOutCust').innerText = totOutCust.toFixed(2) + ' Pallet';
+            document.getElementById('summaryOutPlant').innerText = totOutPlant.toFixed(2) + ' Pallet';
+            document.getElementById('summaryHold').innerText = totHold.toFixed(2) + ' Pallet';
+
+            let ctx = document.getElementById('transChart').getContext('2d');
+            if (transChartInstance) transChartInstance.destroy();
+
+            transChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Inbound Produksi', 'Inbound Plant Lain', 'Outbound Customer', 'Outbound Plant Lain', 'QC Hold'],
+                    datasets: [{
+                        label: 'Volume (Pallet)',
+                        data: [totInProd, totInPlant, totOutCust, totOutPlant, totHold],
+                        backgroundColor: ['#198754', '#20c997', '#dc3545', '#fd7e14', '#ffc107']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function exportTransExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n";
+            csvContent += `Inbound Produksi,${document.getElementById('summaryInProd').innerText}\n`;
+            csvContent += `Inbound Plant Lain,${document.getElementById('summaryInPlant').innerText}\n`;
+            csvContent += `Outbound Customer,${document.getElementById('summaryOutCust').innerText}\n`;
+            csvContent += `Outbound Plant Lain,${document.getElementById('summaryOutPlant').innerText}\n`;
+            csvContent += `QC Hold,${document.getElementById('summaryHold').innerText}\n`;
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_transaksi_wms.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         let blockModal = null;
@@ -1116,6 +1282,7 @@
             document.getElementById('statTotalSku').innerText = totalSkuCount;
         }
 
+        checkLoginStatus();
         initRackingDropdowns();
         renderAll();
     </script>
