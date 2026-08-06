@@ -200,8 +200,8 @@
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol4"></div>
                     </div>
                     <div class="row mt-4 px-3">
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">AREA ROLLING DOOR</span></div>
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">AREA LIFT</span></div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2">AREA ROLLING DOOR</span></div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2">AREA LIFT</span></div>
                     </div>
                 </div>
             </div>
@@ -272,14 +272,14 @@
                             <span class="badge bg-success mb-2">Detail Produksi Pabrik</span>
                             <div class="row g-2">
                                 <div class="col-md-4">
-                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">PLANT</label>
+                                    <label class="form-label fw-bold">PLANT</label>
                                     <select class="form-select form-select-sm" id="inPlantNo">
                                         <option value="1115">1115</option>
                                         <option value="1116">1116</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">SHIFT</label>
+                                    <label class="form-label fw-bold">SHIFT</label>
                                     <select class="form-select form-select-sm" id="inShift">
                                         <option value="Shift 1">Shift 1</option>
                                         <option value="Shift 2">Shift 2</option>
@@ -287,7 +287,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">LINE</label>
+                                    <label class="form-label fw-bold">LINE</label>
                                     <input type="text" class="form-control form-control-sm" id="inLine" placeholder="Line 1...">
                                 </div>
                             </div>
@@ -320,13 +320,13 @@
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle">
-                                    <thead class="table-success text-center" style="font-size: 0.85rem;">
+                                    <thead class="table-success text-center">
                                         <tr>
                                             <th>Blok / Area Penyimpanan</th>
                                             <th>Lorong / Keterangan Floor</th>
-                                            <th style="width: 130px;">Karton</th>
-                                            <th style="width: 90px;">Pallet</th>
-                                            <th style="width: 45px;">#</th>
+                                            <th>Karton</th>
+                                            <th>Pallet</th>
+                                            <th>#</th>
                                         </tr>
                                     </thead>
                                     <tbody id="inboundLocBody"></tbody>
@@ -367,11 +367,11 @@
                             <label class="form-label small fw-bold text-primary">Lokasi Penyimpanan Aktual (Berdasarkan Hasil Stock Opname / Masuk)</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle">
-                                    <thead class="table-secondary text-center" style="font-size: 0.85rem;">
+                                    <thead class="table-secondary text-center">
                                         <tr>
                                             <th>Lokasi Penyimpanan (Rak / Floor)</th>
                                             <th>Stok Tersedia</th>
-                                            <th style="width: 150px;">Karton yang Diambil</th>
+                                            <th>Karton yang Diambil</th>
                                         </tr>
                                     </thead>
                                     <tbody id="outboundLinkedLocBody">
@@ -463,12 +463,12 @@
                             <table class="table table-bordered align-middle">
                                 <thead class="table-primary text-center">
                                     <tr>
-                                        <th style="width: 180px;">Blok Rak / Lantai</th>
-                                        <th style="width: 140px;">Lorong / Keterangan Floor</th>
+                                        <th>Blok Rak / Lantai</th>
+                                        <th>Lorong / Keterangan Floor</th>
                                         <th>Cari & Pilih SKU</th>
-                                        <th style="width: 130px;">Fisik (Karton)</th>
-                                        <th style="width: 100px;">Pallet</th>
-                                        <th style="width: 50px;">#</th>
+                                        <th>Fisik (Karton)</th>
+                                        <th>Pallet</th>
+                                        <th>#</th>
                                     </tr>
                                 </thead>
                                 <tbody id="multiOpnameBody"></tbody>
@@ -524,7 +524,7 @@
             <h4 class="fw-bold mb-3">Laporan Breakdown Stok PWA</h4>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover align-middle text-center" style="font-size: 0.85rem;">
+                    <table class="table table-bordered table-hover align-middle text-center">
                         <thead class="table-dark">
                             <tr>
                                 <th>No</th>
@@ -752,10 +752,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v24')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v25')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v24', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v25', JSON.stringify(stockData));
             renderAll();
         }
 
