@@ -284,25 +284,38 @@
             </div>
         </div>
 
-        <!-- 4. STOCK OPNAME HARIAN (MULTI-ROW TABLE) -->
+        <!-- 4. STOCK OPNAME HARIAN (MULTI-ROW TABLE DENGAN PIC) -->
         <div id="page-opname" class="app-page">
             <h4 class="fw-bold mb-3">Audit Fisik Harian (Stock Opname Multi-Row)</h4>
             <div class="card shadow-sm border-primary mb-3">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <p class="small text-muted mb-0">Tim *stock keeper* dapat menginput banyak baris hasil hitung pagi ini sekaligus sebelum disubmit pada siang hari.</p>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">➕ Tambah Baris</button>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">🗑️ Reset Form</button>
-                        </div>
-                    </div>
-
+                    <p class="small text-muted mb-3">Masukkan nama PIC (Stock Keeper) yang bertugas, lalu catat hasil hitung fisik pagi ini sebelum disubmit.</p>
+                    
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
+                        <!-- INPUT PIC & TANGGAL GLOBAL -->
+                        <div class="row g-3 bg-light p-3 border rounded mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-primary">👤 Nama PIC / Stock Keeper</label>
+                                <input type="text" class="form-control" id="opGlobalPic" required placeholder="Contoh: Budi / Ahmad (Wajib diisi)...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-primary">📅 Tanggal Pelaksanaan Opname</label>
+                                <input type="date" class="form-control" id="opGlobalDate" required>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Daftar Item / Lokasi Rak yang Dihitung</h6>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">➕ Tambah Baris</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">🗑️ Reset Tabel</button>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
                                 <thead class="table-primary text-center">
                                     <tr>
-                                        <th style="width: 140px;">Tanggal Opname</th>
                                         <th style="width: 180px;">Blok Rak</th>
                                         <th style="width: 140px;">Lorong (Row)</th>
                                         <th>Cari & Pilih SKU</th>
@@ -312,7 +325,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="multiOpnameBody">
-                                    <!-- Baris dinamis akan muncul di sini -->
+                                    <!-- Baris dinamis -->
                                 </tbody>
                             </table>
                         </div>
@@ -446,12 +459,12 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL BATCH / QC -->
+    <!-- MODAL DETAIL BATCH / OPNAME PIC -->
     <div class="modal fade" id="modalExportDetail" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Log Riwayat Batch, QC & Produksi</h5>
+                    <h5 class="modal-title fs-6">Log Riwayat Batch, QC & PIC Opname</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -509,15 +522,20 @@
             if (bsOffcanvas) bsOffcanvas.hide();
 
             if (pageId === 'page-rekon') renderRekonsiliasi(); 
-            if (pageId === 'page-opname' && document.getElementById('multiOpnameBody').children.length === 0) {
-                addOpnameRow(); // Inisialisasi minimal 1 baris saat pertama kali dibuka
+            if (pageId === 'page-opname') {
+                if(!document.getElementById('opGlobalDate').value) {
+                    document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
+                }
+                if (document.getElementById('multiOpnameBody').children.length === 0) {
+                    addOpnameRow();
+                }
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v15')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v16')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v15', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v16', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -549,12 +567,11 @@
             }
         }
 
-        // --- MANAJEMEN TABEL MULTI-ROW OPNAME HARIAN ---
+        // --- MULTI-ROW OPNAME DENGAN PIC ---
         let opnameRowIdx = 0;
         function addOpnameRow() {
             opnameRowIdx++;
             let tbody = document.getElementById('multiOpnameBody');
-            let todayStr = new Date().toISOString().split('T')[0];
             let blockOptions = '<option value="">-- Pilih Blok --</option>';
             Object.keys(masterRacking).sort().forEach(b => {
                 blockOptions += `<option value="${b}">${b}</option>`;
@@ -563,7 +580,6 @@
             let tr = document.createElement('tr');
             tr.id = `opRow_${opnameRowIdx}`;
             tr.innerHTML = `
-                <td><input type="date" class="form-control form-control-sm" id="opDate_${opnameRowIdx}" value="${todayStr}" required></td>
                 <td><select class="form-select form-select-sm" id="opRackBlock_${opnameRowIdx}" required onchange="populateRows('op', '_${opnameRowIdx}')">${blockOptions}</select></td>
                 <td><select class="form-select form-select-sm" id="opRackRow_${opnameRowIdx}" required><option value="">- Lorong -</option></select></td>
                 <td><input type="text" class="form-control form-control-sm" id="opSku_${opnameRowIdx}" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(${opnameRowIdx})"></td>
@@ -600,17 +616,21 @@
 
         function saveBulkOpname(e) {
             e.preventDefault();
+            let picName = document.getElementById('opGlobalPic').value.trim();
+            let opDate = document.getElementById('opGlobalDate').value;
+            
+            if(!picName) { alert('Harap isi nama PIC / Stock Keeper terlebih dahulu!'); return; }
+            if(!opDate) { alert('Harap pilih tanggal opname!'); return; }
+
             let tbody = document.getElementById('multiOpnameBody');
             let rows = tbody.children;
             if(rows.length === 0) { alert('Belum ada data opname yang dimasukkan!'); return; }
 
             let batchData = [];
-            
             for(let i = 0; i < rows.length; i++) {
                 let rowEl = rows[i];
                 let idx = rowEl.id.split('_')[1];
                 
-                let date = document.getElementById(`opDate_${idx}`).value;
                 let block = document.getElementById(`opRackBlock_${idx}`).value;
                 let row = document.getElementById(`opRackRow_${idx}`).value;
                 let sku = extractSku(document.getElementById(`opSku_${idx}`).value);
@@ -624,29 +644,28 @@
                 let pallets = carton / jmlCar;
                 let rackLoc = `${block} | ${row}`;
 
-                batchData.push({ sku, rackLoc, pallets, date });
+                batchData.push({ sku, rackLoc, pallets });
             }
 
-            // Eksekusi pembaruan data opname harian
             batchData.forEach(item => {
                 let st = stockData[item.sku];
                 st.rack = item.rackLoc;
-                st.opname = item.pallets; // Set hasil opname fisik baru
-                // Reset transaksi sebelumnya karena sudah diwakili opname fisik harian
+                st.opname = item.pallets; 
                 st.inProd = 0; st.inPlant = 0; st.out = 0; st.outPlant = 0; st.holdQty = 0;
                 
                 st.exportLog.push({
-                    date: item.date,
+                    date: opDate,
                     type: 'Daily Opname',
-                    code: 'Audit Fisik',
+                    code: `PIC: ${picName}`,
                     prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: 'Opname Pagi Harian',
+                    reason: `Audit Fisik oleh ${picName}`,
                     qtyIn: item.pallets.toFixed(2)
                 });
             });
 
             saveData();
-            alert(`Berhasil menyimpan ${batchData.length} baris hasil stock opname harian! Stok gudang telah diperbarui.`);
+            alert(`Berhasil menyimpan ${batchData.length} baris opname oleh PIC [${picName}]! Stok gudang diperbarui.`);
+            document.getElementById('opGlobalPic').value = '';
             clearOpnameRows();
             switchPage('page-rekon');
         }
@@ -702,11 +721,6 @@
                 document.getElementById('inLokalFields').style.display = 'block';
                 document.getElementById('inExportFields').style.display = 'none';
             }
-        }
-
-        function toggleExportFields(type) {
-            const isExport = document.getElementById(type + 'Kategori').value === 'Ekspor';
-            document.getElementById(type + 'ExportFields').style.display = isExport ? 'block' : 'none';
         }
 
         function toggleHoldReason() {
@@ -993,14 +1007,14 @@
                 } else if(l.type === 'RELEASE QC') {
                     detailText = `<strong class="text-success">Status:</strong> ${l.reason}`;
                 } else if(l.type === 'Daily Opname') {
-                    detailText = `<strong class="text-primary">Audit Opname Harian</strong>`;
+                    detailText = `<strong class="text-primary">${l.code}</strong> | Keterangan: ${l.reason}`;
                 } else {
                     detailText = `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
                 }
 
                 ul.innerHTML += `
                     <li class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}] ${l.code}</h6><small>Tanggal: ${l.date}</small></div>
+                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}]</h6><small>Tanggal: ${l.date}</small></div>
                         <p class="mb-1 small">${detailText}</p>
                         <small class="text-success fw-bold">Jumlah: ${l.qtyIn} Pallet</small>
                     </li>
