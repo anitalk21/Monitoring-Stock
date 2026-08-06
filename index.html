@@ -78,7 +78,7 @@
         </div>
     </nav>
 
-    <!-- OFFCANVAS SIDEBAR DENGAN SUB-MENU TRANSAKSI -->
+    <!-- OFFCANVAS SIDEBAR DENGAN SUB-MENU -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
@@ -108,7 +108,17 @@
             
             <hr class="border-secondary my-2">
             
-            <button class="btn btn-outline-light w-100 text-start py-2" onclick="switchPage('page-master')">⚙️ Master Data & Akun</button>
+            <!-- PENGATURAN DENGAN SUB-MENU -->
+            <div>
+                <button class="btn btn-outline-light w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subSettingMenu">
+                    <span>⚙️ Pengaturan & Data</span>
+                    <span>▼</span>
+                </button>
+                <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subSettingMenu">
+                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-master')">📦 Master Data SKU</button>
+                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-accounts')">👤 Manajemen Akun</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -509,39 +519,37 @@
             </div>
         </div>
 
-        <!-- 7. MASTER DATA & MANAJEMEN AKUN -->
+        <!-- 7A. MASTER DATA SKU -->
         <div id="page-master" class="app-page">
-            <h4 class="fw-bold mb-3">Database Master SKU & Manajemen Akun</h4>
-            
-            <!-- MANAJEMEN AKUN -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-dark text-white fw-bold">Tambah Akun Pengguna Baru</div>
-                <div class="card-body">
-                    <form onsubmit="addNewAccount(event)" class="row g-3">
-                        <div class="col-md-5">
-                            <label class="form-label small fw-bold">Username Baru</label>
-                            <input type="text" class="form-control form-control-sm" id="newUsername" required placeholder="Masukkan username...">
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label small fw-bold">Password</label>
-                            <input type="password" class="form-control form-control-sm" id="newPassword" required placeholder="Masukkan password...">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Akun</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- MASTER SKU -->
+            <h4 class="fw-bold mb-3">Database Master SKU Produk</h4>
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-secondary text-white fw-bold">Database Master SKU Produk</div>
                 <div class="card-body">
                     <div class="alert alert-secondary small">
                         <strong>Format 6 Kolom:</strong> ID | NAME | JUMLAH | SAT | <b>JML CAR/PALLET</b> | SAT<br>
                     </div>
                     <textarea class="form-control font-monospace text-nowrap mb-3" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR CHOCO    1    PALLET    60    CAR"></textarea>
                     <button type="button" class="btn btn-dark px-4" onclick="processPasteData()">Simpan Data Master</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7B. MANAJEMEN AKUN -->
+        <div id="page-accounts" class="app-page">
+            <h4 class="fw-bold mb-3">Manajemen Akun Pengguna</h4>
+            <div class="card shadow-sm border-0 col-md-8 mx-auto">
+                <div class="card-header bg-dark text-white fw-bold">Tambah Akun Pengguna Baru</div>
+                <div class="card-body">
+                    <form onsubmit="addNewAccount(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Username Baru</label>
+                            <input type="text" class="form-control" id="newUsername" required placeholder="Masukkan username...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" class="form-control" id="newPassword" required placeholder="Masukkan password...">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan Akun Baru</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -712,10 +720,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v18')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v19')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v18', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v19', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -896,7 +904,6 @@
             const source = document.getElementById('inSource').value;
             const kategori = document.getElementById('inKategori').value;
             
-            // Tampilkan field tambahan produksi jika source adalah Produksi
             if(source === 'Produksi') {
                 document.getElementById('prodExtraFields').style.display = 'block';
             } else {
@@ -1021,7 +1028,6 @@
 
             if (qtyPallet > avail) { alert(`GAGAL! Sisa Available hanya ${avail.toFixed(2)} pallet.`); return; }
 
-            // Dicatat sebagai pengiriman keluar (masuk ke kolom out / akumulasi pengiriman)
             item.out += qtyPallet;
             
             item.exportLog.push({
