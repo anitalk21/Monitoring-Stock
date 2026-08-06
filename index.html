@@ -326,7 +326,7 @@
                                             <th>Lorong / Keterangan Floor</th>
                                             <th>Karton</th>
                                             <th>Pallet</th>
-                                            <th>#</th>
+                                            <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="inboundLocBody"></tbody>
@@ -468,7 +468,7 @@
                                         <th>Cari & Pilih SKU</th>
                                         <th>Fisik (Karton)</th>
                                         <th>Pallet</th>
-                                        <th>#</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="multiOpnameBody"></tbody>
@@ -752,10 +752,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v26')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v27')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v26', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v27', JSON.stringify(stockData));
             renderAll();
         }
 
