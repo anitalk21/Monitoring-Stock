@@ -250,11 +250,11 @@
             </div>
         </div>
 
-        <!-- 3B. SUB-MENU: PENERIMAAN BARANG JADI DARI PRODUKSI -->
+        <!-- 3B. SUB-MENU: PENERIMAAN BARANG JADI DARI PRODUKSI (MULTI-LOKASI/LANTAI) -->
         <div id="page-trans-in" class="app-page">
             <h4 class="fw-bold mb-3">Penerimaan Barang Jadi dari Produksi</h4>
-            <div class="card shadow-sm border-success col-md-6 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Penerimaan Barang Jadi dari Produksi</div>
+            <div class="card shadow-sm border-success col-md-8 mx-auto">
+                <div class="card-header bg-success text-white fw-bold">Penerimaan Barang Jadi dari Produksi (Mendukung Multi-Lokasi & Lantai)</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="mb-3">
@@ -271,7 +271,7 @@
                             </div>
                         </div>
 
-                        <!-- KOLOM TAMBAHAN KHUSUS PRODUKSI: PLANT (1115 / 1116), SHIFT, LINE -->
+                        <!-- DETAIL PRODUKSI -->
                         <div id="prodExtraFields" class="bg-success-subtle p-3 border border-success rounded mb-3">
                             <span class="badge bg-success mb-2">Detail Produksi Pabrik</span>
                             <div class="row g-2">
@@ -299,7 +299,7 @@
 
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                            <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('in')">
+                            <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="updateInboundHint()">
                             <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
                         </div>
                         
@@ -317,32 +317,39 @@
                             <input type="text" class="form-control form-control-sm" id="inExpCountry" placeholder="Negara Tujuan">
                         </div>
 
+                        <!-- MULTI-LOKASI PENERIMAAN (BISA RACK ATAU FLOOR) -->
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Penempatan Rak & Lorong (Row)</label>
-                            <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateRows('in', '')"></select>
-                                <select class="form-select form-select-sm" id="inRackRow" required><option value="">- Lorong -</option></select>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan (Rak / Lantai Floor)</label>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">➕ Tambah Lokasi Lain</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-success text-center" style="font-size: 0.85rem;">
+                                        <tr>
+                                            <th>Blok / Area Penyimpanan</th>
+                                            <th>Lorong / Keterangan Floor</th>
+                                            <th style="width: 130px;">Karton</th>
+                                            <th style="width: 90px;">Pallet</th>
+                                            <th style="width: 45px;">#</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inboundLocBody"></tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold">Input Jumlah KARTON</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="inQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('in')">
-                                <span class="input-group-text bg-light text-primary fw-bold" id="inQtyPalletDisplay">0 Pallet</span>
-                                <input type="hidden" id="inQtyPallet" value="0">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">Proses Barang Masuk</button>
+
+                        <button type="submit" class="btn btn-success w-100 fw-bold">Proses Barang Masuk</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- 3C. SUB-MENU: PENGIRIMAN -->
+        <!-- 3C. SUB-MENU: PENGIRIMAN (MULTI-SUMBER LOKASI) -->
         <div id="page-trans-out" class="app-page">
             <h4 class="fw-bold mb-3">Form Pengiriman Barang</h4>
-            <div class="card shadow-sm border-danger col-md-6 mx-auto">
-                <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi</div>
+            <div class="card shadow-sm border-danger col-md-8 mx-auto">
+                <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi (Mendukung Pengambilan Multi-Lokasi/Floor)</div>
                 <div class="card-body">
                     <form id="formOut" onsubmit="saveOutbound(event)">
                         <div class="mb-3">
@@ -356,19 +363,34 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                            <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('out')">
+                            <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="updateOutboundHint()">
                             <small class="text-muted" id="outSkuHint">Standar: 0 Carton / Pallet</small>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold">Input Jumlah KARTON Keluar</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="outQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('out')">
-                                <span class="input-group-text bg-light text-danger fw-bold" id="outQtyPalletDisplay">0 Pallet</span>
-                                <input type="hidden" id="outQtyPallet" value="0">
+
+                        <!-- MULTI-LOKASI SUMBER PENGIRIMAN -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold mb-0">Sumber Pengambilan (Rak / Lantai Floor)</label>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="addOutboundLocRow()">➕ Tambah Sumber Lokasi</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-danger text-center" style="font-size: 0.85rem;">
+                                        <tr>
+                                            <th>Blok / Area Asal</th>
+                                            <th>Lorong / Keterangan Floor</th>
+                                            <th style="width: 130px;">Karton Keluar</th>
+                                            <th style="width: 90px;">Pallet</th>
+                                            <th style="width: 45px;">#</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="outboundLocBody"></tbody>
+                                </table>
                             </div>
                             <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang status HOLD tidak bisa dikirim</small>
                         </div>
-                        <button type="submit" class="btn btn-danger w-100">Proses Pengiriman Barang</button>
+
+                        <button type="submit" class="btn btn-danger w-100 fw-bold">Proses Pengiriman Barang</button>
                     </form>
                 </div>
             </div>
@@ -423,7 +445,7 @@
             <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
             <div class="card shadow-sm border-primary mb-3">
                 <div class="card-body">
-                    <p class="small text-muted mb-3">Masukkan nama PIC (Stock Keeper) yang bertugas, lalu catat hasil hitung fisik pagi ini sebelum disubmit.</p>
+                    <p class="small text-muted mb-3">Masukkan nama PIC (Stock Keeper) yang bertugas, lalu catat hasil hitung fisik (bisa di Rak maupun Lantai/Floor) sebelum disubmit.</p>
                     
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
@@ -438,7 +460,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">Daftar Item / Lokasi Rak yang Dihitung</h6>
+                            <h6 class="fw-bold mb-0">Daftar Item / Lokasi (Rak atau Floor) yang Dihitung</h6>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">➕ Tambah Baris</button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">🗑️ Reset Tabel</button>
@@ -449,8 +471,8 @@
                             <table class="table table-bordered align-middle">
                                 <thead class="table-primary text-center">
                                     <tr>
-                                        <th style="width: 180px;">Blok Rak</th>
-                                        <th style="width: 140px;">Lorong (Row)</th>
+                                        <th style="width: 180px;">Blok Rak / Lantai</th>
+                                        <th style="width: 140px;">Lorong / Keterangan Floor</th>
                                         <th>Cari & Pilih SKU</th>
                                         <th style="width: 130px;">Fisik (Karton)</th>
                                         <th style="width: 100px;">Pallet</th>
@@ -492,7 +514,7 @@
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Lokasi Rak & Lorong</th>
+                                <th>Lokasi Penyimpanan</th>
                                 <th class="bg-primary text-white">Stok SAP (Pallet)</th>
                                 <th class="bg-success text-white">Fisik (Pallet)</th>
                                 <th>Selisih Variance</th>
@@ -517,11 +539,10 @@
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
                                 <th>Detail Batch / QC / Ekspor</th>
-                                <th>Blok & Lorong</th>
+                                <th>Lokasi Penyimpanan</th>
                                 <th>In (Prod)</th>
                                 <th>In (Plant)</th>
-                                <th>Out (Cust)</th>
-                                <th>Out (Plant)</th>
+                                <th>Out</th>
                                 <th>Total Fisik Pallet</th>
                                 <th class="bg-warning text-dark">Di-Hold (QC)</th>
                                 <th class="bg-success text-white">Available Pallet</th>
@@ -629,6 +650,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const masterRacking = {
+            "LANTAI / FLOOR": { prefix: "FLOOR", rows: 1, perRow: 9999 }, // Opsi Penyimpanan Lantai / Floor Overcapacity
             "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
             "BLOK T FG": { prefix: "T", rows: 16, perRow: 24 },
             "BLOK P FG": { prefix: "P", rows: 28, perRow: 36 },
@@ -732,24 +754,23 @@
                     addOpnameRow();
                 }
             }
+            if (pageId === 'page-trans-in') {
+                if (document.getElementById('inboundLocBody').children.length === 0) {
+                    addInboundLocRow();
+                }
+            }
+            if (pageId === 'page-trans-out') {
+                if (document.getElementById('outboundLocBody').children.length === 0) {
+                    addOutboundLocRow();
+                }
+            }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v20')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v21')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v20', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v21', JSON.stringify(stockData));
             renderAll();
-        }
-
-        function initRackingDropdowns() {
-            const inRackBlock = document.getElementById('inRackBlock');
-            inRackBlock.innerHTML = '<option value="">-- Pilih Blok --</option>';
-            
-            let sortedBlocks = Object.keys(masterRacking).sort();
-            sortedBlocks.forEach(block => {
-                let max = masterRacking[block].rows * masterRacking[block].perRow;
-                inRackBlock.innerHTML += `<option value="${block}">${block} (Maks: ${max})</option>`;
-            });
         }
 
         function populateRows(type, rowId = '') {
@@ -757,8 +778,12 @@
             const rowSelect = document.getElementById(type + 'RackRow' + rowId);
             if(!blockSelect || !rowSelect) return;
             
-            rowSelect.innerHTML = '<option value="">- Lorong -</option>';
+            rowSelect.innerHTML = '<option value="">- Lorong / Floor Area -</option>';
             let blockName = blockSelect.value;
+            if(blockName === "LANTAI / FLOOR") {
+                rowSelect.innerHTML = `<option value="FLOOR-AREA">Area Lantai Umum</option>`;
+                return;
+            }
             if(masterRacking[blockName]) {
                 let rData = masterRacking[blockName];
                 for(let i = 1; i <= rData.rows; i++) {
@@ -769,12 +794,120 @@
             }
         }
 
-        // --- MULTI-ROW OPNAME DENGAN PIC ---
+        // --- MULTI-LOKASI PENERIMAAN (INBOUND) ---
+        let inboundRowIdx = 0;
+        function addInboundLocRow() {
+            inboundRowIdx++;
+            let tbody = document.getElementById('inboundLocBody');
+            let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
+            Object.keys(masterRacking).sort().forEach(b => {
+                blockOptions += `<option value="${b}">${b}</option>`;
+            });
+
+            let tr = document.createElement('tr');
+            tr.id = `inRow_${inboundRowIdx}`;
+            tr.innerHTML = `
+                <td><select class="form-select form-select-sm" id="inRackBlock_${inboundRowIdx}" required onchange="populateRows('in', '_${inboundRowIdx}')">${blockOptions}</select></td>
+                <td><select class="form-select form-select-sm" id="inRackRow_${inboundRowIdx}" required><option value="">- Pilih -</option></select></td>
+                <td><input type="number" class="form-control form-control-sm" id="inCarton_${inboundRowIdx}" required min="1" placeholder="Karton" oninput="calcInboundRow(${inboundRowIdx})"></td>
+                <td class="text-center fw-bold text-success" id="inPalletDisplay_${inboundRowIdx}">0 Plt</td>
+                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(${inboundRowIdx})">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeInboundLocRow(idx) {
+            let row = document.getElementById(`inRow_${idx}`);
+            if(row && document.getElementById('inboundLocBody').children.length > 1) row.remove();
+        }
+
+        function updateInboundHint() {
+            const skuInput = document.getElementById('inSku').value;
+            const sku = extractSku(skuInput);
+            let jmlCarPerPallet = 1;
+            if (stockData[sku]) {
+                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
+                document.getElementById('inSkuHint').innerText = `Standar: ${jmlCarPerPallet} Carton / Pallet`;
+            } else {
+                document.getElementById('inSkuHint').innerText = `Standar: 0 Carton / Pallet`;
+            }
+            // Recalculate all active rows
+            let rows = document.getElementById('inboundLocBody').children;
+            for(let i=0; i<rows.length; i++) {
+                let idx = rows[i].id.split('_')[1];
+                calcInboundRow(idx);
+            }
+        }
+
+        function calcInboundRow(idx) {
+            let skuInput = document.getElementById('inSku').value;
+            let sku = extractSku(skuInput);
+            let cartonVal = parseFloat(document.getElementById(`inCarton_${idx}`).value) || 0;
+            let displayEl = document.getElementById(`inPalletDisplay_${idx}`);
+            
+            let jmlCarPerPallet = 1;
+            if(stockData[sku]) jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
+            let pallets = cartonVal / jmlCarPerPallet;
+            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
+        }
+
+        // --- MULTI-LOKASI PENGIRIMAN (OUTBOUND) ---
+        let outboundRowIdx = 0;
+        function addOutboundLocRow() {
+            outboundRowIdx++;
+            let tbody = document.getElementById('outboundLocBody');
+            let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
+            Object.keys(masterRacking).sort().forEach(b => {
+                blockOptions += `<option value="${b}">${b}</option>`;
+            });
+
+            let tr = document.createElement('tr');
+            tr.id = `outRow_${outboundRowIdx}`;
+            tr.innerHTML = `
+                <td><select class="form-select form-select-sm" id="outRackBlock_${outboundRowIdx}" required onchange="populateRows('out', '_${outboundRowIdx}')">${blockOptions}</select></td>
+                <td><select class="form-select form-select-sm" id="outRackRow_${outboundRowIdx}" required><option value="">- Pilih -</option></select></td>
+                <td><input type="number" class="form-control form-control-sm" id="outCarton_${outboundRowIdx}" required min="1" placeholder="Karton" oninput="calcOutboundRow(${outboundRowIdx})"></td>
+                <td class="text-center fw-bold text-danger" id="outPalletDisplay_${outboundRowIdx}">0 Plt</td>
+                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeOutboundLocRow(${outboundRowIdx})">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeOutboundLocRow(idx) {
+            let row = document.getElementById(`outRow_${idx}`);
+            if(row && document.getElementById('outboundLocBody').children.length > 1) row.remove();
+        }
+
+        function updateOutboundHint() {
+            const skuInput = document.getElementById('outSku').value;
+            const sku = extractSku(skuInput);
+            let jmlCarPerPallet = 1;
+            if (stockData[sku]) {
+                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
+                document.getElementById('outSkuHint').innerText = `Standar: ${jmlCarPerPallet} Carton / Pallet`;
+            } else {
+                document.getElementById('outSkuHint').innerText = `Standar: 0 Carton / Pallet`;
+            }
+        }
+
+        function calcOutboundRow(idx) {
+            let skuInput = document.getElementById('outSku').value;
+            let sku = extractSku(skuInput);
+            let cartonVal = parseFloat(document.getElementById(`outCarton_${idx}`).value) || 0;
+            let displayEl = document.getElementById(`outPalletDisplay_${idx}`);
+            
+            let jmlCarPerPallet = 1;
+            if(stockData[sku]) jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
+            let pallets = cartonVal / jmlCarPerPallet;
+            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
+        }
+
+        // --- MULTI-ROW OPNAME DENGAN PIC & FLOOR ---
         let opnameRowIdx = 0;
         function addOpnameRow() {
             opnameRowIdx++;
             let tbody = document.getElementById('multiOpnameBody');
-            let blockOptions = '<option value="">-- Pilih Blok --</option>';
+            let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
             Object.keys(masterRacking).sort().forEach(b => {
                 blockOptions += `<option value="${b}">${b}</option>`;
             });
@@ -783,7 +916,7 @@
             tr.id = `opRow_${opnameRowIdx}`;
             tr.innerHTML = `
                 <td><select class="form-select form-select-sm" id="opRackBlock_${opnameRowIdx}" required onchange="populateRows('op', '_${opnameRowIdx}')">${blockOptions}</select></td>
-                <td><select class="form-select form-select-sm" id="opRackRow_${opnameRowIdx}" required><option value="">- Lorong -</option></select></td>
+                <td><select class="form-select form-select-sm" id="opRackRow_${opnameRowIdx}" required><option value="">- Pilih -</option></select></td>
                 <td><input type="text" class="form-control form-control-sm" id="opSku_${opnameRowIdx}" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(${opnameRowIdx})"></td>
                 <td><input type="number" class="form-control form-control-sm" id="opCarton_${opnameRowIdx}" required min="0" placeholder="Karton" oninput="calcMultiRow(${opnameRowIdx})"></td>
                 <td class="text-center fw-bold text-primary" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>
@@ -851,16 +984,16 @@
 
             batchData.forEach(item => {
                 let st = stockData[item.sku];
-                st.rack = item.rackLoc;
+                st.rack = item.rackLoc; // Mendukung multi lokasi tersimpan
                 st.opname = item.pallets; 
-                st.inProd = 0; st.inPlant = 0; st.out = 0; st.outPlant = 0; st.holdQty = 0;
+                st.inProd = 0; st.inPlant = 0; st.out = 0; st.holdQty = 0;
                 
                 st.exportLog.push({
                     date: opDate,
                     type: 'Daily Opname',
                     code: `PIC: ${picName}`,
                     prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: `Audit Fisik oleh ${picName}`,
+                    reason: `Audit Fisik oleh ${picName} di ${item.rack}`,
                     qtyIn: item.pallets.toFixed(2)
                 });
             });
@@ -899,14 +1032,14 @@
             hiddenEl.value = pallets;
         }
 
-        function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - (item.out + item.outPlant); }
+        function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - item.holdQty; }
 
         function getGlobalRackLoad(blockName, rowName = null) {
             let total = 0;
             let targetLoc = rowName ? `${blockName} | ${rowName}` : blockName;
             for (let s in stockData) {
-                if ((rowName && stockData[s].rack === targetLoc) || (!rowName && stockData[s].rack.startsWith(blockName))) {
+                if ((rowName && stockData[s].rack.includes(targetLoc)) || (!rowName && stockData[s].rack.startsWith(blockName))) {
                     let fisik = getSisaFisik(stockData[s]);
                     if (fisik > 0) total += fisik;
                 }
@@ -955,7 +1088,7 @@
                             jumlah: (cols[2] || '1').trim(), satuan1: (cols[3] || 'PALLET').trim(),
                             jmlCar: (cols[4] || '1').trim(), satuan2: (cols[5] || 'CAR').trim(),
                             rack: '-', opname: 0, inProd: 0, out: 0, 
-                            inPlant: 0, outPlant: 0, holdQty: 0, sapQty: 0, exportLog: []
+                            inPlant: 0, holdQty: 0, sapQty: 0, exportLog: []
                         };
                         countAdded++;
                     }
@@ -970,26 +1103,46 @@
         function saveInbound(e) {
             e.preventDefault();
             const sku = extractSku(document.getElementById('inSku').value);
-            const block = document.getElementById('inRackBlock').value;
-            const row = document.getElementById('inRackRow').value;
-            const rackIn = `${block} | ${row}`;
             const source = document.getElementById('inSource').value;
             const kategori = document.getElementById('inKategori').value;
-            const qtyPallet = parseFloat(document.getElementById('inQtyPallet').value);
             
             let plantNo = document.getElementById('inPlantNo').value;
             let shiftNo = document.getElementById('inShift').value;
             let lineNo = document.getElementById('inLine').value || '-';
 
-            if (!stockData[sku] || !row) { alert('SKU / Lorong tidak valid!'); return; }
+            if (!stockData[sku]) { alert('SKU tidak valid!'); return; }
+
+            let tbody = document.getElementById('inboundLocBody');
+            let rows = tbody.children;
+            if(rows.length === 0) { alert('Harap masukkan minimal 1 lokasi penempatan!'); return; }
+
+            let totalPalletIn = 0;
+            let locListStr = [];
+
+            for(let i = 0; i < rows.length; i++) {
+                let rowEl = rows[i];
+                let idx = rowEl.id.split('_')[1];
+                let block = document.getElementById(`inRackBlock_${idx}`).value;
+                let row = document.getElementById(`inRackRow_${idx}`).value;
+                let carton = parseFloat(document.getElementById(`inCarton_${idx}`).value) || 0;
+
+                let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
+                let pallets = carton / jmlCar;
+
+                if(block !== "LANTAI / FLOOR") {
+                    let maxCap = masterRacking[block].perRow;
+                    let currentLoad = getGlobalRackLoad(block, row);
+                    if((currentLoad + pallets) > maxCap) {
+                        alert(`GAGAL! Rak ${block} - ${row} kapasitas maksimal ${maxCap} pallet.`); return;
+                    }
+                }
+
+                totalPalletIn += pallets;
+                locListStr.push(`${block} | ${row} (${pallets.toFixed(2)} Plt)`);
+            }
 
             let item = stockData[sku];
-            let maxCap = masterRacking[block].perRow;
-            let currentRowLoad = getGlobalRackLoad(block, row);
-            
-            if ((currentRowLoad + qtyPallet) > maxCap) {
-                alert(`GAGAL! Lorong ${row} maksimal ${maxCap} pallet.\nTerisi ${currentRowLoad.toFixed(2)} pallet.`); return;
-            }
+            item.rack = locListStr.join(', ');
 
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
@@ -1000,8 +1153,8 @@
                     expdate: document.getElementById('inExpExpdate').value || '-',
                     buyer: document.getElementById('inExpBuyer').value || '-',
                     country: document.getElementById('inExpCountry').value || '-',
-                    reason: `Shift: ${shiftNo}, Line: ${lineNo}`,
-                    qtyIn: qtyPallet.toFixed(2)
+                    reason: `Shift: ${shiftNo}, Line: ${lineNo}, Lokasi: ${item.rack}`,
+                    qtyIn: totalPalletIn.toFixed(2)
                 });
             } else {
                 let kodeLokal = document.getElementById('inKodeProdLokal').value.trim();
@@ -1011,22 +1164,22 @@
                         type: source === 'Produksi' ? `Prod (Plant ${plantNo})` : 'Plant Lain',
                         code: kodeLokal,
                         prodate: '-', expdate: '-', buyer: '-', country: '-', 
-                        reason: `Shift: ${shiftNo}, Line: ${lineNo}`,
-                        qtyIn: qtyPallet.toFixed(2)
+                        reason: `Shift: ${shiftNo}, Line: ${lineNo}, Lokasi: ${item.rack}`,
+                        qtyIn: totalPalletIn.toFixed(2)
                     });
                 }
             }
 
-            item.rack = rackIn;
-            if (source === 'Produksi') item.inProd += qtyPallet; else item.inPlant += qtyPallet;
+            if (source === 'Produksi') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
             
             document.getElementById('formIn').reset();
-            document.getElementById('inQtyPalletDisplay').innerText = '0 Pallet';
+            document.getElementById('inboundLocBody').innerHTML = '';
+            addInboundLocRow();
             document.getElementById('inLokalFields').style.display = 'block';
             document.getElementById('inExportFields').style.display = 'none';
             document.getElementById('prodExtraFields').style.display = 'block';
             saveData();
-            alert(`Penerimaan Berhasil! Masuk ${qtyPallet.toFixed(2)} Pallet ke ${row}!`);
+            alert(`Penerimaan Berhasil! Masuk total ${totalPalletIn.toFixed(2)} Pallet tersebar di ${item.rack}!`);
             switchPage('page-trans-report');
         }
 
@@ -1034,29 +1187,52 @@
             e.preventDefault();
             const sku = extractSku(document.getElementById('outSku').value);
             const target = document.getElementById('outTarget').value;
-            const qtyPallet = parseFloat(document.getElementById('outQtyPallet').value);
             
             if (!stockData[sku]) return;
             let item = stockData[sku];
             let avail = getAvailableStock(item);
 
-            if (qtyPallet > avail) { alert(`GAGAL! Sisa Available hanya ${avail.toFixed(2)} pallet.`); return; }
+            let tbody = document.getElementById('outboundLocBody');
+            let rows = tbody.children;
+            if(rows.length === 0) { alert('Harap masukkan minimal 1 sumber pengambilan lokasi!'); return; }
 
-            item.out += qtyPallet;
+            let totalPalletOut = 0;
+            let sourceListStr = [];
+
+            for(let i = 0; i < rows.length; i++) {
+                let rowEl = rows[i];
+                let idx = rowEl.id.split('_')[1];
+                let block = document.getElementById(`outRackBlock_${idx}`).value;
+                let row = document.getElementById(`outRackRow_${idx}`).value;
+                let carton = parseFloat(document.getElementById(`outCarton_${idx}`).value) || 0;
+
+                let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
+                let pallets = carton / jmlCar;
+
+                totalPalletOut += pallets;
+                sourceListStr.push(`${block} | ${row} (${pallets.toFixed(2)} Plt)`);
+            }
+
+            if (totalPalletOut > avail) { 
+                alert(`GAGAL! Total pengeluaran ${totalPalletOut.toFixed(2)} pallet melebihi sisa Available (${avail.toFixed(2)} pallet).`); return; 
+            }
+
+            item.out += totalPalletOut;
             
             item.exportLog.push({
                 date: new Date().toLocaleDateString('id-ID'),
                 type: `Kirim (${target})`,
                 code: 'Outbound',
                 prodate: '-', expdate: '-', buyer: '-', country: '-',
-                reason: `Tujuan: ${target}`,
-                qtyIn: -qtyPallet.toFixed(2)
+                reason: `Tujuan: ${target}, Dari: ${sourceListStr.join(', ')}`,
+                qtyIn: -totalPalletOut.toFixed(2)
             });
 
             document.getElementById('formOut').reset();
-            document.getElementById('outQtyPalletDisplay').innerText = '0 Pallet';
+            document.getElementById('outboundLocBody').innerHTML = '';
+            addOutboundLocRow();
             saveData();
-            alert(`Pengiriman [${target}] berhasil dicatat!`);
+            alert(`Pengiriman [${target}] sejumlah ${totalPalletOut.toFixed(2)} Pallet berhasil dicatat!`);
             switchPage('page-trans-report');
         }
 
@@ -1163,7 +1339,7 @@
                 let it = stockData[sku];
                 totInProd += it.inProd;
                 totInPlant += it.inPlant;
-                totOutTotal += (it.out + it.outPlant);
+                totOutTotal += it.out;
                 totHold += it.holdQty;
             }
 
@@ -1220,12 +1396,8 @@
                         legend: { display: false }
                     },
                     scales: {
-                        x: {
-                            ticks: { font: { size: 10 } }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
+                        x: { ticks: { font: { size: 10 } } },
+                        y: { beginAtZero: true }
                     }
                 }
             });
@@ -1294,7 +1466,7 @@
             let found = false;
 
             for(let sku in stockData) {
-                if(stockData[sku].rack === locString) {
+                if(stockData[sku].rack.includes(locString)) {
                     let fisik = getSisaFisik(stockData[sku]);
                     if(fisik > 0) {
                         found = true;
@@ -1308,7 +1480,7 @@
                     }
                 }
             }
-            if(!found) tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Lorong Kosong</td></tr>`;
+            if(!found) tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Lokasi Kosong</td></tr>`;
             rowModal.show();
         }
 
@@ -1361,7 +1533,7 @@
                 <div class="card bin-card shadow-sm w-100 ${bgColor} border ${borderClass}" onclick="showBlockDetail('${blockName}')">
                     <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center position-relative">
                         <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">${blockName}</h6>
-                        <small class="text-muted" style="font-size: 0.75rem;">${rData.rows} Lorong (Maks: ${max})</small>
+                        <small class="text-muted" style="font-size: 0.75rem;">${blockName === "LANTAI / FLOOR" ? "Penyimpanan Lantai" : rData.rows + " Lorong"}</small>
                         <div class="mt-2">
                             <span class="fw-bold fs-4 ${text}">${showC}</span>
                         </div>
@@ -1380,7 +1552,9 @@
             tbody.innerHTML = ''; datalist.innerHTML = '';
 
             let totalPallet = 0, totalMax = 0, totalHold = 0;
-            for (let r in masterRacking) totalMax += (masterRacking[r].rows * masterRacking[r].perRow);
+            for (let r in masterRacking) {
+                if(r !== "LANTAI / FLOOR") totalMax += (masterRacking[r].rows * masterRacking[r].perRow);
+            }
 
             let no = 1;
             let totalSkuCount = Object.keys(stockData).length;
@@ -1411,7 +1585,6 @@
                         <td class="text-success">+${Number.isInteger(item.inProd)?item.inProd:item.inProd.toFixed(2)}</td>
                         <td class="text-success">+${Number.isInteger(item.inPlant)?item.inPlant:item.inPlant.toFixed(2)}</td>
                         <td class="text-danger">-${Number.isInteger(item.out)?item.out:item.out.toFixed(2)}</td>
-                        <td class="text-danger">-${Number.isInteger(item.outPlant)?item.outPlant:item.outPlant.toFixed(2)}</td>
                         <td class="fw-bold fs-6">${showF}</td>
                         <td class="fw-bold text-warning bg-dark">${showH}</td>
                         <td class="fw-bold text-success fs-6">${showA}</td>
@@ -1439,7 +1612,6 @@
         }
 
         checkLoginStatus();
-        initRackingDropdowns();
         renderAll();
     </script>
 </body>
