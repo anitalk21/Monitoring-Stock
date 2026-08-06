@@ -47,7 +47,7 @@
         </div>
     </nav>
 
-    <!-- OFFCANVAS SIDEBAR (MENU GESER SAMPING) -->
+    <!-- OFFCANVAS SIDEBAR -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
@@ -188,7 +188,7 @@
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Penempatan Rak & Lorong (Row)</label>
                                     <div class="d-flex gap-2">
-                                        <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateRows('in')"></select>
+                                        <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateRows('in', '')"></select>
                                         <select class="form-select form-select-sm" id="inRackRow" required><option value="">- Lorong -</option></select>
                                     </div>
                                 </div>
@@ -256,7 +256,6 @@
                                     <label class="form-label small fw-bold">Pilih SKU Produk</label>
                                     <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
                                 </div>
-                                <!-- KODE PRODUKSI & TANGGAL QC -->
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Kode Produksi / Batch</label>
                                     <input type="text" class="form-control form-control-sm" id="qcKodeProd" required placeholder="Masukkan kode produksi...">
@@ -273,7 +272,6 @@
                                         <input type="hidden" id="qcQtyPallet" value="0">
                                     </div>
                                 </div>
-                                <!-- KETERANGAN HOLD -->
                                 <div class="mb-4" id="holdReasonContainer">
                                     <label class="form-label small fw-bold text-danger">Alasan / Keterangan Hold</label>
                                     <textarea class="form-control form-control-sm" id="qcReason" rows="2" placeholder="Misal: Kontaminasi kemasan, hasil lab out of spec..."></textarea>
@@ -286,55 +284,41 @@
             </div>
         </div>
 
-        <!-- 4. STOCK OPNAME -->
+        <!-- 4. STOCK OPNAME HARIAN (MULTI-ROW TABLE) -->
         <div id="page-opname" class="app-page">
-            <h4 class="fw-bold mb-3">Audit Fisik (Stock Opname)</h4>
-            <div class="card shadow-sm border-primary">
+            <h4 class="fw-bold mb-3">Audit Fisik Harian (Stock Opname Multi-Row)</h4>
+            <div class="card shadow-sm border-primary mb-3">
                 <div class="card-body">
-                    <p class="small text-muted mb-4">Input hasil hitung fisik di lapangan (dalam Karton). Menyimpan form ini akan me-reset akumulasi transaksi sebelumnya.</p>
-                    <form id="formOpname" onsubmit="saveOpname(event)">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                                <input type="text" class="form-control form-control-lg border-primary" id="opSkuInput" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('op')">
-                                <small class="text-primary mt-1 d-block" id="opSkuHint">Standar: 0 Carton / Pallet</small>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold">Blok & Lorong (Row) Fisik</label>
-                                <div class="d-flex gap-2">
-                                    <select class="form-select form-select-lg" id="opRackBlock" required onchange="populateRows('op')"></select>
-                                    <select class="form-select form-select-lg" id="opRackRow" required><option value="">- Lorong -</option></select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold">Hasil Hitung Fisik (KARTON)</label>
-                                <div class="input-group input-group-lg">
-                                    <input type="number" class="form-control" id="opQtyCarton" required min="0" placeholder="Karton" oninput="autoConvertPallet('op')">
-                                    <span class="input-group-text bg-light text-primary fw-bold fs-6" id="opQtyPalletDisplay">0 Pallet</span>
-                                    <input type="hidden" id="opQtyPallet" value="0">
-                                </div>
-                            </div>
-                            <div class="col-md-4 mt-3">
-                                <label class="form-label small fw-bold text-primary">Jenis Barang Audit</label>
-                                <select class="form-select border-primary" id="opKategori" required onchange="toggleExportFields('op')">
-                                    <option value="Lokal">Pasar Lokal</option>
-                                    <option value="Ekspor">Barang Ekspor</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-8 mt-3 dynamic-fields" id="opExportFields">
-                                <div class="bg-light p-3 border rounded d-flex flex-wrap gap-2">
-                                    <input type="text" class="form-control form-control-sm" style="width: 130px;" id="opExpQt" placeholder="Nomor QT">
-                                    <input type="date" class="form-control form-control-sm" style="width: 130px;" id="opExpProdate" title="Production Date">
-                                    <input type="date" class="form-control form-control-sm" style="width: 130px;" id="opExpExpdate" title="Expired Date">
-                                    <input type="text" class="form-control form-control-sm" style="width: 130px;" id="opExpBuyer" placeholder="Nama Buyer">
-                                    <input type="text" class="form-control form-control-sm" style="width: 130px;" id="opExpCountry" placeholder="Negara">
-                                </div>
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="small text-muted mb-0">Tim *stock keeper* dapat menginput banyak baris hasil hitung pagi ini sekaligus sebelum disubmit pada siang hari.</p>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">➕ Tambah Baris</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">🗑️ Reset Form</button>
+                        </div>
+                    </div>
 
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg w-100">Simpan Opname (Reset Stok)</button>
-                            </div>
+                    <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-primary text-center">
+                                    <tr>
+                                        <th style="width: 140px;">Tanggal Opname</th>
+                                        <th style="width: 180px;">Blok Rak</th>
+                                        <th style="width: 140px;">Lorong (Row)</th>
+                                        <th>Cari & Pilih SKU</th>
+                                        <th style="width: 130px;">Fisik (Karton)</th>
+                                        <th style="width: 100px;">Pallet</th>
+                                        <th style="width: 50px;">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="multiOpnameBody">
+                                    <!-- Baris dinamis akan muncul di sini -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">💾 Simpan Semua Hasil Opname (Update Stok Gudang)</button>
                         </div>
                     </form>
                 </div>
@@ -462,7 +446,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL BATCH / QC / EKSPOR -->
+    <!-- MODAL DETAIL BATCH / QC -->
     <div class="modal fade" id="modalExportDetail" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -520,41 +504,40 @@
             document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
-            // Tutup sidebar otomatis setelah menu diklik
             const sidebarEl = document.getElementById('sidebarMenu');
             let bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
             if (bsOffcanvas) bsOffcanvas.hide();
 
             if (pageId === 'page-rekon') renderRekonsiliasi(); 
+            if (pageId === 'page-opname' && document.getElementById('multiOpnameBody').children.length === 0) {
+                addOpnameRow(); // Inisialisasi minimal 1 baris saat pertama kali dibuka
+            }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v14')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v15')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v14', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v15', JSON.stringify(stockData));
             renderAll();
         }
 
         function initRackingDropdowns() {
-            const opRackBlock = document.getElementById('opRackBlock');
             const inRackBlock = document.getElementById('inRackBlock');
-            opRackBlock.innerHTML = '<option value="">-- Pilih Blok --</option>';
             inRackBlock.innerHTML = '<option value="">-- Pilih Blok --</option>';
             
             let sortedBlocks = Object.keys(masterRacking).sort();
             sortedBlocks.forEach(block => {
                 let max = masterRacking[block].rows * masterRacking[block].perRow;
-                let opt = `<option value="${block}">${block} (Maks: ${max})</option>`;
-                opRackBlock.innerHTML += opt;
-                inRackBlock.innerHTML += opt;
+                inRackBlock.innerHTML += `<option value="${block}">${block} (Maks: ${max})</option>`;
             });
         }
 
-        function populateRows(type) {
-            const blockSelect = document.getElementById(type + 'RackBlock');
-            const rowSelect = document.getElementById(type + 'RackRow');
-            rowSelect.innerHTML = '<option value="">- Lorong -</option>';
+        function populateRows(type, rowId = '') {
+            const blockSelect = document.getElementById(type + 'RackBlock' + rowId);
+            const rowSelect = document.getElementById(type + 'RackRow' + rowId);
+            if(!blockSelect || !rowSelect) return;
             
+            rowSelect.innerHTML = '<option value="">- Lorong -</option>';
             let blockName = blockSelect.value;
             if(masterRacking[blockName]) {
                 let rData = masterRacking[blockName];
@@ -564,6 +547,108 @@
                     rowSelect.innerHTML += `<option value="${rowName}">${rowName} (Maks: ${rData.perRow})</option>`;
                 }
             }
+        }
+
+        // --- MANAJEMEN TABEL MULTI-ROW OPNAME HARIAN ---
+        let opnameRowIdx = 0;
+        function addOpnameRow() {
+            opnameRowIdx++;
+            let tbody = document.getElementById('multiOpnameBody');
+            let todayStr = new Date().toISOString().split('T')[0];
+            let blockOptions = '<option value="">-- Pilih Blok --</option>';
+            Object.keys(masterRacking).sort().forEach(b => {
+                blockOptions += `<option value="${b}">${b}</option>`;
+            });
+
+            let tr = document.createElement('tr');
+            tr.id = `opRow_${opnameRowIdx}`;
+            tr.innerHTML = `
+                <td><input type="date" class="form-control form-control-sm" id="opDate_${opnameRowIdx}" value="${todayStr}" required></td>
+                <td><select class="form-select form-select-sm" id="opRackBlock_${opnameRowIdx}" required onchange="populateRows('op', '_${opnameRowIdx}')">${blockOptions}</select></td>
+                <td><select class="form-select form-select-sm" id="opRackRow_${opnameRowIdx}" required><option value="">- Lorong -</option></select></td>
+                <td><input type="text" class="form-control form-control-sm" id="opSku_${opnameRowIdx}" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(${opnameRowIdx})"></td>
+                <td><input type="number" class="form-control form-control-sm" id="opCarton_${opnameRowIdx}" required min="0" placeholder="Karton" oninput="calcMultiRow(${opnameRowIdx})"></td>
+                <td class="text-center fw-bold text-primary" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>
+                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeOpnameRow(${opnameRowIdx})">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeOpnameRow(idx) {
+            let row = document.getElementById(`opRow_${idx}`);
+            if(row) row.remove();
+        }
+
+        function clearOpnameRows() {
+            document.getElementById('multiOpnameBody').innerHTML = '';
+            addOpnameRow();
+        }
+
+        function calcMultiRow(idx) {
+            let skuInput = document.getElementById(`opSku_${idx}`).value;
+            let sku = extractSku(skuInput);
+            let cartonVal = parseFloat(document.getElementById(`opCarton_${idx}`).value) || 0;
+            let displayEl = document.getElementById(`opPalletDisplay_${idx}`);
+            
+            let jmlCarPerPallet = 1;
+            if(stockData[sku]) {
+                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
+            }
+            let pallets = cartonVal / jmlCarPerPallet;
+            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
+        }
+
+        function saveBulkOpname(e) {
+            e.preventDefault();
+            let tbody = document.getElementById('multiOpnameBody');
+            let rows = tbody.children;
+            if(rows.length === 0) { alert('Belum ada data opname yang dimasukkan!'); return; }
+
+            let batchData = [];
+            
+            for(let i = 0; i < rows.length; i++) {
+                let rowEl = rows[i];
+                let idx = rowEl.id.split('_')[1];
+                
+                let date = document.getElementById(`opDate_${idx}`).value;
+                let block = document.getElementById(`opRackBlock_${idx}`).value;
+                let row = document.getElementById(`opRackRow_${idx}`).value;
+                let sku = extractSku(document.getElementById(`opSku_${idx}`).value);
+                let carton = parseFloat(document.getElementById(`opCarton_${idx}`).value) || 0;
+
+                if(!stockData[sku]) {
+                    alert(`Baris ${i+1}: SKU "${sku}" tidak ditemukan di Master Data!`); return;
+                }
+                
+                let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
+                let pallets = carton / jmlCar;
+                let rackLoc = `${block} | ${row}`;
+
+                batchData.push({ sku, rackLoc, pallets, date });
+            }
+
+            // Eksekusi pembaruan data opname harian
+            batchData.forEach(item => {
+                let st = stockData[item.sku];
+                st.rack = item.rackLoc;
+                st.opname = item.pallets; // Set hasil opname fisik baru
+                // Reset transaksi sebelumnya karena sudah diwakili opname fisik harian
+                st.inProd = 0; st.inPlant = 0; st.out = 0; st.outPlant = 0; st.holdQty = 0;
+                
+                st.exportLog.push({
+                    date: item.date,
+                    type: 'Daily Opname',
+                    code: 'Audit Fisik',
+                    prodate: '-', expdate: '-', buyer: '-', country: '-',
+                    reason: 'Opname Pagi Harian',
+                    qtyIn: item.pallets.toFixed(2)
+                });
+            });
+
+            saveData();
+            alert(`Berhasil menyimpan ${batchData.length} baris hasil stock opname harian! Stok gudang telah diperbarui.`);
+            clearOpnameRows();
+            switchPage('page-rekon');
         }
 
         function extractSku(val) { return val.split(' | ')[0].trim(); }
@@ -783,49 +868,6 @@
             saveData();
         }
 
-        function saveOpname(e) {
-            e.preventDefault();
-            const sku = extractSku(document.getElementById('opSkuInput').value);
-            const block = document.getElementById('opRackBlock').value;
-            const row = document.getElementById('opRackRow').value;
-            const newRack = `${block} | ${row}`;
-            const kategori = document.getElementById('opKategori').value;
-            const newOpQtyPallet = parseFloat(document.getElementById('opQtyPallet').value);
-
-            if (!stockData[sku] || !row) return;
-            let item = stockData[sku];
-
-            let oldFisik = getSisaFisik(item);
-            let currentRowLoad = getGlobalRackLoad(block, row);
-            if (item.rack === newRack) currentRowLoad -= oldFisik;
-
-            let maxCap = masterRacking[block].perRow;
-            if ((currentRowLoad + newOpQtyPallet) > maxCap) { alert('Gagal! Melebihi sisa kapasitas Lorong.'); return; }
-
-            if(kategori === 'Ekspor') {
-                item.exportLog.push({
-                    date: new Date().toLocaleDateString('id-ID') + ' (Opname)',
-                    type: 'Opname Ekspor',
-                    code: document.getElementById('opExpQt').value || '-',
-                    prodate: document.getElementById('opExpProdate').value || '-',
-                    expdate: document.getElementById('opExpExpdate').value || '-',
-                    buyer: document.getElementById('opExpBuyer').value || '-',
-                    country: document.getElementById('opExpCountry').value || '-',
-                    reason: '-', qtyIn: newOpQtyPallet.toFixed(2)
-                });
-            }
-
-            item.rack = newRack; item.opname = newOpQtyPallet;
-            item.inProd = 0; item.inPlant = 0; item.out = 0; item.outPlant = 0; item.holdQty = 0;
-            
-            document.getElementById('formOpname').reset();
-            document.getElementById('opQtyPalletDisplay').innerText = '0 Pallet';
-            document.getElementById('opExportFields').style.display = 'none';
-            saveData();
-            alert('Opname berhasil! Transaksi di-reset.');
-            switchPage('page-rekon');
-        }
-
         function processPasteSAP() {
             const text = document.getElementById('pasteSAPArea').value.trim();
             if (!text) return;
@@ -950,6 +992,8 @@
                     detailText = `<strong class="text-danger">Alasan Hold:</strong> ${l.reason}`;
                 } else if(l.type === 'RELEASE QC') {
                     detailText = `<strong class="text-success">Status:</strong> ${l.reason}`;
+                } else if(l.type === 'Daily Opname') {
+                    detailText = `<strong class="text-primary">Audit Opname Harian</strong>`;
                 } else {
                     detailText = `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
                 }
@@ -1016,8 +1060,8 @@
                 datalist.innerHTML += `<option value="${item.sku} | ${item.name}"></option>`;
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? 
-                    `<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails('${item.sku}')">Riwayat Batch 🔎</button>` : 
-                    `<span class="badge bg-secondary">Tanpa Batch</span>`;
+                    `<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails('${item.sku}')">Riwayat 🔎</button>` : 
+                    `<span class="badge bg-secondary">-</span>`;
 
                 let showF = Number.isInteger(fisik) ? fisik : fisik.toFixed(2);
                 let showA = Number.isInteger(avail) ? avail : avail.toFixed(2);
