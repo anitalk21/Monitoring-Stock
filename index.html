@@ -42,7 +42,7 @@
     <div id="loginOverlay">
         <div class="card shadow-lg p-4" style="width: 380px; border-radius: 12px;">
             <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark">🔐 Login Monitoring FG</h3>
+                <h3 class="fw-bold text-dark">Login Monitoring FG</h3>
                 <p class="text-muted small">Masukkan akun Anda untuk mengakses sistem</p>
             </div>
             <form onsubmit="handleLogin(event)">
@@ -67,9 +67,9 @@
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-                    ☰ Menu
+                    Menu
                 </button>
-                <span class="navbar-brand h1 fw-bold mb-0">📊 Monitoring Finished Goods</span>
+                <span class="navbar-brand h1 fw-bold mb-0">Monitoring Finished Goods</span>
             </div>
             <div>
                 <span class="text-white-50 small me-3" id="navUserDisplay">User: Admin</span>
@@ -81,42 +81,40 @@
     <!-- OFFCANVAS SIDEBAR -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi Menu</h5>
+            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">Navigasi Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">🏠 Dashboard</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">🗺️ Layout & Bin Loc</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc</button>
             
-            <!-- TRANSAKSI HARIAN DENGAN SUB-MENU -->
             <div>
                 <button class="btn btn-dark w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subTransaksiMenu">
-                    <span>🔄 Transaksi Harian</span>
-                    <span>▼</span>
+                    <span>Transaksi Harian</span>
+                    <span>v</span>
                 </button>
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">📊 Laporan & Grafik</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">📥 Penerimaan Produksi</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Pengiriman (Linked)</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">⚠️ Status QC (Hold/Release)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">Laporan & Grafik</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">Penerimaan Produksi</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">Pengiriman (Linked)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">Status QC (Hold/Release)</button>
                 </div>
             </div>
 
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">🔍 Stock Opname Harian</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">⚖️ Rekonsiliasi SAP</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">📋 Laporan Breakdown</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">Stock Opname Harian</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">Rekonsiliasi SAP</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">Laporan Breakdown</button>
             
             <hr class="border-secondary my-2">
             
-            <!-- PENGATURAN DENGAN SUB-MENU -->
             <div>
                 <button class="btn btn-outline-light w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subSettingMenu">
-                    <span>⚙️ Pengaturan & Data</span>
-                    <span>▼</span>
+                    <span>Pengaturan & Data</span>
+                    <span>v</span>
                 </button>
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subSettingMenu">
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-master')">📦 Master Data SKU</button>
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-accounts')">👤 Manajemen Akun</button>
+                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-master')">Master Data SKU</button>
+                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-accounts')">Manajemen Akun</button>
                 </div>
             </div>
         </div>
@@ -168,12 +166,11 @@
                 </div>
             </div>
 
-            <!-- GRAFIK 10 PRODUK PALING BANYAK DI GUDANG -->
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
-                            <h5 class="fw-bold text-secondary mb-3">📈 Grafik 10 Produk Paling Banyak di Gudang</h5>
+                            <h5 class="fw-bold text-secondary mb-3">Grafik 10 Produk Paling Banyak di Gudang</h5>
                             <div style="position: relative; height: 320px;">
                                 <canvas id="topProductsChart"></canvas>
                             </div>
@@ -203,8 +200,8 @@
                         <div class="col-3 d-flex flex-column gap-3" id="layoutCol4"></div>
                     </div>
                     <div class="row mt-4 px-3">
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🚪 AREA ROLLING DOOR</span></div>
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">🏗️ AREA LIFT</span></div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">AREA ROLLING DOOR</span></div>
+                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2" style="opacity: 0.8;">AREA LIFT</span></div>
                     </div>
                 </div>
             </div>
@@ -220,8 +217,8 @@
                         <option value="mingguan">Mingguan</option>
                         <option value="bulanan" selected>Bulanan</option>
                     </select>
-                    <button class="btn btn-sm btn-success" onclick="exportTransExcel()">📥 Export Excel</button>
-                    <button class="btn btn-sm btn-outline-dark" onclick="window.print()">🖨️ Cetak PDF</button>
+                    <button class="btn btn-sm btn-success" onclick="exportTransExcel()">Export Excel</button>
+                    <button class="btn btn-sm btn-outline-dark" onclick="window.print()">Cetak PDF</button>
                 </div>
             </div>
             
@@ -271,7 +268,6 @@
                             </div>
                         </div>
 
-                        <!-- DETAIL PRODUKSI -->
                         <div id="prodExtraFields" class="bg-success-subtle p-3 border border-success rounded mb-3">
                             <span class="badge bg-success mb-2">Detail Produksi Pabrik</span>
                             <div class="row g-2">
@@ -320,7 +316,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label small fw-bold mb-0">Distribusi Penempatan (Rak / Lantai Floor)</label>
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">➕ Tambah Lokasi Lain</button>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Lain</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle">
@@ -354,8 +350,8 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Jenis Pengiriman / Tujuan</label>
                             <select class="form-select form-select-sm" id="outTarget" required>
-                                <option value="Inbound RDC">Inbound &lt;RDC&gt;</option>
-                                <option value="Outbound Subdist/Direct">Outbound &lt;Subdist/Direct&gt;</option>
+                                <option value="Inbound RDC">Inbound RDC</option>
+                                <option value="Outbound Subdist/Direct">Outbound Subdist/Direct</option>
                                 <option value="Ekspor">Ekspor</option>
                                 <option value="MDC/MT">MDC/MT</option>
                             </select>
@@ -367,9 +363,8 @@
                             <small class="text-muted" id="outSkuHint">Pilih SKU untuk menampilkan lokasi rak penyimpanan aktual.</small>
                         </div>
 
-                        <!-- TABEL REKOMENDASI LOKASI AKTIF BERDASARKAN STOK/OPNAME -->
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-primary">📍 Lokasi Penyimpanan Aktual (Berdasarkan Hasil Stock Opname / Masuk)</label>
+                            <label class="form-label small fw-bold text-primary">Lokasi Penyimpanan Aktual (Berdasarkan Hasil Stock Opname / Masuk)</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle">
                                     <thead class="table-secondary text-center" style="font-size: 0.85rem;">
@@ -447,11 +442,11 @@
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-primary">👤 Nama PIC / Stock Keeper</label>
+                                <label class="form-label small fw-bold text-primary">Nama PIC / Stock Keeper</label>
                                 <input type="text" class="form-control" id="opGlobalPic" required placeholder="Contoh: Budi / Ahmad...">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-primary">📅 Tanggal Pelaksanaan Opname</label>
+                                <label class="form-label small fw-bold text-primary">Tanggal Pelaksanaan Opname</label>
                                 <input type="date" class="form-control" id="opGlobalDate" required>
                             </div>
                         </div>
@@ -459,8 +454,8 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="fw-bold mb-0">Daftar Item / Lokasi (Rak atau Floor) yang Dihitung</h6>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">➕ Tambah Baris</button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">🗑️ Reset Tabel</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">Tambah Baris</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Tabel</button>
                             </div>
                         </div>
 
@@ -481,7 +476,7 @@
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">💾 Simpan Semua Hasil Opname (Update Stok Gudang)</button>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Simpan Semua Hasil Opname (Update Stok Gudang)</button>
                         </div>
                     </form>
                 </div>
@@ -493,7 +488,7 @@
             <h4 class="fw-bold mb-3">Rekonsiliasi (SAP vs Fisik Aktual)</h4>
             <div class="card shadow-sm border-0 mb-4 bg-light">
                 <div class="card-body">
-                    <label class="form-label fw-bold small text-primary">📥 Tarik Data Sistem SAP</label>
+                    <label class="form-label fw-bold small text-primary">Tarik Data Sistem SAP</label>
                     <div class="row g-2">
                         <div class="col-md-10">
                             <textarea class="form-control font-monospace" id="pasteSAPArea" rows="2" placeholder="Paste 2 Kolom (SKU dan Qty Pallet SAP)..."></textarea>
@@ -684,14 +679,13 @@
             layoutCol4: ["BLOK U FG", "BLOK Q FG", "BLOK M FG", "BLOK I FG", "BLOK E FG", "BLOK A FG"]
         };
 
-        // --- SISTEM LOGIN & AKUN ---
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
             if (loggedInUser) {
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('navUserDisplay').innerText = `User: ${loggedInUser}`;
+                document.getElementById('navUserDisplay').innerText = "User: " + loggedInUser;
             } else {
                 document.getElementById('loginOverlay').style.display = 'flex';
             }
@@ -728,7 +722,7 @@
 
             registeredUsers[newU] = newP;
             localStorage.setItem('wms_accounts', JSON.stringify(registeredUsers));
-            alert(`Akun baru [${newU}] berhasil ditambahkan!`);
+            alert('Akun baru berhasil ditambahkan!');
             document.getElementById('newUsername').value = '';
             document.getElementById('newPassword').value = '';
         }
@@ -758,10 +752,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v23')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v24')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v23', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v24', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -773,7 +767,7 @@
             rowSelect.innerHTML = '<option value="">- Lorong / Floor Area -</option>';
             let blockName = blockSelect.value;
             if(blockName === "LANTAI / FLOOR") {
-                rowSelect.innerHTML = `<option value="FLOOR-AREA">Area Lantai Umum</option>`;
+                rowSelect.innerHTML = '<option value="FLOOR-AREA">Area Lantai Umum</option>';
                 return;
             }
             if(masterRacking[blockName]) {
@@ -781,35 +775,32 @@
                 for(let i = 1; i <= rData.rows; i++) {
                     let rowNum = i < 10 ? '0' + i : i;
                     let rowName = rData.prefix + rowNum;
-                    rowSelect.innerHTML += `<option value="${rowName}">${rowName} (Maks: ${rData.perRow})</option>`;
+                    rowSelect.innerHTML += '<option value="' + rowName + '">' + rowName + ' (Maks: ' + rData.perRow + ')</option>';
                 }
             }
         }
 
-        // --- MULTI-LOKASI PENERIMAAN (INBOUND) ---
         let inboundRowIdx = 0;
         function addInboundLocRow() {
             inboundRowIdx++;
             let tbody = document.getElementById('inboundLocBody');
             let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
             Object.keys(masterRacking).sort().forEach(b => {
-                blockOptions += `<option value="${b}">${b}</option>`;
+                blockOptions += '<option value="' + b + '">' + b + '</option>';
             });
 
             let tr = document.createElement('tr');
-            tr.id = `inRow_${inboundRowIdx}`;
-            tr.innerHTML = `
-                <td><select class="form-select form-select-sm" id="inRackBlock_${inboundRowIdx}" required onchange="populateRows('in', '_${inboundRowIdx}')">${blockOptions}</select></td>
-                <td><select class="form-select form-select-sm" id="inRackRow_${inboundRowIdx}" required><option value="">- Pilih -</option></select></td>
-                <td><input type="number" class="form-control form-control-sm" id="inCarton_${inboundRowIdx}" required min="1" placeholder="Karton" oninput="calcInboundRow(${inboundRowIdx})"></td>
-                <td class="text-center fw-bold text-success" id="inPalletDisplay_${inboundRowIdx}">0 Plt</td>
-                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(${inboundRowIdx})">✕</button></td>
-            `;
+            tr.id = 'inRow_' + inboundRowIdx;
+            tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ')">' + blockOptions + '</select></td>' +
+                           '<td><select class="form-select form-select-sm" id="inRackRow_' + inboundRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
+                           '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" placeholder="Karton" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
+                           '<td class="text-center fw-bold text-success" id="inPalletDisplay_' + inboundRowIdx + '">0 Plt</td>' +
+                           '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(' + inboundRowIdx + ')">x</button></td>';
             tbody.appendChild(tr);
         }
 
         function removeInboundLocRow(idx) {
-            let row = document.getElementById(`inRow_${idx}`);
+            let row = document.getElementById('inRow_' + idx);
             if(row && document.getElementById('inboundLocBody').children.length > 1) row.remove();
         }
 
@@ -819,9 +810,9 @@
             let jmlCarPerPallet = 1;
             if (stockData[sku]) {
                 jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-                document.getElementById('inSkuHint').innerText = `Standar: ${jmlCarPerPallet} Carton / Pallet`;
+                document.getElementById('inSkuHint').innerText = 'Standar: ' + jmlCarPerPallet + ' Carton / Pallet';
             } else {
-                document.getElementById('inSkuHint').innerText = `Standar: 0 Carton / Pallet`;
+                document.getElementById('inSkuHint').innerText = 'Standar: 0 Carton / Pallet';
             }
             let rows = document.getElementById('inboundLocBody').children;
             for(let i=0; i<rows.length; i++) {
@@ -833,8 +824,8 @@
         function calcInboundRow(idx) {
             let skuInput = document.getElementById('inSku').value;
             let sku = extractSku(skuInput);
-            let cartonVal = parseFloat(document.getElementById(`inCarton_${idx}`).value) || 0;
-            let displayEl = document.getElementById(`inPalletDisplay_${idx}`);
+            let cartonVal = parseFloat(document.getElementById('inCarton_' + idx).value) || 0;
+            let displayEl = document.getElementById('inPalletDisplay_' + idx);
             
             let jmlCarPerPallet = 1;
             if(stockData[sku]) jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
@@ -842,7 +833,6 @@
             displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
         }
 
-        // --- LINKING PENGIRIMAN DENGAN LOKASI RAK / OPNAME ---
         function detectProductLocationsForOutbound() {
             const skuInput = document.getElementById('outSku').value;
             const sku = extractSku(skuInput);
@@ -851,56 +841,49 @@
 
             if(!stockData[sku]) {
                 document.getElementById('outSkuHint').innerText = 'SKU tidak ditemukan di database gudang.';
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger small">SKU tidak terdaftar.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger small">SKU tidak terdaftar.</td></tr>';
                 return;
             }
 
             let item = stockData[sku];
             let jmlCar = parseInt(item.jmlCar) || 1;
-            document.getElementById('outSkuHint').innerText = `Nama: ${item.name} | Standar: ${jmlCar} Carton/Pallet | Available Total: ${getAvailableStock(item).toFixed(2)} Pallet`;
+            document.getElementById('outSkuHint').innerText = 'Nama: ' + item.name + ' | Standar: ' + jmlCar + ' Carton/Pallet | Available Total: ' + getAvailableStock(item).toFixed(2) + ' Pallet';
 
             let locString = item.rack;
             if(!locString || locString === '-') {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted small">Barang belum memiliki catatan lokasi rak/floor. Lakukan Stock Opname atau Inbound terlebih dahulu.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted small">Barang belum memiliki catatan lokasi rak/floor. Lakukan Stock Opname atau Inbound terlebih dahulu.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML += `
-                <tr>
-                    <td class="fw-bold text-dark"><span class="badge bg-info text-dark">${locString}</span></td>
-                    <td class="text-success fw-bold">${getSisaFisik(item).toFixed(2)} Pallet</td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm out-loc-carton" data-sku="${sku}" min="0" placeholder="Karton Keluar" value="0">
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML += '<tr>' +
+                '<td class="fw-bold text-dark"><span class="badge bg-info text-dark">' + locString + '</span></td>' +
+                '<td class="text-success fw-bold">' + getSisaFisik(item).toFixed(2) + ' Pallet</td>' +
+                '<td><input type="number" class="form-control form-control-sm out-loc-carton" data-sku="' + sku + '" min="0" placeholder="Karton Keluar" value="0"></td>' +
+                '</tr>';
         }
 
-        // --- MULTI-ROW OPNAME DENGAN PIC & FLOOR ---
         let opnameRowIdx = 0;
         function addOpnameRow() {
             opnameRowIdx++;
             let tbody = document.getElementById('multiOpnameBody');
             let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
             Object.keys(masterRacking).sort().forEach(b => {
-                blockOptions += `<option value="${b}">${b}</option>`;
+                blockOptions += '<option value="' + b + '">' + b + '</option>';
             });
 
             let tr = document.createElement('tr');
-            tr.id = `opRow_${opnameRowIdx}`;
-            tr.innerHTML = `
-                <td><select class="form-select form-select-sm" id="opRackBlock_${opnameRowIdx}" required onchange="populateRows('op', '_${opnameRowIdx}')">${blockOptions}</select></td>
-                <td><select class="form-select form-select-sm" id="opRackRow_${opnameRowIdx}" required><option value="">- Pilih -</option></select></td>
-                <td><input type="text" class="form-control form-control-sm" id="opSku_${opnameRowIdx}" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(${opnameRowIdx})"></td>
-                <td><input type="number" class="form-control form-control-sm" id="opCarton_${opnameRowIdx}" required min="0" placeholder="Karton" oninput="calcMultiRow(${opnameRowIdx})"></td>
-                <td class="text-center fw-bold text-primary" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>
-                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeOpnameRow(${opnameRowIdx})">✕</button></td>
-            `;
+            tr.id = 'opRow_' + opnameRowIdx;
+            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ')">' + blockOptions + '</select></td>' +
+                           '<td><select class="form-select form-select-sm" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
+                           '<td><input type="text" class="form-control form-control-sm" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td><input type="number" class="form-control form-control-sm" id="opCarton_' + opnameRowIdx + '" required min="0" placeholder="Karton" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td class="text-center fw-bold text-primary" id="opPalletDisplay_' + opnameRowIdx + '">0 Plt</td>' +
+                           '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeOpnameRow(' + opnameRowIdx + ')">x</button></td>';
             tbody.appendChild(tr);
         }
 
         function removeOpnameRow(idx) {
-            let row = document.getElementById(`opRow_${idx}`);
+            let row = document.getElementById('opRow_' + idx);
             if(row) row.remove();
         }
 
@@ -910,10 +893,10 @@
         }
 
         function calcMultiRow(idx) {
-            let skuInput = document.getElementById(`opSku_${idx}`).value;
+            let skuInput = document.getElementById('opSku_' + idx).value;
             let sku = extractSku(skuInput);
-            let cartonVal = parseFloat(document.getElementById(`opCarton_${idx}`).value) || 0;
-            let displayEl = document.getElementById(`opPalletDisplay_${idx}`);
+            let cartonVal = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
+            let displayEl = document.getElementById('opPalletDisplay_' + idx);
             
             let jmlCarPerPallet = 1;
             if(stockData[sku]) {
@@ -940,18 +923,18 @@
                 let rowEl = rows[i];
                 let idx = rowEl.id.split('_')[1];
                 
-                let block = document.getElementById(`opRackBlock_${idx}`).value;
-                let row = document.getElementById(`opRackRow_${idx}`).value;
-                let sku = extractSku(document.getElementById(`opSku_${idx}`).value);
-                let carton = parseFloat(document.getElementById(`opCarton_${idx}`).value) || 0;
+                let block = document.getElementById('opRackBlock_' + idx).value;
+                let row = document.getElementById('opRackRow_' + idx).value;
+                let sku = extractSku(document.getElementById('opSku_' + idx).value);
+                let carton = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
 
                 if(!stockData[sku]) {
-                    alert(`Baris ${i+1}: SKU "${sku}" tidak ditemukan di Master Data!`); return;
+                    alert('Baris ' + (i+1) + ': SKU tidak ditemukan di Master Data!'); return;
                 }
                 
                 let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
                 let pallets = carton / jmlCar;
-                let rackLoc = `${block} | ${row}`;
+                let rackLoc = block + ' | ' + row;
 
                 batchData.push({ sku, rackLoc, pallets });
             }
@@ -965,15 +948,15 @@
                 st.exportLog.push({
                     date: opDate,
                     type: 'Daily Opname',
-                    code: `PIC: ${picName}`,
+                    code: 'PIC: ' + picName,
                     prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: `Audit Fisik oleh ${picName} di ${item.rack}`,
+                    reason: 'Audit Fisik oleh ' + picName + ' di ' + item.rack,
                     qtyIn: item.pallets.toFixed(2)
                 });
             });
 
             saveData();
-            alert(`Berhasil menyimpan ${batchData.length} baris opname oleh PIC [${picName}]! Lokasi rak tersinkronisasi.`);
+            alert('Berhasil menyimpan opname! Lokasi rak tersinkronisasi.');
             document.getElementById('opGlobalPic').value = '';
             clearOpnameRows();
             switchPage('page-rekon');
@@ -993,16 +976,16 @@
             let jmlCarPerPallet = 1;
             if (stockData[sku]) {
                 jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-                if(hintEl) hintEl.innerText = `Standar: ${jmlCarPerPallet} Carton / Pallet`;
+                if(hintEl) hintEl.innerText = 'Standar: ' + jmlCarPerPallet + ' Carton / Pallet';
             } else {
-                if(hintEl) hintEl.innerText = `Standar: 0 Carton / Pallet`;
+                if(hintEl) hintEl.innerText = 'Standar: 0 Carton / Pallet';
             }
 
             let cartons = parseFloat(cartonInput) || 0;
             let pallets = cartons / jmlCarPerPallet;
             let displayPallets = Number.isInteger(pallets) ? pallets : pallets.toFixed(2);
             
-            displayEl.innerText = `${displayPallets} Pallet`;
+            displayEl.innerText = displayPallets + ' Pallet';
             hiddenEl.value = pallets;
         }
 
@@ -1011,7 +994,7 @@
 
         function getGlobalRackLoad(blockName, rowName = null) {
             let total = 0;
-            let targetLoc = rowName ? `${blockName} | ${rowName}` : blockName;
+            let targetLoc = rowName ? blockName + ' | ' + rowName : blockName;
             for (let s in stockData) {
                 if ((rowName && stockData[s].rack.includes(targetLoc)) || (!rowName && stockData[s].rack.startsWith(blockName))) {
                     let fisik = getSisaFisik(stockData[s]);
@@ -1070,7 +1053,7 @@
             });
             document.getElementById('pasteArea').value = '';
             saveData();
-            alert(`Berhasil mengimpor ${countAdded} SKU.`);
+            alert('Berhasil mengimpor ' + countAdded + ' SKU.');
             switchPage('page-report');
         }
 
@@ -1096,9 +1079,9 @@
             for(let i = 0; i < rows.length; i++) {
                 let rowEl = rows[i];
                 let idx = rowEl.id.split('_')[1];
-                let block = document.getElementById(`inRackBlock_${idx}`).value;
-                let row = document.getElementById(`inRackRow_${idx}`).value;
-                let carton = parseFloat(document.getElementById(`inCarton_${idx}`).value) || 0;
+                let block = document.getElementById('inRackBlock_' + idx).value;
+                let row = document.getElementById('inRackRow_' + idx).value;
+                let carton = parseFloat(document.getElementById('inCarton_' + idx).value) || 0;
 
                 let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
                 let pallets = carton / jmlCar;
@@ -1107,12 +1090,12 @@
                     let maxCap = masterRacking[block].perRow;
                     let currentLoad = getGlobalRackLoad(block, row);
                     if((currentLoad + pallets) > maxCap) {
-                        alert(`GAGAL! Rak ${block} - ${row} kapasitas maksimal ${maxCap} pallet.`); return;
+                        alert('GAGAL! Rak ' + block + ' - ' + row + ' kapasitas maksimal ' + maxCap + ' pallet.'); return;
                     }
                 }
 
                 totalPalletIn += pallets;
-                locListStr.push(`${block} | ${row} (${pallets.toFixed(2)} Plt)`);
+                locListStr.push(block + ' | ' + row + ' (' + pallets.toFixed(2) + ' Plt)');
             }
 
             let item = stockData[sku];
@@ -1121,13 +1104,13 @@
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
                     date: new Date().toLocaleDateString('id-ID'),
-                    type: source === 'Produksi' ? `Prod (Plant ${plantNo})` : 'Plant Lain',
+                    type: source === 'Produksi' ? 'Prod (Plant ' + plantNo + ')' : 'Plant Lain',
                     code: document.getElementById('inExpQt').value || '-',
                     prodate: document.getElementById('inExpProdate').value || '-',
                     expdate: document.getElementById('inExpExpdate').value || '-',
                     buyer: document.getElementById('inExpBuyer').value || '-',
                     country: document.getElementById('inExpCountry').value || '-',
-                    reason: `Shift: ${shiftNo}, Line: ${lineNo}, Lokasi: ${item.rack}`,
+                    reason: 'Shift: ' + shiftNo + ', Line: ' + lineNo + ', Lokasi: ' + item.rack,
                     qtyIn: totalPalletIn.toFixed(2)
                 });
             } else {
@@ -1135,10 +1118,10 @@
                 if(kodeLokal) {
                     item.exportLog.push({
                         date: new Date().toLocaleDateString('id-ID'),
-                        type: source === 'Produksi' ? `Prod (Plant ${plantNo})` : 'Plant Lain',
+                        type: source === 'Produksi' ? 'Prod (Plant ' + plantNo + ')' : 'Plant Lain',
                         code: kodeLokal,
                         prodate: '-', expdate: '-', buyer: '-', country: '-', 
-                        reason: `Shift: ${shiftNo}, Line: ${lineNo}, Lokasi: ${item.rack}`,
+                        reason: 'Shift: ' + shiftNo + ', Line: ' + lineNo + ', Lokasi: ' + item.rack,
                         qtyIn: totalPalletIn.toFixed(2)
                     });
                 }
@@ -1153,7 +1136,7 @@
             document.getElementById('inExportFields').style.display = 'none';
             document.getElementById('prodExtraFields').style.display = 'block';
             saveData();
-            alert(`Penerimaan Berhasil! Masuk total ${totalPalletIn.toFixed(2)} Pallet tersebar di ${item.rack}!`);
+            alert('Penerimaan Berhasil! Masuk total ' + totalPalletIn.toFixed(2) + ' Pallet!');
             switchPage('page-trans-report');
         }
 
@@ -1175,24 +1158,24 @@
 
             if(palletsOut <= 0) { alert('Masukkan jumlah karton yang akan dikirim!'); return; }
             if (palletsOut > avail) { 
-                alert(`GAGAL! Pengeluaran melebihi sisa Available (${avail.toFixed(2)} pallet).`); return; 
+                alert('GAGAL! Pengeluaran melebihi sisa Available (' + avail.toFixed(2) + ' pallet).'); return; 
             }
 
             item.out += palletsOut;
             
             item.exportLog.push({
                 date: new Date().toLocaleDateString('id-ID'),
-                type: `Kirim (${target})`,
+                type: 'Kirim (' + target + ')',
                 code: 'Outbound',
                 prodate: '-', expdate: '-', buyer: '-', country: '-',
-                reason: `Tujuan: ${target}, Dari Lokasi: ${item.rack}`,
+                reason: 'Tujuan: ' + target + ', Dari Lokasi: ' + item.rack,
                 qtyIn: -palletsOut.toFixed(2)
             });
 
             document.getElementById('formOut').reset();
-            document.getElementById('outboundLinkedLocBody').innerHTML = `<tr><td colspan="3" class="text-center text-muted small">Silakan pilih SKU terlebih dahulu di atas.</td></tr>`;
+            document.getElementById('outboundLinkedLocBody').innerHTML = '<tr><td colspan="3" class="text-center text-muted small">Silakan pilih SKU terlebih dahulu di atas.</td></tr>';
             saveData();
-            alert(`Pengiriman [${target}] sejumlah ${palletsOut.toFixed(2)} Pallet berhasil dicatat! Stok rak diperbarui.`);
+            alert('Pengiriman berhasil dicatat!');
             switchPage('page-trans-report');
         }
 
@@ -1209,8 +1192,8 @@
             let item = stockData[sku];
 
             if (action === 'Hold') {
-                if(qtyPallet > getAvailableStock(item)) { alert(`Gagal! Stok available ${getAvailableStock(item).toFixed(2)} pallet.`); return; }
-                if(!reason) { alert('Harap isi keterangan/alasan mengapa barang ini di-Hold!'); return; }
+                if(qtyPallet > getAvailableStock(item)) { alert('Gagal! Stok available tidak cukup.'); return; }
+                if(!reason) { alert('Harap isi keterangan Hold!'); return; }
                 
                 item.holdQty += qtyPallet;
                 item.exportLog.push({
@@ -1221,12 +1204,10 @@
                     reason: reason,
                     qtyIn: qtyPallet.toFixed(2)
                 });
-
-                alert(`${qtyPallet.toFixed(2)} Pallet di HOLD per tanggal ${qcDate}. Alasan: ${reason}`);
+                alert('Barang berhasil di-Hold.');
             } else {
-                if(qtyPallet > item.holdQty) { alert(`Gagal! Di-Hold saat ini ${item.holdQty.toFixed(2)} pallet.`); return; }
+                if(qtyPallet > item.holdQty) { alert('Gagal! Jumlah melebihi barang di-Hold.'); return; }
                 item.holdQty -= qtyPallet;
-                
                 item.exportLog.push({
                     date: qcDate,
                     type: 'RELEASE QC',
@@ -1235,13 +1216,10 @@
                     reason: 'Barang dilepas (Passed QC)',
                     qtyIn: qtyPallet.toFixed(2)
                 });
-
-                alert(`${qtyPallet.toFixed(2)} Pallet di RELEASE per tanggal ${qcDate}.`);
+                alert('Barang berhasil di-Release.');
             }
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
-            document.getElementById('holdReasonContainer').style.display = 'block';
-            document.getElementById('qcDateLabel').innerText = 'Tanggal Hold';
             saveData();
             switchPage('page-trans-report');
         }
@@ -1276,22 +1254,19 @@
                     let badge = variance === 0 ? '<span class="badge bg-success">Balance</span>' : variance < 0 ? '<span class="badge bg-danger">Minus</span>' : '<span class="badge bg-warning text-dark">Plus</span>';
                     let cls = variance < 0 ? 'table-danger' : variance > 0 ? 'table-warning' : '';
 
-                    tbody.innerHTML += `
-                        <tr class="${cls}">
-                            <td><span class="badge bg-secondary">${item.sku}</span></td>
-                            <td class="text-start fw-semibold">${item.name}</td>
-                            <td>${item.rack}</td>
-                            <td class="fw-bold">${Number.isInteger(qtySAP) ? qtySAP : qtySAP.toFixed(2)}</td>
-                            <td class="fw-bold">${Number.isInteger(qtyFisik) ? qtyFisik : qtyFisik.toFixed(2)}</td>
-                            <td class="fw-bold ${variance !== 0 ? (variance < 0 ? 'text-danger':'text-success') : ''}">${Number.isInteger(variance) ? variance : variance.toFixed(2)}</td>
-                            <td>${badge}</td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += '<tr class="' + cls + '">' +
+                        '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
+                        '<td class="text-start fw-semibold">' + item.name + '</td>' +
+                        '<td>' + item.rack + '</td>' +
+                        '<td class="fw-bold">' + (Number.isInteger(qtySAP) ? qtySAP : qtySAP.toFixed(2)) + '</td>' +
+                        '<td class="fw-bold">' + (Number.isInteger(qtyFisik) ? qtyFisik : qtyFisik.toFixed(2)) + '</td>' +
+                        '<td class="fw-bold ' + (variance !== 0 ? (variance < 0 ? 'text-danger':'text-success') : '') + '">' + (Number.isInteger(variance) ? variance : variance.toFixed(2)) + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '</tr>';
                 }
             }
         }
 
-        // --- RENDER GRAFIK & LAPORAN TRANSAKSI ---
         let transChartInstance = null;
         function renderTransactionReport() {
             let totInProd = 0, totInPlant = 0, totOutTotal = 0, totHold = 0;
@@ -1331,7 +1306,7 @@
                 return { name: item.name, sku: item.sku, qty: getSisaFisik(item) };
             }).sort((a, b) => b.qty - a.qty).slice(0, 10);
 
-            let labels = sortedProducts.map(p => `${p.sku} - ${p.name}`);
+            let labels = sortedProducts.map(p => p.sku + ' - ' + p.name);
             let data = sortedProducts.map(p => p.qty);
 
             let ctx = document.getElementById('topProductsChart').getContext('2d');
@@ -1361,11 +1336,11 @@
         }
 
         function exportTransExcel() {
-            let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n";
-            csvContent += `Penerimaan Produksi,${document.getElementById('summaryInProd').innerText}\n`;
-            csvContent += `Penerimaan Plant Lain,${document.getElementById('summaryInPlant').innerText}\n`;
-            csvContent += `Total Pengiriman,${document.getElementById('summaryOutTotal').innerText}\n`;
-            csvContent += `QC Hold,${document.getElementById('summaryHold').innerText}\n`;
+            let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n" +
+                "Penerimaan Produksi," + document.getElementById('summaryInProd').innerText + "\n" +
+                "Penerimaan Plant Lain," + document.getElementById('summaryInPlant').innerText + "\n" +
+                "Total Pengiriman," + document.getElementById('summaryOutTotal').innerText + "\n" +
+                "QC Hold," + document.getElementById('summaryHold').innerText + "\n";
 
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
@@ -1381,7 +1356,7 @@
         
         function showBlockDetail(blockName) {
             if (!blockModal) blockModal = new bootstrap.Modal(document.getElementById('modalBlockDetail'));
-            document.getElementById('blockDetailTitle').innerText = `Denah Lorong di ${blockName}`;
+            document.getElementById('blockDetailTitle').innerText = 'Denah Lorong di ' + blockName;
             let grid = document.getElementById('blockRowGrid');
             grid.innerHTML = '';
             
@@ -1400,26 +1375,22 @@
                 else if(percent >= 80 && percent < 100) bg = 'bg-warning-subtle';
                 else if(percent >= 100) bg = 'bg-danger-subtle';
                 
-                grid.innerHTML += `
-                    <div class="col-4 col-md-3">
-                        <div class="card row-card h-100 border-1 shadow-sm ${bg}" onclick="showRowItems('${blockName}', '${rowName}')">
-                            <div class="card-body p-2 text-center">
-                                <h6 class="fw-bold mb-0 text-dark">${rowName}</h6>
-                                <small class="text-muted d-block" style="font-size: 10px;">${Number.isInteger(current)?current:current.toFixed(1)} / ${max} PLT</small>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                grid.innerHTML += '<div class="col-4 col-md-3">' +
+                    '<div class="card row-card h-100 border-1 shadow-sm ' + bg + '" onclick="showRowItems(\'' + blockName + '\', \'' + rowName + '\')">' +
+                    '<div class="card-body p-2 text-center">' +
+                    '<h6 class="fw-bold mb-0 text-dark">' + rowName + '</h6>' +
+                    '<small class="text-muted d-block" style="font-size: 10px;">' + (Number.isInteger(current)?current:current.toFixed(1)) + ' / ' + max + ' PLT</small>' +
+                    '</div></div></div>';
             }
             blockModal.show();
         }
 
         function showRowItems(blockName, rowName) {
             if (!rowModal) rowModal = new bootstrap.Modal(document.getElementById('modalRowDetail'));
-            document.getElementById('rowDetailTitle').innerText = `Barang di ${rowName}`;
+            document.getElementById('rowDetailTitle').innerText = 'Barang di ' + rowName;
             let tbody = document.getElementById('rowDetailBody');
             tbody.innerHTML = '';
-            let locString = `${blockName} | ${rowName}`;
+            let locString = blockName + ' | ' + rowName;
             let found = false;
 
             for(let sku in stockData) {
@@ -1427,17 +1398,15 @@
                     let fisik = getSisaFisik(stockData[sku]);
                     if(fisik > 0) {
                         found = true;
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="fw-bold">${sku}</td>
-                                <td class="text-start small lh-sm">${stockData[sku].name}</td>
-                                <td class="fw-bold text-primary">${Number.isInteger(fisik)?fisik:fisik.toFixed(2)}</td>
-                            </tr>
-                        `;
+                        tbody.innerHTML += '<tr>' +
+                            '<td class="fw-bold">' + sku + '</td>' +
+                            '<td class="text-start small lh-sm">' + stockData[sku].name + '</td>' +
+                            '<td class="fw-bold text-primary">' + (Number.isInteger(fisik)?fisik:fisik.toFixed(2)) + '</td>' +
+                            '</tr>';
                     }
                 }
             }
-            if(!found) tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Lokasi Kosong</td></tr>`;
+            if(!found) tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Lokasi Kosong</td></tr>';
             rowModal.show();
         }
 
@@ -1452,22 +1421,20 @@
             logs.forEach(l => {
                 let detailText = '';
                 if(l.type === 'HOLD QC') {
-                    detailText = `<strong class="text-danger">Alasan Hold:</strong> ${l.reason}`;
+                    detailText = '<strong class="text-danger">Alasan Hold:</strong> ' + l.reason;
                 } else if(l.type === 'RELEASE QC') {
-                    detailText = `<strong class="text-success">Status:</strong> ${l.reason}`;
+                    detailText = '<strong class="text-success">Status:</strong> ' + l.reason;
                 } else if(l.type === 'Daily Opname') {
-                    detailText = `<strong class="text-primary">${l.code}</strong> | Keterangan: ${l.reason}`;
+                    detailText = '<strong class="text-primary">' + l.code + '</strong> | Keterangan: ' + l.reason;
                 } else {
-                    detailText = `Info: ${l.code} | Keterangan: ${l.reason || '-'}`;
+                    detailText = 'Info: ' + l.code + ' | Keterangan: ' + (l.reason || '-');
                 }
 
-                ul.innerHTML += `
-                    <li class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[${l.type}]</h6><small>Tanggal: ${l.date}</small></div>
-                        <p class="mb-1 small">${detailText}</p>
-                        <small class="text-success fw-bold">Jumlah: ${l.qtyIn} Pallet</small>
-                    </li>
-                `;
+                ul.innerHTML += '<li class="list-group-item">' +
+                    '<div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[' + l.type + ']</h6><small>Tanggal: ' + l.date + '</small></div>' +
+                    '<p class="mb-1 small">' + detailText + '</p>' +
+                    '<small class="text-success fw-bold">Jumlah: ' + l.qtyIn + ' Pallet</small>' +
+                    '</li>';
             });
             expModal.show();
         }
@@ -1486,20 +1453,13 @@
 
             let showC = Number.isInteger(current) ? current : current.toFixed(1);
 
-            return `
-                <div class="card bin-card shadow-sm w-100 ${bgColor} border ${borderClass}" onclick="showBlockDetail('${blockName}')">
-                    <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center position-relative">
-                        <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">${blockName}</h6>
-                        <small class="text-muted" style="font-size: 0.75rem;">${blockName === "LANTAI / FLOOR" ? "Penyimpanan Lantai" : rData.rows + " Lorong"}</small>
-                        <div class="mt-2">
-                            <span class="fw-bold fs-4 ${text}">${showC}</span>
-                        </div>
-                        <div class="progress w-100 mt-2" style="height: 5px;">
-                            <div class="progress-bar ${prog}" style="width: ${percent}%;"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            return '<div class="card bin-card shadow-sm w-100 ' + bgColor + ' border ' + borderClass + '" onclick="showBlockDetail(\'' + blockName + '\')">' +
+                '<div class="card-body p-2 d-flex flex-column justify-content-center align-items-center position-relative">' +
+                '<h6 class="fw-bold mb-0" style="font-size: 0.95rem;">' + blockName + '</h6>' +
+                '<small class="text-muted" style="font-size: 0.75rem;">' + (blockName === "LANTAI / FLOOR" ? "Penyimpanan Lantai" : rData.rows + " Lorong") + '</small>' +
+                '<div class="mt-2"><span class="fw-bold fs-4 ' + text + '">' + showC + '</span></div>' +
+                '<div class="progress w-100 mt-2" style="height: 5px;"><div class="progress-bar ' + prog + '" style="width: ' + percent + '%;"></div></div>' +
+                '</div></div>';
         }
 
         function renderAll() {
@@ -1522,31 +1482,29 @@
                 let avail = getAvailableStock(item);
                 
                 totalPallet += fisik; totalHold += item.holdQty;
-                datalist.innerHTML += `<option value="${item.sku} | ${item.name}"></option>`;
+                datalist.innerHTML += '<option value="' + item.sku + ' | ' + item.name + '"></option>';
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? 
-                    `<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails('${item.sku}')">Riwayat 🔎</button>` : 
-                    `<span class="badge bg-secondary">-</span>`;
+                    '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Riwayat</button>' : 
+                    '<span class="badge bg-secondary">-</span>';
 
                 let showF = Number.isInteger(fisik) ? fisik : fisik.toFixed(2);
                 let showA = Number.isInteger(avail) ? avail : avail.toFixed(2);
                 let showH = Number.isInteger(item.holdQty) ? item.holdQty : item.holdQty.toFixed(2);
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${no++}</td>
-                        <td><span class="badge bg-secondary">${item.sku}</span></td>
-                        <td class="text-start name-col fw-semibold">${item.name}</td>
-                        <td>${btnLog}</td>
-                        <td><span class="badge bg-info text-dark" style="font-size:10px;">${item.rack}</span></td>
-                        <td class="text-success">+${Number.isInteger(item.inProd)?item.inProd:item.inProd.toFixed(2)}</td>
-                        <td class="text-success">+${Number.isInteger(item.inPlant)?item.inPlant:item.inPlant.toFixed(2)}</td>
-                        <td class="text-danger">-${Number.isInteger(item.out)?item.out:item.out.toFixed(2)}</td>
-                        <td class="fw-bold fs-6">${showF}</td>
-                        <td class="fw-bold text-warning bg-dark">${showH}</td>
-                        <td class="fw-bold text-success fs-6">${showA}</td>
-                    </tr>
-                `;
+                tbody.innerHTML += '<tr>' +
+                    '<td>' + (no++) + '</td>' +
+                    '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
+                    '<td class="text-start name-col fw-semibold">' + item.name + '</td>' +
+                    '<td>' + btnLog + '</td>' +
+                    '<td><span class="badge bg-info text-dark" style="font-size:10px;">' + item.rack + '</span></td>' +
+                    '<td class="text-success">+' + (Number.isInteger(item.inProd)?item.inProd:item.inProd.toFixed(2)) + '</td>' +
+                    '<td class="text-success">+' + (Number.isInteger(item.inPlant)?item.inPlant:item.inPlant.toFixed(2)) + '</td>' +
+                    '<td class="text-danger">-' + (Number.isInteger(item.out)?item.out:item.out.toFixed(2)) + '</td>' +
+                    '<td class="fw-bold fs-6">' + showF + '</td>' +
+                    '<td class="fw-bold text-warning bg-dark">' + showH + '</td>' +
+                    '<td class="fw-bold text-success fs-6">' + showA + '</td>' +
+                    '</tr>';
             }
 
             for (let colId in layoutMap) {
