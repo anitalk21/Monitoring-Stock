@@ -96,8 +96,8 @@
                 </button>
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">📊 Laporan & Grafik</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">📥 Inbound (Penerimaan)</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Outbound (Pengiriman)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">📥 Penerimaan Produksi</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Pengiriman (Outbound)</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">⚠️ Status QC (Hold/Release)</button>
                 </div>
             </div>
@@ -108,7 +108,7 @@
             
             <hr class="border-secondary my-2">
             
-            <button class="btn btn-outline-light w-100 text-start py-2" onclick="switchPage('page-master')">⚙️ Master Data SKU</button>
+            <button class="btn btn-outline-light w-100 text-start py-2" onclick="switchPage('page-master')">⚙️ Master Data & Akun</button>
         </div>
     </div>
 
@@ -205,7 +205,7 @@
                 <div class="col-md-8">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-body">
-                            <h6 class="fw-bold text-secondary mb-3">Grafik Volume Transaksi (Inbound vs Outbound)</h6>
+                            <h6 class="fw-bold text-secondary mb-3">Grafik Volume Transaksi (Penerimaan vs Pengiriman)</h6>
                             <canvas id="transChart" style="max-height: 300px;"></canvas>
                         </div>
                     </div>
@@ -215,10 +215,9 @@
                         <div class="card-body">
                             <h6 class="fw-bold text-secondary mb-3">Ringkasan Aktivitas</h6>
                             <ul class="list-group list-group-flush bg-transparent small">
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Inbound (Prod):</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Inbound (Plant):</span> <strong class="text-success" id="summaryInPlant">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Outbound (Cust):</span> <strong class="text-danger" id="summaryOutCust">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Outbound (Plant):</span> <strong class="text-danger" id="summaryOutPlant">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Prod:</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Plant Lain:</span> <strong class="text-success" id="summaryInPlant">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Pengiriman:</span> <strong class="text-danger" id="summaryOutTotal">0 Pallet</strong></li>
                                 <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Di-Hold QC:</span> <strong class="text-warning" id="summaryHold">0 Pallet</strong></li>
                             </ul>
                         </div>
@@ -227,17 +226,17 @@
             </div>
         </div>
 
-        <!-- 3B. SUB-MENU: INBOUND FORM -->
+        <!-- 3B. SUB-MENU: PENERIMAAN BARANG JADI DARI PRODUKSI -->
         <div id="page-trans-in" class="app-page">
-            <h4 class="fw-bold mb-3">Form Penerimaan Barang (Inbound)</h4>
+            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi dari Produksi</h4>
             <div class="card shadow-sm border-success col-md-6 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Penerimaan (Inbound)</div>
+                <div class="card-header bg-success text-white fw-bold">Penerimaan Barang Jadi dari Produksi</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Asal Masuk & Jenis</label>
                             <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="inSource" required>
+                                <select class="form-select form-select-sm" id="inSource" required onchange="toggleInboundFields()">
                                     <option value="Produksi">Produksi</option>
                                     <option value="PlantLain">Plant Lain</option>
                                 </select>
@@ -247,6 +246,33 @@
                                 </select>
                             </div>
                         </div>
+
+                        <!-- KOLOM TAMBAHAN KHUSUS PRODUKSI: PLANT (1115 / 1116), SHIFT, LINE -->
+                        <div id="prodExtraFields" class="bg-success-subtle p-3 border border-success rounded mb-3">
+                            <span class="badge bg-success mb-2">Detail Produksi Pabrik</span>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">PLANT</label>
+                                    <select class="form-select form-select-sm" id="inPlantNo">
+                                        <option value="1115">1115</option>
+                                        <option value="1116">1116</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">SHIFT</label>
+                                    <select class="form-select form-select-sm" id="inShift">
+                                        <option value="Shift 1">Shift 1</option>
+                                        <option value="Shift 2">Shift 2</option>
+                                        <option value="Shift 3">Shift 3</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" style="font-size: 11px; font-weight: bold;">LINE</label>
+                                    <input type="text" class="form-control form-control-sm" id="inLine" placeholder="Line 1...">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
                             <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('in')">
@@ -288,18 +314,20 @@
             </div>
         </div>
 
-        <!-- 3C. SUB-MENU: OUTBOUND FORM -->
+        <!-- 3C. SUB-MENU: PENGIRIMAN (OUTBOUND) -->
         <div id="page-trans-out" class="app-page">
             <h4 class="fw-bold mb-3">Form Pengiriman Barang (Outbound)</h4>
             <div class="card shadow-sm border-danger col-md-6 mx-auto">
-                <div class="card-header bg-danger text-white fw-bold">Pengiriman (Outbound)</div>
+                <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi</div>
                 <div class="card-body">
                     <form id="formOut" onsubmit="saveOutbound(event)">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Tujuan Barang Keluar</label>
+                            <label class="form-label small fw-bold">Jenis Pengiriman / Tujuan</label>
                             <select class="form-select form-select-sm" id="outTarget" required>
-                                <option value="Customer">Ke Customer / Ekspor</option>
-                                <option value="PlantLain">Ke Plant Lain (Mutasi)</option>
+                                <option value="Inbound RDC">Inbound &lt;RDC&gt;</option>
+                                <option value="Outbound Subdist/Direct">Outbound &lt;Subdist/Direct&gt;</option>
+                                <option value="Ekspor">Ekspor</option>
+                                <option value="MDC/MT">MDC/MT</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -316,7 +344,7 @@
                             </div>
                             <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang status HOLD tidak bisa dikirim</small>
                         </div>
-                        <button type="submit" class="btn btn-danger w-100">Proses Barang Keluar</button>
+                        <button type="submit" class="btn btn-danger w-100">Proses Pengiriman Barang</button>
                     </form>
                 </div>
             </div>
@@ -366,7 +394,7 @@
             </div>
         </div>
 
-        <!-- 4. STOCK OPNAME HARIAN (NAMA DIUBAH MENJADI "STOCK OPNAME HARIAN") -->
+        <!-- 4. STOCK OPNAME HARIAN -->
         <div id="page-opname" class="app-page">
             <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
             <div class="card shadow-sm border-primary mb-3">
@@ -481,10 +509,33 @@
             </div>
         </div>
 
-        <!-- 7. MASTER DATA -->
+        <!-- 7. MASTER DATA & MANAJEMEN AKUN -->
         <div id="page-master" class="app-page">
-            <h4 class="fw-bold mb-3">Database Master SKU</h4>
+            <h4 class="fw-bold mb-3">Database Master SKU & Manajemen Akun</h4>
+            
+            <!-- MANAJEMEN AKUN -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white fw-bold">Tambah Akun Pengguna Baru</div>
+                <div class="card-body">
+                    <form onsubmit="addNewAccount(event)" class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold">Username Baru</label>
+                            <input type="text" class="form-control form-control-sm" id="newUsername" required placeholder="Masukkan username...">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" class="form-control form-control-sm" id="newPassword" required placeholder="Masukkan password...">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Akun</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MASTER SKU -->
             <div class="card shadow-sm border-0">
+                <div class="card-header bg-secondary text-white fw-bold">Database Master SKU Produk</div>
                 <div class="card-body">
                     <div class="alert alert-secondary small">
                         <strong>Format 6 Kolom:</strong> ID | NAME | JUMLAH | SAT | <b>JML CAR/PALLET</b> | SAT<br>
@@ -592,7 +643,9 @@
             layoutCol4: ["BLOK U FG", "BLOK Q FG", "BLOK M FG", "BLOK I FG", "BLOK E FG", "BLOK A FG"]
         };
 
-        // --- SISTEM LOGIN / AKUN ---
+        // --- SISTEM LOGIN & AKUN ---
+        let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
+
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
             if (loggedInUser) {
@@ -608,18 +661,35 @@
             let u = document.getElementById('loginUser').value.trim();
             let p = document.getElementById('loginPass').value.trim();
             
-            if (u === 'admin' && p === 'admin123') {
+            if (registeredUsers[u] && registeredUsers[u] === p) {
                 localStorage.setItem('wms_logged_user', u);
                 checkLoginStatus();
                 alert('Login Berhasil!');
             } else {
-                alert('Username atau Password salah! (Gunakan admin / admin123)');
+                alert('Username atau Password salah!');
             }
         }
 
         function handleLogout() {
             localStorage.removeItem('wms_logged_user');
             checkLoginStatus();
+        }
+
+        function addNewAccount(e) {
+            e.preventDefault();
+            let newU = document.getElementById('newUsername').value.trim();
+            let newP = document.getElementById('newPassword').value.trim();
+
+            if(registeredUsers[newU]) {
+                alert('Username sudah terdaftar!');
+                return;
+            }
+
+            registeredUsers[newU] = newP;
+            localStorage.setItem('wms_accounts', JSON.stringify(registeredUsers));
+            alert(`Akun baru [${newU}] berhasil ditambahkan!`);
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
         }
 
         function switchPage(pageId) {
@@ -642,10 +712,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v17')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v18')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v17', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v18', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -823,7 +893,16 @@
         }
 
         function toggleInboundFields() {
+            const source = document.getElementById('inSource').value;
             const kategori = document.getElementById('inKategori').value;
+            
+            // Tampilkan field tambahan produksi jika source adalah Produksi
+            if(source === 'Produksi') {
+                document.getElementById('prodExtraFields').style.display = 'block';
+            } else {
+                document.getElementById('prodExtraFields').style.display = 'none';
+            }
+
             if(kategori === 'Ekspor') {
                 document.getElementById('inLokalFields').style.display = 'none';
                 document.getElementById('inExportFields').style.display = 'block';
@@ -876,6 +955,10 @@
             const source = document.getElementById('inSource').value;
             const kategori = document.getElementById('inKategori').value;
             const qtyPallet = parseFloat(document.getElementById('inQtyPallet').value);
+            
+            let plantNo = document.getElementById('inPlantNo').value;
+            let shiftNo = document.getElementById('inShift').value;
+            let lineNo = document.getElementById('inLine').value || '-';
 
             if (!stockData[sku] || !row) { alert('SKU / Lorong tidak valid!'); return; }
 
@@ -890,13 +973,13 @@
             if(kategori === 'Ekspor') {
                 item.exportLog.push({
                     date: new Date().toLocaleDateString('id-ID'),
-                    type: 'Ekspor',
+                    type: source === 'Produksi' ? `Prod (Plant ${plantNo})` : 'Plant Lain',
                     code: document.getElementById('inExpQt').value || '-',
                     prodate: document.getElementById('inExpProdate').value || '-',
                     expdate: document.getElementById('inExpExpdate').value || '-',
                     buyer: document.getElementById('inExpBuyer').value || '-',
                     country: document.getElementById('inExpCountry').value || '-',
-                    reason: '-',
+                    reason: `Shift: ${shiftNo}, Line: ${lineNo}`,
                     qtyIn: qtyPallet.toFixed(2)
                 });
             } else {
@@ -904,9 +987,10 @@
                 if(kodeLokal) {
                     item.exportLog.push({
                         date: new Date().toLocaleDateString('id-ID'),
-                        type: 'Lokal',
+                        type: source === 'Produksi' ? `Prod (Plant ${plantNo})` : 'Plant Lain',
                         code: kodeLokal,
-                        prodate: '-', expdate: '-', buyer: '-', country: '-', reason: '-',
+                        prodate: '-', expdate: '-', buyer: '-', country: '-', 
+                        reason: `Shift: ${shiftNo}, Line: ${lineNo}`,
                         qtyIn: qtyPallet.toFixed(2)
                     });
                 }
@@ -919,8 +1003,9 @@
             document.getElementById('inQtyPalletDisplay').innerText = '0 Pallet';
             document.getElementById('inLokalFields').style.display = 'block';
             document.getElementById('inExportFields').style.display = 'none';
+            document.getElementById('prodExtraFields').style.display = 'block';
             saveData();
-            alert(`Masuk ${qtyPallet.toFixed(2)} Pallet ke ${row}!`);
+            alert(`Penerimaan Berhasil! Masuk ${qtyPallet.toFixed(2)} Pallet ke ${row}!`);
             switchPage('page-trans-report');
         }
 
@@ -936,12 +1021,22 @@
 
             if (qtyPallet > avail) { alert(`GAGAL! Sisa Available hanya ${avail.toFixed(2)} pallet.`); return; }
 
-            if(target === 'Customer') item.out += qtyPallet; else item.outPlant += qtyPallet;
+            // Dicatat sebagai pengiriman keluar (masuk ke kolom out / akumulasi pengiriman)
+            item.out += qtyPallet;
             
+            item.exportLog.push({
+                date: new Date().toLocaleDateString('id-ID'),
+                type: `Kirim (${target})`,
+                code: 'Outbound',
+                prodate: '-', expdate: '-', buyer: '-', country: '-',
+                reason: `Tujuan: ${target}`,
+                qtyIn: -qtyPallet.toFixed(2)
+            });
+
             document.getElementById('formOut').reset();
             document.getElementById('outQtyPalletDisplay').innerText = '0 Pallet';
             saveData();
-            alert('Keluar berhasil dicatat!');
+            alert(`Pengiriman [${target}] berhasil dicatat!`);
             switchPage('page-trans-report');
         }
 
@@ -1043,20 +1138,18 @@
         // --- RENDER GRAFIK & LAPORAN TRANSAKSI ---
         let transChartInstance = null;
         function renderTransactionReport() {
-            let totInProd = 0, totInPlant = 0, totOutCust = 0, totOutPlant = 0, totHold = 0;
+            let totInProd = 0, totInPlant = 0, totOutTotal = 0, totHold = 0;
             for (let sku in stockData) {
                 let it = stockData[sku];
                 totInProd += it.inProd;
                 totInPlant += it.inPlant;
-                totOutCust += it.out;
-                totOutPlant += it.outPlant;
+                totOutTotal += (it.out + it.outPlant);
                 totHold += it.holdQty;
             }
 
             document.getElementById('summaryInProd').innerText = totInProd.toFixed(2) + ' Pallet';
             document.getElementById('summaryInPlant').innerText = totInPlant.toFixed(2) + ' Pallet';
-            document.getElementById('summaryOutCust').innerText = totOutCust.toFixed(2) + ' Pallet';
-            document.getElementById('summaryOutPlant').innerText = totOutPlant.toFixed(2) + ' Pallet';
+            document.getElementById('summaryOutTotal').innerText = totOutTotal.toFixed(2) + ' Pallet';
             document.getElementById('summaryHold').innerText = totHold.toFixed(2) + ' Pallet';
 
             let ctx = document.getElementById('transChart').getContext('2d');
@@ -1065,11 +1158,11 @@
             transChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Inbound Produksi', 'Inbound Plant Lain', 'Outbound Customer', 'Outbound Plant Lain', 'QC Hold'],
+                    labels: ['Penerimaan Produksi', 'Penerimaan Plant Lain', 'Total Pengiriman', 'QC Hold'],
                     datasets: [{
                         label: 'Volume (Pallet)',
-                        data: [totInProd, totInPlant, totOutCust, totOutPlant, totHold],
-                        backgroundColor: ['#198754', '#20c997', '#dc3545', '#fd7e14', '#ffc107']
+                        data: [totInProd, totInPlant, totOutTotal, totHold],
+                        backgroundColor: ['#198754', '#20c997', '#dc3545', '#ffc107']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -1078,10 +1171,9 @@
 
         function exportTransExcel() {
             let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n";
-            csvContent += `Inbound Produksi,${document.getElementById('summaryInProd').innerText}\n`;
-            csvContent += `Inbound Plant Lain,${document.getElementById('summaryInPlant').innerText}\n`;
-            csvContent += `Outbound Customer,${document.getElementById('summaryOutCust').innerText}\n`;
-            csvContent += `Outbound Plant Lain,${document.getElementById('summaryOutPlant').innerText}\n`;
+            csvContent += `Penerimaan Produksi,${document.getElementById('summaryInProd').innerText}\n`;
+            csvContent += `Penerimaan Plant Lain,${document.getElementById('summaryInPlant').innerText}\n`;
+            csvContent += `Total Pengiriman,${document.getElementById('summaryOutTotal').innerText}\n`;
             csvContent += `QC Hold,${document.getElementById('summaryHold').innerText}\n`;
 
             let encodedUri = encodeURI(csvContent);
@@ -1175,7 +1267,7 @@
                 } else if(l.type === 'Daily Opname') {
                     detailText = `<strong class="text-primary">${l.code}</strong> | Keterangan: ${l.reason}`;
                 } else {
-                    detailText = `Kode Prod/QT: ${l.code} | Buyer: ${l.buyer} (${l.country})`;
+                    detailText = `Info: ${l.code} | Keterangan: ${l.reason || '-'}`;
                 }
 
                 ul.innerHTML += `
