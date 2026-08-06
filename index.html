@@ -78,7 +78,7 @@
         </div>
     </nav>
 
-    <!-- OFFCANVAS SIDEBAR DENGAN SUB-MENU -->
+    <!-- OFFCANVAS SIDEBAR -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">📂 Navigasi WMS</h5>
@@ -97,7 +97,7 @@
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">📊 Laporan & Grafik</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">📥 Penerimaan Produksi</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Pengiriman (Outbound)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">📤 Pengiriman</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">⚠️ Status QC (Hold/Release)</button>
                 </div>
             </div>
@@ -163,6 +163,20 @@
                             <small class="text-uppercase text-white-50 fw-bold">Total SKU Aktif</small>
                             <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
                             <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAFIK 10 PRODUK PALING BANYAK DI GUDANG -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-secondary mb-3">📈 Grafik 10 Produk Paling Banyak di Gudang</h5>
+                            <div style="position: relative; height: 320px;">
+                                <canvas id="topProductsChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -324,9 +338,9 @@
             </div>
         </div>
 
-        <!-- 3C. SUB-MENU: PENGIRIMAN (OUTBOUND) -->
+        <!-- 3C. SUB-MENU: PENGIRIMAN -->
         <div id="page-trans-out" class="app-page">
-            <h4 class="fw-bold mb-3">Form Pengiriman Barang (Outbound)</h4>
+            <h4 class="fw-bold mb-3">Form Pengiriman Barang</h4>
             <div class="card shadow-sm border-danger col-md-6 mx-auto">
                 <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi</div>
                 <div class="card-body">
@@ -720,10 +734,10 @@
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v19')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v20')) || {};
 
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v19', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v20', JSON.stringify(stockData));
             renderAll();
         }
 
@@ -1175,6 +1189,48 @@
             });
         }
 
+        // --- RENDER GRAFIK 10 PRODUK TERBANYAK DI DASHBOARD ---
+        let topProductsChartInstance = null;
+        function renderTopProductsChart() {
+            let sortedProducts = Object.values(stockData).map(item => {
+                return { name: item.name, sku: item.sku, qty: getSisaFisik(item) };
+            }).sort((a, b) => b.qty - a.qty).slice(0, 10);
+
+            let labels = sortedProducts.map(p => `${p.sku} - ${p.name}`);
+            let data = sortedProducts.map(p => p.qty);
+
+            let ctx = document.getElementById('topProductsChart').getContext('2d');
+            if (topProductsChartInstance) topProductsChartInstance.destroy();
+
+            topProductsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Pallet di Gudang',
+                        data: data,
+                        backgroundColor: '#0f172a',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
         function exportTransExcel() {
             let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n";
             csvContent += `Penerimaan Produksi,${document.getElementById('summaryInProd').innerText}\n`;
@@ -1378,6 +1434,8 @@
             document.getElementById('statHoldQty').innerText = Number.isInteger(totalHold) ? totalHold.toLocaleString() : totalHold.toFixed(2);
             document.getElementById('statPercentage').innerText = (totalMax > 0 ? (totalPallet/totalMax)*100 : 0).toFixed(2) + '%';
             document.getElementById('statTotalSku').innerText = totalSkuCount;
+
+            renderTopProductsChart();
         }
 
         checkLoginStatus();
