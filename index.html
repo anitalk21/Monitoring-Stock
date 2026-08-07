@@ -69,7 +69,10 @@
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
                     Menu
                 </button>
-                <span class="navbar-brand h1 fw-bold mb-0">Monitoring Finished Goods</span>
+                <div class="d-flex flex-column">
+                    <span class="navbar-brand h1 fw-bold mb-0" style="font-size: 1.25rem;">Monitoring Finished Goods</span>
+                    <span class="text-white-50 small" style="font-size: 0.75rem; letter-spacing: 0.5px;">PT. Mayora Indah Tbk, Jayanti 3</span>
+                </div>
             </div>
             <div>
                 <span class="text-white-50 small me-3" id="navUserDisplay">User: Admin</span>
@@ -1489,7 +1492,7 @@
                     '<span class="badge bg-secondary">-</span>';
 
                 let showF = Number.isInteger(fisik) ? fisik : fisik.toFixed(2);
-                let showA = Number.isInteger(avail) ? avail : avail.toFixed(2);
+                let showA = Number.isInteger(avail) ? avail : avail.TextView.toFixed(2);
                 let showH = Number.isInteger(item.holdQty) ? item.holdQty : item.holdQty.toFixed(2);
 
                 tbody.innerHTML += '<tr>' +
