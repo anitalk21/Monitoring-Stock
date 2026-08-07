@@ -73,7 +73,9 @@
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard Utama</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc (2 Gudang)</button>
-            <button class="btn btn-warning w-100 text-start py-2 text-dark fw-bold" onclick="switchPage('page-aging-control')">Monitoring Gudang Aging (8 Hari)</button>
+            <button class="btn btn-warning w-100 text-start py-2 text-dark fw-bold" onclick="switchPage('page-aging-control')">Monitoring Gudang Aging</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-move-rack')">Pindah Lokasi Rak</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-stagnant')">Stok Terlama (Stagnant)</button>
             
             <div>
                 <button class="btn btn-dark w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subTransaksiMenu">
@@ -168,8 +170,8 @@
         <div id="page-binloc" class="app-page">
             <h4 class="fw-bold mb-3">Peta Layout & Bin Location Racking</h4>
             <div class="mb-3 d-flex gap-2">
-                <button class="btn btn-dark fw-bold" id="btnWhInduk" onclick="switchWarehouseMap('INDUK')">Gudang Induk (Finished Goods)</button>
-                <button class="btn btn-outline-dark fw-bold" id="btnWhAging" onclick="switchWarehouseMap('AGING')">Gudang Aging (Cokelat Setting)</button>
+                <button class="btn btn-dark fw-bold" id="btnWhInduk" onclick="switchWarehouseMap('INDUK')">Gudang Induk</button>
+                <button class="btn btn-outline-dark fw-bold" id="btnWhAging" onclick="switchWarehouseMap('AGING')">Gudang Aging</button>
             </div>
             <div class="alert alert-info shadow-sm small border-0 mb-3">
                 <strong>Panduan:</strong> Klik pada blok rak untuk melihat detail isi barang per lorong secara real-time.
@@ -183,9 +185,9 @@
 
         <!-- 3. MONITORING KHUSUS AGING (8 HARI) -->
         <div id="page-aging-control" class="app-page">
-            <h4 class="fw-bold mb-3">Monitoring Proses Aging Cokelat (Wajib 8 Hari)</h4>
+            <h4 class="fw-bold mb-3">Monitoring Gudang Aging</h4>
             <div class="alert alert-warning small border-0 shadow-sm">
-                Sistem otomatis memantau masa aging produk sejak tanggal masuk. Jika mencapai 8 hari, status akan berubah menjadi <strong>Ready</strong> dan siap dipindahkan ke Gudang Induk.
+                Sistem otomatis memantau masa aging produk sejak tanggal masuk (FIFO). Jika mencapai batas yang disyaratkan (8 hari), status akan berubah menjadi <strong>Ready</strong>.
             </div>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
@@ -194,7 +196,7 @@
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Tanggal Masuk</th>
+                                <th>Tanggal Masuk (FIFO)</th>
                                 <th>Lama Aging</th>
                                 <th>Lokasi Gudang Aging</th>
                                 <th>Jumlah Pallet</th>
@@ -202,6 +204,51 @@
                             </tr>
                         </thead>
                         <tbody id="agingTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.1 PINDAH LOKASI RAK -->
+        <div id="page-move-rack" class="app-page">
+            <h4 class="fw-bold mb-3">Pindah Lokasi Rak (Relokasi)</h4>
+            <div class="card shadow-sm col-md-6 mx-auto">
+                <div class="card-body">
+                    <form onsubmit="processMoveRack(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Cari SKU</label>
+                            <input type="text" class="form-control" id="moveSku" list="datalistSkus" required placeholder="Ketik SKU...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Lokasi Asal (Contoh: BLOK X | X01)</label>
+                            <input type="text" class="form-control" id="moveFrom" required placeholder="Lokasi awal">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Lokasi Tujuan (Contoh: BLOK T | T02)</label>
+                            <input type="text" class="form-control" id="moveTo" required placeholder="Lokasi baru">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Update Lokasi Rak</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.2 LAPORAN STAGNANT -->
+        <div id="page-stagnant" class="app-page">
+            <h4 class="fw-bold mb-3">Laporan Produk Terlama (Stagnant > 30 Hari)</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="table-danger text-dark">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start name-col">Nama Produk</th>
+                                <th>Umur (Hari)</th>
+                                <th>Lokasi Rak</th>
+                                <th>Jumlah Pallet</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stagnantTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -252,8 +299,8 @@
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-primary">Tujuan Gudang</label>
                                 <select class="form-select form-select-sm border-primary fw-bold" id="inDestWarehouse" required onchange="resetInboundLocRows()">
-                                    <option value="INDUK">Gudang Induk (Finished Goods)</option>
-                                    <option value="AGING">Gudang Aging (Proses Setting Cokelat)</option>
+                                    <option value="INDUK">Gudang Induk</option>
+                                    <option value="AGING">Gudang Aging</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -335,7 +382,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa diproses keluar.</small>
+                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa diproses keluar. Prioritaskan stok dengan Tanggal Masuk (FIFO) terlama.</small>
                         </div>
                         <button type="submit" class="btn btn-danger w-100 fw-bold">Proses Pengiriman Barang</button>
                     </form>
@@ -473,7 +520,7 @@
                                 <th class="text-start name-col">Nama Produk</th>
                                 <th>Log Histori</th>
                                 <th>Lokasi Gudang & Rak</th>
-                                <th>Tanggal Masuk</th>
+                                <th>Tanggal Masuk (FIFO)</th>
                                 <th>Total Masuk</th>
                                 <th>Total Keluar</th>
                                 <th>Fisik Aktual (Plt)</th>
@@ -571,7 +618,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // MASTER RACKING INDUK (Sama Seperti Versi Awal)
         const masterRackingInduk = {
             "LANTAI / FLOOR": { prefix: "FLOOR", rows: 1, perRow: 9999 },
             "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
@@ -600,7 +646,6 @@
             "BLOK A FG": { prefix: "A", rows: 11, perRow: 36 }
         };
 
-        // MASTER RACKING AGING (Berdasarkan Blueprint PT Mayora)
         const masterRackingAging = {
             "AGING - BLOK A FG": { prefix: "A", rows: 29, perRow: 36 },
             "AGING - BLOK B FG": { prefix: "B", rows: 32, perRow: 36 },
@@ -621,9 +666,8 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_Final')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_CompleteFinal')) || {};
 
-        /* --- AUTH & NAVIGATION --- */
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
             if (loggedInUser) {
@@ -666,6 +710,7 @@
             if (pageId === 'page-trans-report') renderTransactionReport();
             if (pageId === 'page-binloc') switchWarehouseMap('INDUK');
             if (pageId === 'page-aging-control') renderAgingTable();
+            if (pageId === 'page-stagnant') renderStagnantReport();
             if (pageId === 'page-opname') {
                 document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
@@ -676,12 +721,11 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_Final', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_CompleteFinal', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
 
-        /* --- DASHBOARD CHARTS --- */
         let topProductsChartInstance = null;
         let transChartInstance = null;
 
@@ -700,7 +744,7 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'Total Pallet (Gudang Induk & Aging)', data: data, backgroundColor: '#0f172a', borderRadius: 4 }]
+                    datasets: [{ label: 'Total Pallet', data: data, backgroundColor: '#0f172a', borderRadius: 4 }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -754,7 +798,6 @@
             link.click(); document.body.removeChild(link);
         }
 
-        /* --- MAP & BIN LOC LOGIC --- */
         function getGlobalRackLoad(blockName, rowName = null) {
             let total = 0;
             let targetLoc = rowName ? blockName + ' | ' + rowName : blockName;
@@ -858,7 +901,6 @@
             rowModal.show();
         }
 
-        /* --- DYNAMIC ROWS (INBOUND & OPNAME) --- */
         let inboundRowIdx = 0;
         function resetInboundLocRows() { document.getElementById('inboundLocBody').innerHTML = ''; addInboundLocRow(); }
 
@@ -947,7 +989,6 @@
             displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
         }
 
-        /* --- TRANSACTION LOGIC --- */
         function saveInbound(e) {
             e.preventDefault();
             const sku = extractSku(document.getElementById('inSku').value);
@@ -978,7 +1019,7 @@
 
             let item = stockData[sku];
             item.rack = (item.rack && item.rack !== '-') ? item.rack + ', ' + locListStr.join(', ') : locListStr.join(', ');
-            item.arrivalDate = dateStr; // Menentukan start FIFO & Aging
+            item.arrivalDate = dateStr; 
             
             if (source === 'Produksi') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
@@ -999,7 +1040,7 @@
             if(!stockData[sku]) { tbody.innerHTML = '<tr><td colspan="3" class="text-danger small">SKU tidak terdaftar.</td></tr>'; return; }
             
             let item = stockData[sku];
-            document.getElementById('outSkuHint').innerText = 'Standar: ' + item.jmlCar + ' Carton/Pallet | Available (Gudang): ' + getAvailableStock(item).toFixed(2) + ' Pallet';
+            document.getElementById('outSkuHint').innerText = 'Standar: ' + item.jmlCar + ' Carton/Pallet | Available: ' + getAvailableStock(item).toFixed(2) + ' Pallet';
 
             if(!item.rack || item.rack === '-') { tbody.innerHTML = '<tr><td colspan="3" class="text-muted small">Barang belum punya lokasi rak.</td></tr>'; return; }
 
@@ -1095,7 +1136,6 @@
             clearOpnameRows(); switchPage('page-rekon');
         }
 
-        /* --- REKONSILIASI SAP --- */
         function processPasteSAP() {
             const text = document.getElementById('pasteSAPArea').value.trim();
             if (!text) return;
@@ -1136,7 +1176,6 @@
             }
         }
 
-        /* --- AGING TABLE LOGIC (8 HARI) --- */
         function renderAgingTable() {
             let tbody = document.getElementById('agingTableBody');
             tbody.innerHTML = '';
@@ -1153,7 +1192,7 @@
                     let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
                     let isReady = diffDays >= 8;
-                    let badge = isReady ? '<span class="badge bg-success">Ready (Selesai Set)</span>' : '<span class="badge bg-warning text-dark">Proses Aging (' + diffDays + '/8 Hari)</span>';
+                    let badge = isReady ? '<span class="badge bg-success">Ready</span>' : '<span class="badge bg-warning text-dark">Proses Aging (' + diffDays + ' Hari)</span>';
 
                     tbody.innerHTML += '<tr>' +
                         '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
@@ -1168,7 +1207,60 @@
             }
         }
 
-        /* --- MASTER DATA PROCESSING --- */
+        function processMoveRack(e) {
+            e.preventDefault();
+            const sku = extractSku(document.getElementById('moveSku').value);
+            const from = document.getElementById('moveFrom').value.trim();
+            const to = document.getElementById('moveTo').value.trim();
+            
+            if(stockData[sku]) {
+                if(stockData[sku].rack.includes(from)) {
+                    stockData[sku].rack = stockData[sku].rack.replace(from, to);
+                    if(!stockData[sku].exportLog) stockData[sku].exportLog = [];
+                    stockData[sku].exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'RELOKASI RAK', reason: 'Pindah dari '+from+' ke '+to, qtyIn: 0 });
+                    saveData();
+                    alert('Lokasi rak berhasil diperbarui!');
+                    document.getElementById('moveSku').value = '';
+                    document.getElementById('moveFrom').value = '';
+                    document.getElementById('moveTo').value = '';
+                    switchPage('page-report');
+                } else {
+                    alert('Lokasi asal tidak ditemukan pada SKU tersebut!');
+                }
+            } else {
+                alert('SKU tidak valid!');
+            }
+        }
+
+        function renderStagnantReport() {
+            let tbody = document.getElementById('stagnantTableBody');
+            tbody.innerHTML = '';
+            let today = new Date();
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                let fisik = getSisaFisik(item);
+                if(item.arrivalDate && fisik > 0) {
+                    let arrival = new Date(item.arrivalDate);
+                    let diffDays = Math.ceil((today - arrival) / (1000 * 60 * 60 * 24));
+                    if(diffDays > 30) {
+                        found = true;
+                        tbody.innerHTML += `<tr>
+                            <td><span class="badge bg-secondary">${sku}</span></td>
+                            <td class="text-start fw-semibold">${item.name}</td>
+                            <td class="text-danger fw-bold">${diffDays} Hari</td>
+                            <td><span class="badge bg-info text-dark">${item.rack}</span></td>
+                            <td class="fw-bold">${fisik.toFixed(2)} Plt</td>
+                        </tr>`;
+                    }
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada produk stagnan (>30 hari).</td></tr>';
+            }
+        }
+
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
             if(!text) return;
@@ -1203,7 +1295,6 @@
             expModal.show();
         }
 
-        /* --- MAIN RENDER (Breakdown & Stats) --- */
         function renderAll() {
             const tbody = document.getElementById('stockTableBody');
             const datalist = document.getElementById('datalistSkus');
@@ -1211,7 +1302,6 @@
 
             let totalInduk = 0, totalAging = 0, totalHold = 0, skuCount = 0;
             
-            // Hitung Kapasitas Maksimal
             let maxInduk = 0, maxAging = 0;
             for(let r in masterRackingInduk) if(r !== "LANTAI / FLOOR") maxInduk += (masterRackingInduk[r].rows * masterRackingInduk[r].perRow);
             for(let r in masterRackingAging) maxAging += (masterRackingAging[r].rows * masterRackingAging[r].perRow);
