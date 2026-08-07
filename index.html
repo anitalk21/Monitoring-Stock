@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Finished Goods</title>
+    <title>Monitoring Finished Goods - PT. Mayora Indah Tbk, Jayanti 3</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
     <style>
         body { background-color: #f1f5f9; }
         .navbar-custom { background-color: #0f172a; }
@@ -23,7 +20,6 @@
         .table th, .table td { vertical-align: middle; white-space: nowrap; }
         .name-col { white-space: normal; min-width: 200px; }
         
-        /* Layout Bin Location Styles */
         .bin-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-width: 2px !important; }
         .bin-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
         .warehouse-map-container { overflow-x: auto; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; }
@@ -32,7 +28,6 @@
         .row-card { cursor: pointer; transition: background 0.2s; }
         .row-card:hover { background-color: #e2e8f0 !important; }
         
-        .dynamic-fields { display: none; } 
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
@@ -43,7 +38,7 @@
         <div class="card shadow-lg p-4" style="width: 380px; border-radius: 12px;">
             <div class="text-center mb-4">
                 <h3 class="fw-bold text-dark">Login Monitoring FG</h3>
-                <p class="text-muted small">Masukkan akun Anda untuk mengakses sistem</p>
+                <p class="text-muted small">PT. Mayora Indah Tbk, Jayanti 3</p>
             </div>
             <form onsubmit="handleLogin(event)">
                 <div class="mb-3">
@@ -56,9 +51,6 @@
                 </div>
                 <button type="submit" class="btn btn-dark w-100 py-2 fw-bold">Masuk Aplikasi</button>
             </form>
-            <div class="mt-3 text-center">
-                <small class="text-muted" style="font-size: 11px;">Default akun: <b>admin</b> / <b>admin123</b></small>
-            </div>
         </div>
     </div>
 
@@ -66,7 +58,7 @@
     <nav class="navbar navbar-dark navbar-custom shadow-sm py-3 sticky-top">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
                     Menu
                 </button>
                 <div class="d-flex flex-column">
@@ -82,44 +74,21 @@
     </nav>
 
     <!-- OFFCANVAS SIDEBAR -->
-    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu">
         <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel">Navigasi Menu</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <h5 class="offcanvas-title fw-bold">Navigasi Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc</button>
-            
-            <div>
-                <button class="btn btn-dark w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subTransaksiMenu">
-                    <span>Transaksi Harian</span>
-                    <span>v</span>
-                </button>
-                <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">Laporan & Grafik</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">Penerimaan Produksi</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">Pengiriman (Linked)</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">Status QC (Hold/Release)</button>
-                </div>
-            </div>
-
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc (2 Gudang)</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-aging-control')">Monitoring Gudang Aging (8 Hari)</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-trans-in')">Penerimaan & Masuk Gudang</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">Stock Opname Harian</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">Rekonsiliasi SAP</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">Laporan Breakdown</button>
-            
             <hr class="border-secondary my-2">
-            
-            <div>
-                <button class="btn btn-outline-light w-100 text-start py-2 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#subSettingMenu">
-                    <span>Pengaturan & Data</span>
-                    <span>v</span>
-                </button>
-                <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subSettingMenu">
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-master')">Master Data SKU</button>
-                    <button class="btn btn-sm btn-outline-secondary w-100 text-start py-1 text-light" onclick="switchPage('page-accounts')">Manajemen Akun</button>
-                </div>
-            </div>
+            <button class="btn btn-outline-secondary w-100 text-start py-2 text-light" onclick="switchPage('page-master')">Master Data SKU</button>
         </div>
     </div>
 
@@ -129,32 +98,29 @@
 
         <!-- 1. DASHBOARD -->
         <div id="page-dashboard" class="app-page active">
-            <h4 class="fw-bold mb-3">Ringkasan Kapasitas Gudang</h4>
+            <h4 class="fw-bold mb-3">Ringkasan Kapasitas Gudang (Induk & Aging)</h4>
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <div class="card card-stat shadow-sm h-100">
                         <div class="card-body">
-                            <small class="text-uppercase text-white-50 fw-bold">Total Pallet Terisi</small>
-                            <h2 class="fw-bold mt-1 mb-0" id="statTotalPallet">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Dari <span id="statMaxCapacity">0</span> Pallet</p>
+                            <small class="text-uppercase text-white-50 fw-bold">Total Pallet Gudang Induk</small>
+                            <h2 class="fw-bold mt-1 mb-0" id="statTotalPalletInduk">0</h2>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card card-stat shadow-sm h-100">
                         <div class="card-body">
-                            <small class="text-uppercase text-white-50 fw-bold">Keterisian Gudang</small>
-                            <h2 class="fw-bold mt-1 mb-0" id="statPercentage">0%</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Status Aktual</p>
+                            <small class="text-uppercase text-white-50 fw-bold">Total Pallet Gudang Aging</small>
+                            <h2 class="fw-bold mt-1 mb-0 text-warning" id="statTotalPalletAging">0</h2>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card card-stat shadow-sm h-100">
                         <div class="card-body">
-                            <small class="text-uppercase text-white-50 fw-bold">Total Barang di-Hold (QC)</small>
-                            <h2 class="fw-bold mt-1 mb-0 text-warning" id="statHoldQty">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Pallet Tidak Bisa Dikirim</p>
+                            <small class="text-uppercase text-white-50 fw-bold">Barang di-Hold (QC)</small>
+                            <h2 class="fw-bold mt-1 mb-0 text-danger" id="statHoldQty">0</h2>
                         </div>
                     </div>
                 </div>
@@ -163,368 +129,118 @@
                         <div class="card-body">
                             <small class="text-uppercase text-white-50 fw-bold">Total SKU Aktif</small>
                             <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <h5 class="fw-bold text-secondary mb-3">Grafik 10 Produk Paling Banyak di Gudang</h5>
-                            <div style="position: relative; height: 320px;">
-                                <canvas id="topProductsChart"></canvas>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. LAYOUT & BIN LOCATION -->
+        <!-- 2. LAYOUT & BIN LOCATION (2 GUDANG) -->
         <div id="page-binloc" class="app-page">
-            <h4 class="fw-bold mb-3">Peta Layout & Bin Location Racking</h4>
-            <div class="alert alert-info shadow-sm small border-0 mb-3">
-                <strong>Panduan:</strong> Tata letak disesuaikan dengan denah fisik gudang. Klik pada blok rak untuk melihat detail lorongnya.
-                <span class="ms-3 badge bg-secondary">Kosong</span>
-                <span class="badge bg-success ms-1">Aman</span>
-                <span class="badge bg-warning text-dark ms-1">Hampir Penuh</span>
-                <span class="badge bg-danger ms-1">Penuh</span>
+            <h4 class="fw-bold mb-3">Peta Layout & Bin Location</h4>
+            <div class="mb-3 d-flex gap-2">
+                <button class="btn btn-dark fw-bold" id="btnWhInduk" onclick="switchWarehouse('INDUK')">Gudang Induk (Finished Goods)</button>
+                <button class="btn btn-outline-dark fw-bold" id="btnWhAging" onclick="switchWarehouse('AGING')">Gudang Aging (Cokelat Setting)</button>
             </div>
             
             <div class="warehouse-map-container shadow-sm">
-                <div class="warehouse-map-inner">
-                    <div class="row gx-4 text-center">
-                        <div class="col-3 d-flex flex-column gap-3" id="layoutCol1"></div>
-                        <div class="col-3 d-flex flex-column gap-3" id="layoutCol2"></div>
-                        <div class="col-3 d-flex flex-column gap-3" id="layoutCol3"></div>
-                        <div class="col-3 d-flex flex-column gap-3" id="layoutCol4"></div>
-                    </div>
-                    <div class="row mt-4 px-3">
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2">AREA ROLLING DOOR</span></div>
-                        <div class="col-6 text-center"><span class="badge bg-danger px-4 py-2">AREA LIFT</span></div>
-                    </div>
+                <div class="warehouse-map-inner" id="warehouseMapContent">
+                    <!-- Rendered via JS -->
                 </div>
             </div>
         </div>
 
-        <!-- 3A. SUB-MENU: LAPORAN & GRAFIK TRANSAKSI -->
-        <div id="page-trans-report" class="app-page">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold mb-0">Laporan & Grafik Transaksi Harian</h4>
-                <div class="d-flex gap-2">
-                    <select class="form-select form-select-sm" id="transFilterType" onchange="renderTransactionReport()">
-                        <option value="harian">Harian</option>
-                        <option value="mingguan">Mingguan</option>
-                        <option value="bulanan" selected>Bulanan</option>
-                    </select>
-                    <button class="btn btn-sm btn-success" onclick="exportTransExcel()">Export Excel</button>
-                    <button class="btn btn-sm btn-outline-dark" onclick="window.print()">Cetak PDF</button>
-                </div>
-            </div>
-            
-            <div class="row g-4 mb-4">
-                <div class="col-md-8">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body">
-                            <h6 class="fw-bold text-secondary mb-3">Grafik Volume Transaksi (Penerimaan vs Pengiriman)</h6>
-                            <canvas id="transChart" style="max-height: 300px;"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100 bg-light">
-                        <div class="card-body">
-                            <h6 class="fw-bold text-secondary mb-3">Ringkasan Aktivitas</h6>
-                            <ul class="list-group list-group-flush bg-transparent small">
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Prod:</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Plant Lain:</span> <strong class="text-success" id="summaryInPlant">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Pengiriman:</span> <strong class="text-danger" id="summaryOutTotal">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Di-Hold QC:</span> <strong class="text-warning" id="summaryHold">0 Pallet</strong></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3B. SUB-MENU: PENERIMAAN BARANG JADI DARI PRODUKSI -->
-        <div id="page-trans-in" class="app-page">
-            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi dari Produksi</h4>
-            <div class="card shadow-sm border-success col-md-8 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Penerimaan Barang Jadi dari Produksi (Multi-Lokasi & Lantai)</div>
-                <div class="card-body">
-                    <form id="formIn" onsubmit="saveInbound(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Asal Masuk & Jenis</label>
-                            <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="inSource" required onchange="toggleInboundFields()">
-                                    <option value="Produksi">Produksi</option>
-                                    <option value="PlantLain">Plant Lain</option>
-                                </select>
-                                <select class="form-select form-select-sm border-primary" id="inKategori" required onchange="toggleInboundFields()">
-                                    <option value="Lokal">Lokal</option>
-                                    <option value="Ekspor">Ekspor</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="prodExtraFields" class="bg-success-subtle p-3 border border-success rounded mb-3">
-                            <span class="badge bg-success mb-2">Detail Produksi Pabrik</span>
-                            <div class="row g-2">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">PLANT</label>
-                                    <select class="form-select form-select-sm" id="inPlantNo">
-                                        <option value="1115">1115</option>
-                                        <option value="1116">1116</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">SHIFT</label>
-                                    <select class="form-select form-select-sm" id="inShift">
-                                        <option value="Shift 1">Shift 1</option>
-                                        <option value="Shift 2">Shift 2</option>
-                                        <option value="Shift 3">Shift 3</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">LINE</label>
-                                    <input type="text" class="form-control form-control-sm" id="inLine" placeholder="Line 1...">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
-                            <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="updateInboundHint()">
-                            <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
-                        </div>
-                        
-                        <div id="inLokalFields" class="bg-light p-3 border rounded mb-3">
-                            <span class="badge bg-secondary mb-2">Informasi Barang Lokal</span>
-                            <input type="text" class="form-control form-control-sm" id="inKodeProdLokal" placeholder="Masukkan Kode Produksi / Batch">
-                        </div>
-
-                        <div id="inExportFields" class="dynamic-fields bg-light p-3 border rounded mb-3">
-                            <span class="badge bg-dark mb-2">Form Batch Ekspor</span>
-                            <input type="text" class="form-control form-control-sm mb-2" id="inExpQt" placeholder="Nomor QT / Batch">
-                            <input type="date" class="form-control form-control-sm mb-2" id="inExpProdate" title="Production Date">
-                            <input type="date" class="form-control form-control-sm mb-2" id="inExpExpdate" title="Expired Date">
-                            <input type="text" class="form-control form-control-sm mb-2" id="inExpBuyer" placeholder="Nama Buyer">
-                            <input type="text" class="form-control form-control-sm" id="inExpCountry" placeholder="Negara Tujuan">
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan (Rak / Lantai Floor)</label>
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Lain</button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
-                                    <thead class="table-success text-center">
-                                        <tr>
-                                            <th>Blok / Area Penyimpanan</th>
-                                            <th>Lorong / Keterangan Floor</th>
-                                            <th>Karton</th>
-                                            <th>Pallet</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="inboundLocBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 fw-bold">Proses Barang Masuk</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3C. SUB-MENU: PENGIRIMAN (TERHUBUNG DENGAN LOKASI RACK/OPNAME) -->
-        <div id="page-trans-out" class="app-page">
-            <h4 class="fw-bold mb-3">Form Pengiriman (Terhubung Lokasi Rak)</h4>
-            <div class="card shadow-sm border-danger col-md-8 mx-auto">
-                <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi (Pilih SKU untuk Deteksi Lokasi Rak Otomatis)</div>
-                <div class="card-body">
-                    <form id="formOut" onsubmit="saveOutbound(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Jenis Pengiriman / Tujuan</label>
-                            <select class="form-select form-select-sm" id="outTarget" required>
-                                <option value="Inbound RDC">Inbound RDC</option>
-                                <option value="Outbound Subdist/Direct">Outbound Subdist/Direct</option>
-                                <option value="Ekspor">Ekspor</option>
-                                <option value="MDC/MT">MDC/MT</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Ketik & Cari SKU Produk yang Akan Dikirim</label>
-                            <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="detectProductLocationsForOutbound()">
-                            <small class="text-muted" id="outSkuHint">Pilih SKU untuk menampilkan lokasi rak penyimpanan aktual.</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-primary">Lokasi Penyimpanan Aktual (Berdasarkan Hasil Stock Opname / Masuk)</label>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
-                                    <thead class="table-secondary text-center">
-                                        <tr>
-                                            <th>Lokasi Penyimpanan (Rak / Floor)</th>
-                                            <th>Stok Tersedia</th>
-                                            <th>Karton yang Diambil</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="outboundLinkedLocBody">
-                                        <tr><td colspan="3" class="text-center text-muted small">Silakan pilih SKU terlebih dahulu di atas.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang status HOLD tidak bisa dikirim</small>
-                        </div>
-
-                        <button type="submit" class="btn btn-danger w-100 fw-bold">Proses Pengiriman Barang</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3D. SUB-MENU: HOLD / RELEASE FORM -->
-        <div id="page-trans-hold" class="app-page">
-            <h4 class="fw-bold mb-3">Status Karantina QC (Hold / Release)</h4>
-            <div class="card shadow-sm border-warning col-md-6 mx-auto">
-                <div class="card-header bg-warning text-dark fw-bold">Status QC (Hold / Release)</div>
-                <div class="card-body">
-                    <form id="formHold" onsubmit="saveHoldStatus(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Tindakan</label>
-                            <select class="form-select form-select-sm" id="qcAction" required onchange="toggleHoldReason()">
-                                <option value="Hold">Karantina Barang (HOLD)</option>
-                                <option value="Release">Lepas Karantina (RELEASE)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Pilih SKU Produk</label>
-                            <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Kode Produksi / Batch</label>
-                            <input type="text" class="form-control form-control-sm" id="qcKodeProd" required placeholder="Masukkan kode produksi...">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold" id="qcDateLabel">Tanggal Hold</label>
-                            <input type="date" class="form-control form-control-sm" id="qcDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="qcQtyCarton" required min="1" placeholder="Karton" oninput="autoConvertPallet('qc')">
-                                <span class="input-group-text bg-light fw-bold" id="qcQtyPalletDisplay">0 Pallet</span>
-                                <input type="hidden" id="qcQtyPallet" value="0">
-                            </div>
-                        </div>
-                        <div class="mb-4" id="holdReasonContainer">
-                            <label class="form-label small fw-bold text-danger">Alasan / Keterangan Hold</label>
-                            <textarea class="form-control form-control-sm" id="qcReason" rows="2" placeholder="Misal: Kontaminasi kemasan, hasil lab out of spec..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">Update Status QC</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. STOCK OPNAME HARIAN -->
-        <div id="page-opname" class="app-page">
-            <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
-            <div class="card shadow-sm border-primary mb-3">
-                <div class="card-body">
-                    <p class="small text-muted mb-3">Masukkan nama PIC (Stock Keeper) yang bertugas, lalu catat hasil hitung fisik (bisa di Rak maupun Lantai/Floor) sebelum disubmit.</p>
-                    
-                    <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
-                        <div class="row g-3 bg-light p-3 border rounded mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-primary">Nama PIC / Stock Keeper</label>
-                                <input type="text" class="form-control" id="opGlobalPic" required placeholder="Contoh: Budi / Ahmad...">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-primary">Tanggal Pelaksanaan Opname</label>
-                                <input type="date" class="form-control" id="opGlobalDate" required>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">Daftar Item / Lokasi (Rak atau Floor) yang Dihitung</h6>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">Tambah Baris</button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Tabel</button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-primary text-center">
-                                    <tr>
-                                        <th>Blok Rak / Lantai</th>
-                                        <th>Lorong / Keterangan Floor</th>
-                                        <th>Cari & Pilih SKU</th>
-                                        <th>Fisik (Karton)</th>
-                                        <th>Pallet</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="multiOpnameBody"></tbody>
-                            </table>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Simpan Semua Hasil Opname (Update Stok Gudang)</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. REKONSILIASI SAP -->
-        <div id="page-rekon" class="app-page">
-            <h4 class="fw-bold mb-3">Rekonsiliasi (SAP vs Fisik Aktual)</h4>
-            <div class="card shadow-sm border-0 mb-4 bg-light">
-                <div class="card-body">
-                    <label class="form-label fw-bold small text-primary">Tarik Data Sistem SAP</label>
-                    <div class="row g-2">
-                        <div class="col-md-10">
-                            <textarea class="form-control font-monospace" id="pasteSAPArea" rows="2" placeholder="Paste 2 Kolom (SKU dan Qty Pallet SAP)..."></textarea>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-primary w-100 h-100" onclick="processPasteSAP()">Compare</button>
-                        </div>
-                    </div>
-                </div>
+        <!-- 3. MONITORING KHUSUS AGING (8 HARI) -->
+        <div id="page-aging-control" class="app-page">
+            <h4 class="fw-bold mb-3">Monitoring Proses Aging Produk (Wajib 8 Hari)</h4>
+            <div class="alert alert-warning small">
+                <strong>Informasi:</strong> Halaman ini memantau masa aging cokelat. Produk otomatis berstatus <strong>"Ready / Selesai Aging"</strong> jika tanggal masuk sudah melewati atau sama dengan 8 hari.
             </div>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">
-                        <thead class="table-primary border-primary">
+                        <thead class="table-warning text-dark">
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Lokasi Penyimpanan</th>
-                                <th class="bg-primary text-white">Stok SAP (Pallet)</th>
-                                <th class="bg-success text-white">Fisik (Pallet)</th>
-                                <th>Selisih Variance</th>
-                                <th>Status</th>
+                                <th>Tanggal Masuk Aging</th>
+                                <th>Umur (Hari)</th>
+                                <th>Lokasi Rak Aging</th>
+                                <th>Jumlah Pallet</th>
+                                <th>Status Aging (8 Hari)</th>
                             </tr>
                         </thead>
-                        <tbody id="rekonTableBody"></tbody>
+                        <tbody id="agingTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- 6. LAPORAN BREAKDOWN -->
+        <!-- 4. PENERIMAAN BARANG MASUK -->
+        <div id="page-trans-in" class="app-page">
+            <h4 class="fw-bold mb-3">Penerimaan & Masuk Gudang</h4>
+            <div class="card shadow-sm border-success col-md-8 mx-auto">
+                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Pilih Tujuan Gudang)</div>
+                <div class="card-body">
+                    <form id="formIn" onsubmit="saveInbound(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tujuan Gudang Penyimpanan</label>
+                            <select class="form-select form-select-sm border-success fw-bold" id="inDestWarehouse" required onchange="populateWarehouseBlocks()">
+                                <option value="AGING">Gudang Aging (Proses Setting Cokelat 8 Hari)</option>
+                                <option value="INDUK">Gudang Induk (Finished Goods Utama)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Cari SKU Produk</label>
+                            <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="updateInboundHint()">
+                            <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Blok Rak / Area</label>
+                                <select class="form-select form-select-sm" id="inRackBlock" required onchange="populateInboundRows()"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Lorong / Row</label>
+                                <select class="form-select form-select-sm" id="inRackRow" required></select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tanggal Masuk (Arrival Date)</label>
+                            <input type="date" class="form-control form-control-sm" id="inDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Jumlah Karton</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="inCarton" required min="1" placeholder="Karton" oninput="calcInboundPallet()">
+                                <span class="input-group-text bg-light fw-bold" id="inPalletDisplay">0 Pallet</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">Simpan Penerimaan Gudang</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. STOCK OPNAME -->
+        <div id="page-opname" class="app-page">
+            <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <p class="text-muted small">Gunakan halaman laporan breakdown untuk melihat rekap total keseluruhan stok.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. REKONSILIASI SAP -->
+        <div id="page-rekon" class="app-page">
+            <h4 class="fw-bold mb-3">Rekonsiliasi (SAP vs Fisik)</h4>
+            <div id="rekonTableBody"></div>
+        </div>
+
+        <!-- 7. LAPORAN BREAKDOWN -->
         <div id="page-report" class="app-page">
-            <h4 class="fw-bold mb-3">Laporan Breakdown Stok PWA</h4>
+            <h4 class="fw-bold mb-3">Laporan Breakdown Stok</h4>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">
@@ -533,14 +249,11 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Detail Batch / QC / Ekspor</th>
-                                <th>Lokasi Penyimpanan</th>
-                                <th>In (Prod)</th>
-                                <th>In (Plant)</th>
-                                <th>Out</th>
-                                <th>Total Fisik Pallet</th>
-                                <th class="bg-warning text-dark">Di-Hold (QC)</th>
-                                <th class="bg-success text-white">Available Pallet</th>
+                                <th>Gudang Posisi</th>
+                                <th>Lokasi Rak</th>
+                                <th>Tanggal Masuk</th>
+                                <th>Total Pallet</th>
+                                <th>Status / Aging</th>
                             </tr>
                         </thead>
                         <tbody id="stockTableBody"></tbody>
@@ -549,140 +262,60 @@
             </div>
         </div>
 
-        <!-- 7A. MASTER DATA SKU -->
+        <!-- 8. MASTER DATA SKU -->
         <div id="page-master" class="app-page">
             <h4 class="fw-bold mb-3">Database Master SKU Produk</h4>
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <div class="alert alert-secondary small">
-                        <strong>Format 6 Kolom:</strong> ID | NAME | JUMLAH | SAT | <b>JML CAR/PALLET</b> | SAT<br>
+                        Format 6 Kolom: ID | NAME | JUMLAH | SAT | <b>JML CAR/PALLET</b> | SAT
                     </div>
-                    <textarea class="form-control font-monospace text-nowrap mb-3" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR CHOCO    1    PALLET    60    CAR"></textarea>
+                    <textarea class="form-control font-monospace mb-3" id="pasteArea" rows="5" placeholder="312743    SUPERSTAR CHOCO    1    PALLET    60    CAR"></textarea>
                     <button type="button" class="btn btn-dark px-4" onclick="processPasteData()">Simpan Data Master</button>
                 </div>
             </div>
         </div>
 
-        <!-- 7B. MANAJEMEN AKUN -->
-        <div id="page-accounts" class="app-page">
-            <h4 class="fw-bold mb-3">Manajemen Akun Pengguna</h4>
-            <div class="card shadow-sm border-0 col-md-8 mx-auto">
-                <div class="card-header bg-dark text-white fw-bold">Tambah Akun Pengguna Baru</div>
-                <div class="card-body">
-                    <form onsubmit="addNewAccount(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Username Baru</label>
-                            <input type="text" class="form-control" id="newUsername" required placeholder="Masukkan username...">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold">Password</label>
-                            <input type="password" class="form-control" id="newPassword" required placeholder="Masukkan password...">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan Akun Baru</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- MODAL DETAIL BLOK -->
-    <div class="modal fade" id="modalBlockDetail" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-light">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6" id="blockDetailTitle">Denah Lorong (Row)</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-2" id="blockRowGrid"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DETAIL ISI LORONG -->
-    <div class="modal fade" id="modalRowDetail" tabindex="-1">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-dark">
-                    <h5 class="modal-title fs-6" id="rowDetailTitle">Isi Barang di Lorong</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle text-center mb-0">
-                            <thead class="table-secondary sticky-top">
-                                <tr>
-                                    <th>SKU</th>
-                                    <th class="text-start">Nama Produk</th>
-                                    <th>Pallet</th>
-                                </tr>
-                            </thead>
-                            <tbody id="rowDetailBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DETAIL BATCH / OPNAME PIC -->
-    <div class="modal fade" id="modalExportDetail" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Log Riwayat Batch, QC & PIC Opname</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <ul class="list-group list-group-flush" id="exportDetailList"></ul>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const masterRacking = {
-            "LANTAI / FLOOR": { prefix: "FLOOR", rows: 1, perRow: 9999 },
-            "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
-            "BLOK T FG": { prefix: "T", rows: 16, perRow: 24 },
-            "BLOK P FG": { prefix: "P", rows: 28, perRow: 36 },
-            "BLOK L FG": { prefix: "L", rows: 28, perRow: 36 },
-            "BLOK H FG": { prefix: "H", rows: 28, perRow: 36 },
-            "BLOK D FG": { prefix: "D", rows: 21, perRow: 36 },
-            
-            "BLOK W FG": { prefix: "W", rows: 22, perRow: 36 },
-            "BLOK S FG": { prefix: "S", rows: 22, perRow: 36 },
-            "BLOK O FG": { prefix: "O", rows: 29, perRow: 36 },
-            "BLOK K FG": { prefix: "K", rows: 29, perRow: 36 },
-            "BLOK G FG": { prefix: "G", rows: 29, perRow: 36 },
-            "BLOK C FG": { prefix: "C", rows: 29, perRow: 36 },
-            
-            "BLOK V FG": { prefix: "V", rows: 17, perRow: 36 },
-            "BLOK R FG": { prefix: "R", rows: 17, perRow: 36 },
-            "BLOK N FG": { prefix: "N", rows: 17, perRow: 36 },
-            "BLOK J FG": { prefix: "J", rows: 17, perRow: 36 },
-            "BLOK F FG": { prefix: "F", rows: 17, perRow: 36 },
-            "BLOK B FG": { prefix: "B", rows: 10, perRow: 36 },
-            
-            "BLOK U FG": { prefix: "U", rows: 11, perRow: 36 },
-            "BLOK Q FG": { prefix: "Q", rows: 11, perRow: 36 },
-            "BLOK M FG": { prefix: "M", rows: 11, perRow: 36 },
-            "BLOK I FG": { prefix: "I", rows: 11, perRow: 36 },
-            "BLOK E FG": { prefix: "E", rows: 11, perRow: 36 },
-            "BLOK A FG": { prefix: "A", rows: 11, perRow: 36 }
+        // MASTER RACKING 2 GUDANG (INDUK & AGING SESUAI BLUEPRINT)
+        const warehouseConfig = {
+            "INDUK": {
+                name: "Gudang Induk (Finished Goods)",
+                blocks: {
+                    "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
+                    "BLOK T FG": { prefix: "T", rows: 16, perRow: 24 },
+                    "BLOK P FG": { prefix: "P", rows: 28, perRow: 36 },
+                    "BLOK L FG": { prefix: "L", rows: 28, perRow: 36 }
+                }
+            },
+            "AGING": {
+                name: "Gudang Aging (Cokelat Setting)",
+                blocks: {
+                    "BLOK A FG": { prefix: "A", rows: 29, perRow: 36 },
+                    "BLOK B FG": { prefix: "B", rows: 32, perRow: 36 },
+                    "BLOK C FG": { prefix: "C", rows: 29, perRow: 36 },
+                    "BLOK D FG": { prefix: "D", rows: 29, perRow: 36 },
+                    "BLOK E FG": { prefix: "E", rows: 32, perRow: 36 },
+                    "BLOK F FG": { prefix: "F", rows: 29, perRow: 36 },
+                    "BLOK G FG": { prefix: "G", rows: 29, perRow: 36 },
+                    "BLOK H FG": { prefix: "H", rows: 32, perRow: 36 },
+                    "BLOK I FG": { prefix: "I", rows: 29, perRow: 36 },
+                    "BLOK J FG": { prefix: "J", rows: 29, perRow: 36 },
+                    "BLOK K FG": { prefix: "K", rows: 32, perRow: 36 },
+                    "BLOK L FG": { prefix: "L", rows: 29, perRow: 36 },
+                    "BLOK M FG": { prefix: "M", rows: 29, perRow: 36 },
+                    "BLOK N FG": { prefix: "N", rows: 32, perRow: 36 },
+                    "BLOK O FG": { prefix: "O", rows: 6, perRow: 36 }
+                }
+            }
         };
 
-        const layoutMap = {
-            layoutCol1: ["BLOK X FG", "BLOK T FG", "BLOK P FG", "BLOK L FG", "BLOK H FG", "BLOK D FG"],
-            layoutCol2: ["BLOK W FG", "BLOK S FG", "BLOK O FG", "BLOK K FG", "BLOK G FG", "BLOK C FG"],
-            layoutCol3: ["BLOK V FG", "BLOK R FG", "BLOK N FG", "BLOK J FG", "BLOK F FG", "BLOK B FG"],
-            layoutCol4: ["BLOK U FG", "BLOK Q FG", "BLOK M FG", "BLOK I FG", "BLOK E FG", "BLOK A FG"]
-        };
-
+        let currentActiveWh = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v29')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -698,7 +331,6 @@
             e.preventDefault();
             let u = document.getElementById('loginUser').value.trim();
             let p = document.getElementById('loginPass').value.trim();
-            
             if (registeredUsers[u] && registeredUsers[u] === p) {
                 localStorage.setItem('wms_logged_user', u);
                 checkLoginStatus();
@@ -713,820 +345,204 @@
             checkLoginStatus();
         }
 
-        function addNewAccount(e) {
-            e.preventDefault();
-            let newU = document.getElementById('newUsername').value.trim();
-            let newP = document.getElementById('newPassword').value.trim();
-
-            if(registeredUsers[newU]) {
-                alert('Username sudah terdaftar!');
-                return;
-            }
-
-            registeredUsers[newU] = newP;
-            localStorage.setItem('wms_accounts', JSON.stringify(registeredUsers));
-            alert('Akun baru berhasil ditambahkan!');
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-        }
-
         function switchPage(pageId) {
             document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            
-            const sidebarEl = document.getElementById('sidebarMenu');
-            let bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
-            if (bsOffcanvas) bsOffcanvas.hide();
+            let bsOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebarMenu'));
+            if(bsOffcanvas) bsOffcanvas.hide();
 
-            if (pageId === 'page-rekon') renderRekonsiliasi(); 
-            if (pageId === 'page-trans-report') renderTransactionReport();
-            if (pageId === 'page-opname') {
-                if(!document.getElementById('opGlobalDate').value) {
-                    document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
-                }
-                if (document.getElementById('multiOpnameBody').children.length === 0) {
-                    addOpnameRow();
-                }
-            }
-            if (pageId === 'page-trans-in') {
-                if (document.getElementById('inboundLocBody').children.length === 0) {
-                    addInboundLocRow();
-                }
+            if(pageId === 'page-binloc') renderWarehouseMap();
+            if(pageId === 'page-aging-control') renderAgingTable();
+            if(pageId === 'page-trans-in') {
+                document.getElementById('inDate').value = new Date().toISOString().split('T')[0];
+                populateWarehouseBlocks();
             }
         }
 
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v27')) || {};
-
         function saveData() {
-            localStorage.setItem('stockDataGDFG_v27', JSON.stringify(stockData));
+            localStorage.setItem('stockDataGDFG_v29', JSON.stringify(stockData));
             renderAll();
         }
 
-        function populateRows(type, rowId = '') {
-            const blockSelect = document.getElementById(type + 'RackBlock' + rowId);
-            const rowSelect = document.getElementById(type + 'RackRow' + rowId);
-            if(!blockSelect || !rowSelect) return;
+        function switchWarehouse(wh) {
+            currentActiveWh = wh;
+            document.getElementById('btnWhInduk').className = wh === 'INDUK' ? 'btn btn-dark fw-bold' : 'btn btn-outline-dark fw-bold';
+            document.getElementById('btnWhAging').className = wh === 'AGING' ? 'btn btn-warning text-dark fw-bold' : 'btn btn-outline-dark fw-bold';
+            renderWarehouseMap();
+        }
+
+        function renderWarehouseMap() {
+            const container = document.getElementById('warehouseMapContent');
+            container.innerHTML = '<div class="row gx-3 gy-3 text-center" id="mapBlocksRow"></div>';
+            let rowEl = document.getElementById('mapBlocksRow');
             
-            rowSelect.innerHTML = '<option value="">- Lorong / Floor Area -</option>';
-            let blockName = blockSelect.value;
-            if(blockName === "LANTAI / FLOOR") {
-                rowSelect.innerHTML = '<option value="FLOOR-AREA">Area Lantai Umum</option>';
-                return;
-            }
-            if(masterRacking[blockName]) {
-                let rData = masterRacking[blockName];
-                for(let i = 1; i <= rData.rows; i++) {
-                    let rowNum = i < 10 ? '0' + i : i;
-                    let rowName = rData.prefix + rowNum;
-                    rowSelect.innerHTML += '<option value="' + rowName + '">' + rowName + ' (Maks: ' + rData.perRow + ')</option>';
-                }
+            let blocks = warehouseConfig[currentActiveWh].blocks;
+            for(let bName in blocks) {
+                let maxSlots = blocks[bName].rows * blocks[bName].perRow;
+                rowEl.innerHTML += '<div class="col-md-4">' +
+                    '<div class="card bin-card shadow-sm p-3 bg-white border-primary">' +
+                    '<h5 class="fw-bold text-dark">' + bName + '</h5>' +
+                    '<p class="text-muted small mb-1">Kapasitas: ' + blocks[bName].rows + ' Rows x ' + blocks[bName].perRow + ' = <b>' + maxSlots + ' Pallet</b></p>' +
+                    '<span class="badge bg-success">Aktif / Normal</span>' +
+                    '</div></div>';
             }
         }
 
-        let inboundRowIdx = 0;
-        function addInboundLocRow() {
-            inboundRowIdx++;
-            let tbody = document.getElementById('inboundLocBody');
-            let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
-            Object.keys(masterRacking).sort().forEach(b => {
-                blockOptions += '<option value="' + b + '">' + b + '</option>';
-            });
-
-            let tr = document.createElement('tr');
-            tr.id = 'inRow_' + inboundRowIdx;
-            tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ')">' + blockOptions + '</select></td>' +
-                           '<td><select class="form-select form-select-sm" id="inRackRow_' + inboundRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
-                           '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" placeholder="Karton" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
-                           '<td class="text-center fw-bold text-success" id="inPalletDisplay_' + inboundRowIdx + '">0 Plt</td>' +
-                           '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(' + inboundRowIdx + ')">x</button></td>';
-            tbody.appendChild(tr);
+        function populateWarehouseBlocks() {
+            const destWh = document.getElementById('inDestWarehouse').value;
+            const blockSelect = document.getElementById('inRackBlock');
+            blockSelect.innerHTML = '<option value="">-- Pilih Blok --</option>';
+            
+            let blocks = warehouseConfig[destWh].blocks;
+            for(let b in blocks) {
+                blockSelect.innerHTML += '<option value="' + b + '">' + b + ' (' + blocks[b].rows + ' Rows)</option>';
+            }
+            populateInboundRows();
         }
 
-        function removeInboundLocRow(idx) {
-            let row = document.getElementById('inRow_' + idx);
-            if(row && document.getElementById('inboundLocBody').children.length > 1) row.remove();
+        function populateInboundRows() {
+            const destWh = document.getElementById('inDestWarehouse').value;
+            const blockName = document.getElementById('inRackBlock').value;
+            const rowSelect = document.getElementById('inRackRow');
+            rowSelect.innerHTML = '<option value="">-- Pilih Lorong --</option>';
+            
+            if(!blockName) return;
+            let rData = warehouseConfig[destWh].blocks[blockName];
+            for(let i = 1; i <= rData.rows; i++) {
+                let rNum = i < 10 ? '0' + i : i;
+                let rName = rData.prefix + rNum;
+                rowSelect.innerHTML += '<option value="' + rName + '">' + rName + ' (Maks ' + rData.perRow + ')</option>';
+            }
         }
 
         function updateInboundHint() {
-            const skuInput = document.getElementById('inSku').value;
-            const sku = extractSku(skuInput);
-            let jmlCarPerPallet = 1;
-            if (stockData[sku]) {
-                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-                document.getElementById('inSkuHint').innerText = 'Standar: ' + jmlCarPerPallet + ' Carton / Pallet';
-            } else {
-                document.getElementById('inSkuHint').innerText = 'Standar: 0 Carton / Pallet';
-            }
-            let rows = document.getElementById('inboundLocBody').children;
-            for(let i=0; i<rows.length; i++) {
-                let idx = rows[i].id.split('_')[1];
-                calcInboundRow(idx);
-            }
+            let sku = extractSku(document.getElementById('inSku').value);
+            let jmlCar = stockData[sku] ? stockData[sku].jmlCar : 1;
+            document.getElementById('inSkuHint').innerText = 'Standar: ' + jmlCar + ' Carton / Pallet';
+            calcInboundPallet();
         }
 
-        function calcInboundRow(idx) {
-            let skuInput = document.getElementById('inSku').value;
-            let sku = extractSku(skuInput);
-            let cartonVal = parseFloat(document.getElementById('inCarton_' + idx).value) || 0;
-            let displayEl = document.getElementById('inPalletDisplay_' + idx);
-            
-            let jmlCarPerPallet = 1;
-            if(stockData[sku]) jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-            let pallets = cartonVal / jmlCarPerPallet;
-            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
-        }
-
-        function detectProductLocationsForOutbound() {
-            const skuInput = document.getElementById('outSku').value;
-            const sku = extractSku(skuInput);
-            const tbody = document.getElementById('outboundLinkedLocBody');
-            tbody.innerHTML = '';
-
-            if(!stockData[sku]) {
-                document.getElementById('outSkuHint').innerText = 'SKU tidak ditemukan di database gudang.';
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger small">SKU tidak terdaftar.</td></tr>';
-                return;
-            }
-
-            let item = stockData[sku];
-            let jmlCar = parseInt(item.jmlCar) || 1;
-            document.getElementById('outSkuHint').innerText = 'Nama: ' + item.name + ' | Standar: ' + jmlCar + ' Carton/Pallet | Available Total: ' + getAvailableStock(item).toFixed(2) + ' Pallet';
-
-            let locString = item.rack;
-            if(!locString || locString === '-') {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted small">Barang belum memiliki catatan lokasi rak/floor. Lakukan Stock Opname atau Inbound terlebih dahulu.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML += '<tr>' +
-                '<td class="fw-bold text-dark"><span class="badge bg-info text-dark">' + locString + '</span></td>' +
-                '<td class="text-success fw-bold">' + getSisaFisik(item).toFixed(2) + ' Pallet</td>' +
-                '<td><input type="number" class="form-control form-control-sm out-loc-carton" data-sku="' + sku + '" min="0" placeholder="Karton Keluar" value="0"></td>' +
-                '</tr>';
-        }
-
-        let opnameRowIdx = 0;
-        function addOpnameRow() {
-            opnameRowIdx++;
-            let tbody = document.getElementById('multiOpnameBody');
-            let blockOptions = '<option value="">-- Pilih Blok / Lantai --</option>';
-            Object.keys(masterRacking).sort().forEach(b => {
-                blockOptions += '<option value="' + b + '">' + b + '</option>';
-            });
-
-            let tr = document.createElement('tr');
-            tr.id = 'opRow_' + opnameRowIdx;
-            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ')">' + blockOptions + '</select></td>' +
-                           '<td><select class="form-select form-select-sm" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
-                           '<td><input type="text" class="form-control form-control-sm" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" placeholder="Ketik SKU..." onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
-                           '<td><input type="number" class="form-control form-control-sm" id="opCarton_' + opnameRowIdx + '" required min="0" placeholder="Karton" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
-                           '<td class="text-center fw-bold text-primary" id="opPalletDisplay_' + opnameRowIdx + '">0 Plt</td>' +
-                           '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeOpnameRow(' + opnameRowIdx + ')">x</button></td>';
-            tbody.appendChild(tr);
-        }
-
-        function removeOpnameRow(idx) {
-            let row = document.getElementById('opRow_' + idx);
-            if(row) row.remove();
-        }
-
-        function clearOpnameRows() {
-            document.getElementById('multiOpnameBody').innerHTML = '';
-            addOpnameRow();
-        }
-
-        function calcMultiRow(idx) {
-            let skuInput = document.getElementById('opSku_' + idx).value;
-            let sku = extractSku(skuInput);
-            let cartonVal = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
-            let displayEl = document.getElementById('opPalletDisplay_' + idx);
-            
-            let jmlCarPerPallet = 1;
-            if(stockData[sku]) {
-                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-            }
-            let pallets = cartonVal / jmlCarPerPallet;
-            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
-        }
-
-        function saveBulkOpname(e) {
-            e.preventDefault();
-            let picName = document.getElementById('opGlobalPic').value.trim();
-            let opDate = document.getElementById('opGlobalDate').value;
-            
-            if(!picName) { alert('Harap isi nama PIC / Stock Keeper terlebih dahulu!'); return; }
-            if(!opDate) { alert('Harap pilih tanggal opname!'); return; }
-
-            let tbody = document.getElementById('multiOpnameBody');
-            let rows = tbody.children;
-            if(rows.length === 0) { alert('Belum ada data opname yang dimasukkan!'); return; }
-
-            let batchData = [];
-            for(let i = 0; i < rows.length; i++) {
-                let rowEl = rows[i];
-                let idx = rowEl.id.split('_')[1];
-                
-                let block = document.getElementById('opRackBlock_' + idx).value;
-                let row = document.getElementById('opRackRow_' + idx).value;
-                let sku = extractSku(document.getElementById('opSku_' + idx).value);
-                let carton = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
-
-                if(!stockData[sku]) {
-                    alert('Baris ' + (i+1) + ': SKU tidak ditemukan di Master Data!'); return;
-                }
-                
-                let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
-                let pallets = carton / jmlCar;
-                let rackLoc = block + ' | ' + row;
-
-                batchData.push({ sku, rackLoc, pallets });
-            }
-
-            batchData.forEach(item => {
-                let st = stockData[item.sku];
-                st.rack = item.rackLoc;
-                st.opname = item.pallets; 
-                st.inProd = 0; st.inPlant = 0; st.out = 0; st.holdQty = 0;
-                
-                st.exportLog.push({
-                    date: opDate,
-                    type: 'Daily Opname',
-                    code: 'PIC: ' + picName,
-                    prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: 'Audit Fisik oleh ' + picName + ' di ' + item.rack,
-                    qtyIn: item.pallets.toFixed(2)
-                });
-            });
-
-            saveData();
-            alert('Berhasil menyimpan opname! Lokasi rak tersinkronisasi.');
-            document.getElementById('opGlobalPic').value = '';
-            clearOpnameRows();
-            switchPage('page-rekon');
+        function calcInboundPallet() {
+            let sku = extractSku(document.getElementById('inSku').value);
+            let cartons = parseFloat(document.getElementById('inCarton').value) || 0;
+            let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 1 : 1;
+            let pallets = cartons / jmlCar;
+            document.getElementById('inPalletDisplay').innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Pallet';
         }
 
         function extractSku(val) { return val.split(' | ')[0].trim(); }
 
-        function autoConvertPallet(type) {
-            const skuInput = document.getElementById(type + 'Sku') || document.getElementById(type + 'SkuInput');
-            if(!skuInput) return;
-            const sku = extractSku(skuInput.value);
-            const cartonInput = document.getElementById(type + 'QtyCarton').value;
-            const displayEl = document.getElementById(type + 'QtyPalletDisplay');
-            const hiddenEl = document.getElementById(type + 'QtyPallet');
-            const hintEl = document.getElementById(type + 'SkuHint');
-            
-            let jmlCarPerPallet = 1;
-            if (stockData[sku]) {
-                jmlCarPerPallet = parseInt(stockData[sku].jmlCar) || 1;
-                if(hintEl) hintEl.innerText = 'Standar: ' + jmlCarPerPallet + ' Carton / Pallet';
-            } else {
-                if(hintEl) hintEl.innerText = 'Standar: 0 Carton / Pallet';
-            }
-
-            let cartons = parseFloat(cartonInput) || 0;
-            let pallets = cartons / jmlCarPerPallet;
-            let displayPallets = Number.isInteger(pallets) ? pallets : pallets.toFixed(2);
-            
-            displayEl.innerText = displayPallets + ' Pallet';
-            hiddenEl.value = pallets;
-        }
-
-        function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
-        function getAvailableStock(item) { return getSisaFisik(item) - item.holdQty; }
-
-        function getGlobalRackLoad(blockName, rowName = null) {
-            let total = 0;
-            let targetLoc = rowName ? blockName + ' | ' + rowName : blockName;
-            for (let s in stockData) {
-                if ((rowName && stockData[s].rack.includes(targetLoc)) || (!rowName && stockData[s].rack.startsWith(blockName))) {
-                    let fisik = getSisaFisik(stockData[s]);
-                    if (fisik > 0) total += fisik;
-                }
-            }
-            return total;
-        }
-
-        function toggleInboundFields() {
-            const source = document.getElementById('inSource').value;
-            const kategori = document.getElementById('inKategori').value;
-            
-            if(source === 'Produksi') {
-                document.getElementById('prodExtraFields').style.display = 'block';
-            } else {
-                document.getElementById('prodExtraFields').style.display = 'none';
-            }
-
-            if(kategori === 'Ekspor') {
-                document.getElementById('inLokalFields').style.display = 'none';
-                document.getElementById('inExportFields').style.display = 'block';
-            } else {
-                document.getElementById('inLokalFields').style.display = 'block';
-                document.getElementById('inExportFields').style.display = 'none';
-            }
-        }
-
-        function toggleHoldReason() {
-            const action = document.getElementById('qcAction').value;
-            document.getElementById('holdReasonContainer').style.display = action === 'Hold' ? 'block' : 'none';
-            document.getElementById('qcDateLabel').innerText = action === 'Hold' ? 'Tanggal Hold' : 'Tanggal Release';
-        }
-
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
-            if (!text) return;
-            const lines = text.split('\n');
-            let countAdded = 0;
-
-            lines.forEach(line => {
-                const cols = line.split('\t');
-                if (cols.length >= 5) {
-                    const sku = cols[0].trim();
-                    if (sku && !stockData[sku]) {
+            if(!text) return;
+            let lines = text.split('\n');
+            let count = 0;
+            lines.forEach(l => {
+                let cols = l.split('\t');
+                if(cols.length >= 5) {
+                    let sku = cols[0].trim();
+                    if(sku && !stockData[sku]) {
                         stockData[sku] = {
-                            sku: sku, name: (cols[1] || '').trim(), 
-                            jumlah: (cols[2] || '1').trim(), satuan1: (cols[3] || 'PALLET').trim(),
-                            jmlCar: (cols[4] || '1').trim(), satuan2: (cols[5] || 'CAR').trim(),
-                            rack: '-', opname: 0, inProd: 0, out: 0, 
-                            inPlant: 0, holdQty: 0, sapQty: 0, exportLog: []
+                            sku: sku, name: cols[1].trim(), jmlCar: cols[4].trim(),
+                            warehouse: 'AGING', rack: '-', arrivalDate: '', pallets: 0, hold: 0
                         };
-                        countAdded++;
+                        count++;
                     }
                 }
             });
             document.getElementById('pasteArea').value = '';
             saveData();
-            alert('Berhasil mengimpor ' + countAdded + ' SKU.');
+            alert('Berhasil mengimpor ' + count + ' SKU master.');
             switchPage('page-report');
         }
 
         function saveInbound(e) {
             e.preventDefault();
-            const sku = extractSku(document.getElementById('inSku').value);
-            const source = document.getElementById('inSource').value;
-            const kategori = document.getElementById('inKategori').value;
-            
-            let plantNo = document.getElementById('inPlantNo').value;
-            let shiftNo = document.getElementById('inShift').value;
-            let lineNo = document.getElementById('inLine').value || '-';
+            let sku = extractSku(document.getElementById('inSku').value);
+            if(!stockData[sku]) { alert('SKU tidak valid!'); return; }
 
-            if (!stockData[sku]) { alert('SKU tidak valid!'); return; }
-
-            let tbody = document.getElementById('inboundLocBody');
-            let rows = tbody.children;
-            if(rows.length === 0) { alert('Harap masukkan minimal 1 lokasi penempatan!'); return; }
-
-            let totalPalletIn = 0;
-            let locListStr = [];
-
-            for(let i = 0; i < rows.length; i++) {
-                let rowEl = rows[i];
-                let idx = rowEl.id.split('_')[1];
-                let block = document.getElementById('inRackBlock_' + idx).value;
-                let row = document.getElementById('inRackRow_' + idx).value;
-                let carton = parseFloat(document.getElementById('inCarton_' + idx).value) || 0;
-
-                let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
-                let pallets = carton / jmlCar;
-
-                if(block !== "LANTAI / FLOOR") {
-                    let maxCap = masterRacking[block].perRow;
-                    let currentLoad = getGlobalRackLoad(block, row);
-                    if((currentLoad + pallets) > maxCap) {
-                        alert('GAGAL! Rak ' + block + ' - ' + row + ' kapasitas maksimal ' + maxCap + ' pallet.'); return;
-                    }
-                }
-
-                totalPalletIn += pallets;
-                locListStr.push(block + ' | ' + row + ' (' + pallets.toFixed(2) + ' Plt)');
-            }
+            let wh = document.getElementById('inDestWarehouse').value;
+            let block = document.getElementById('inRackBlock').value;
+            let row = document.getElementById('inRackRow').value;
+            let date = document.getElementById('inDate').value;
+            let cartons = parseFloat(document.getElementById('inCarton').value) || 0;
+            let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
+            let pallets = cartons / jmlCar;
 
             let item = stockData[sku];
-            item.rack = locListStr.join(', ');
+            item.warehouse = wh;
+            item.rack = block + ' | ' + row;
+            item.arrivalDate = date;
+            item.pallets += pallets;
 
-            if(kategori === 'Ekspor') {
-                item.exportLog.push({
-                    date: new Date().toLocaleDateString('id-ID'),
-                    type: source === 'Produksi' ? 'Prod (Plant ' + plantNo + ')' : 'Plant Lain',
-                    code: document.getElementById('inExpQt').value || '-',
-                    prodate: document.getElementById('inExpProdate').value || '-',
-                    expdate: document.getElementById('inExpExpdate').value || '-',
-                    buyer: document.getElementById('inExpBuyer').value || '-',
-                    country: document.getElementById('inExpCountry').value || '-',
-                    reason: 'Shift: ' + shiftNo + ', Line: ' + lineNo + ', Lokasi: ' + item.rack,
-                    qtyIn: totalPalletIn.toFixed(2)
-                });
-            } else {
-                let kodeLokal = document.getElementById('inKodeProdLokal').value.trim();
-                if(kodeLokal) {
-                    item.exportLog.push({
-                        date: new Date().toLocaleDateString('id-ID'),
-                        type: source === 'Produksi' ? 'Prod (Plant ' + plantNo + ')' : 'Plant Lain',
-                        code: kodeLokal,
-                        prodate: '-', expdate: '-', buyer: '-', country: '-', 
-                        reason: 'Shift: ' + shiftNo + ', Line: ' + lineNo + ', Lokasi: ' + item.rack,
-                        qtyIn: totalPalletIn.toFixed(2)
-                    });
-                }
-            }
-
-            if (source === 'Produksi') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
-            
+            saveData();
+            alert('Berhasil memasukkan barang ke ' + warehouseConfig[wh].name + '!');
             document.getElementById('formIn').reset();
-            document.getElementById('inboundLocBody').innerHTML = '';
-            addInboundLocRow();
-            document.getElementById('inLokalFields').style.display = 'block';
-            document.getElementById('inExportFields').style.display = 'none';
-            document.getElementById('prodExtraFields').style.display = 'block';
-            saveData();
-            alert('Penerimaan Berhasil! Masuk total ' + totalPalletIn.toFixed(2) + ' Pallet!');
-            switchPage('page-trans-report');
+            switchPage('page-report');
         }
 
-        function saveOutbound(e) {
-            e.preventDefault();
-            const sku = extractSku(document.getElementById('outSku').value);
-            const target = document.getElementById('outTarget').value;
-            
-            if (!stockData[sku]) return;
-            let item = stockData[sku];
-            let avail = getAvailableStock(item);
-
-            let cartonInput = document.querySelector('.out-loc-carton');
-            if(!cartonInput) { alert('Lokasi rak tidak terdeteksi!'); return; }
-
-            let cartonsOut = parseFloat(cartonInput.value) || 0;
-            let jmlCar = parseInt(item.jmlCar) || 1;
-            let palletsOut = cartonsOut / jmlCar;
-
-            if(palletsOut <= 0) { alert('Masukkan jumlah karton yang akan dikirim!'); return; }
-            if (palletsOut > avail) { 
-                alert('GAGAL! Pengeluaran melebihi sisa Available (' + avail.toFixed(2) + ' pallet).'); return; 
-            }
-
-            item.out += palletsOut;
-            
-            item.exportLog.push({
-                date: new Date().toLocaleDateString('id-ID'),
-                type: 'Kirim (' + target + ')',
-                code: 'Outbound',
-                prodate: '-', expdate: '-', buyer: '-', country: '-',
-                reason: 'Tujuan: ' + target + ', Dari Lokasi: ' + item.rack,
-                qtyIn: -palletsOut.toFixed(2)
-            });
-
-            document.getElementById('formOut').reset();
-            document.getElementById('outboundLinkedLocBody').innerHTML = '<tr><td colspan="3" class="text-center text-muted small">Silakan pilih SKU terlebih dahulu di atas.</td></tr>';
-            saveData();
-            alert('Pengiriman berhasil dicatat!');
-            switchPage('page-trans-report');
-        }
-
-        function saveHoldStatus(e) {
-            e.preventDefault();
-            const action = document.getElementById('qcAction').value;
-            const sku = extractSku(document.getElementById('qcSku').value);
-            const qtyPallet = parseFloat(document.getElementById('qcQtyPallet').value);
-            const kodeProd = document.getElementById('qcKodeProd').value.trim();
-            const qcDate = document.getElementById('qcDate').value;
-            const reason = document.getElementById('qcReason').value.trim();
-            
-            if (!stockData[sku]) return;
-            let item = stockData[sku];
-
-            if (action === 'Hold') {
-                if(qtyPallet > getAvailableStock(item)) { alert('Gagal! Stok available tidak cukup.'); return; }
-                if(!reason) { alert('Harap isi keterangan Hold!'); return; }
-                
-                item.holdQty += qtyPallet;
-                item.exportLog.push({
-                    date: qcDate,
-                    type: 'HOLD QC',
-                    code: kodeProd,
-                    prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: reason,
-                    qtyIn: qtyPallet.toFixed(2)
-                });
-                alert('Barang berhasil di-Hold.');
-            } else {
-                if(qtyPallet > item.holdQty) { alert('Gagal! Jumlah melebihi barang di-Hold.'); return; }
-                item.holdQty -= qtyPallet;
-                item.exportLog.push({
-                    date: qcDate,
-                    type: 'RELEASE QC',
-                    code: kodeProd,
-                    prodate: '-', expdate: '-', buyer: '-', country: '-',
-                    reason: 'Barang dilepas (Passed QC)',
-                    qtyIn: qtyPallet.toFixed(2)
-                });
-                alert('Barang berhasil di-Release.');
-            }
-            document.getElementById('formHold').reset();
-            document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
-            saveData();
-            switchPage('page-trans-report');
-        }
-
-        function processPasteSAP() {
-            const text = document.getElementById('pasteSAPArea').value.trim();
-            if (!text) return;
-            for(let key in stockData) stockData[key].sapQty = 0;
-            const lines = text.split('\n');
-            lines.forEach(line => {
-                const cols = line.split('\t');
-                if (cols.length >= 2) {
-                    const sku = cols[0].trim();
-                    if (stockData[sku]) stockData[sku].sapQty = parseFloat(cols[1].replace(/,/g, '')) || 0;
-                }
-            });
-            document.getElementById('pasteSAPArea').value = '';
-            saveData();
-            renderRekonsiliasi();
-        }
-
-        function renderRekonsiliasi() {
-            const tbody = document.getElementById('rekonTableBody');
+        function renderAgingTable() {
+            let tbody = document.getElementById('agingTableBody');
             tbody.innerHTML = '';
-            for (let sku in stockData) {
-                let item = stockData[sku];
-                let qtyFisik = getSisaFisik(item);
-                let qtySAP = item.sapQty || 0;
-                
-                if(qtyFisik > 0 || qtySAP > 0) {
-                    let variance = qtyFisik - qtySAP;
-                    let badge = variance === 0 ? '<span class="badge bg-success">Balance</span>' : variance < 0 ? '<span class="badge bg-danger">Minus</span>' : '<span class="badge bg-warning text-dark">Plus</span>';
-                    let cls = variance < 0 ? 'table-danger' : variance > 0 ? 'table-warning' : '';
+            let today = new Date();
 
-                    tbody.innerHTML += '<tr class="' + cls + '">' +
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.warehouse === 'AGING' && item.pallets > 0) {
+                    let arrival = item.arrivalDate ? new Date(item.arrivalDate) : today;
+                    let diffTime = Math.abs(today - arrival);
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let isReady = diffDays >= 8;
+                    let badge = isReady ? '<span class="badge bg-success">Ready (Siap Pindah ke Induk)</span>' : '<span class="badge bg-warning text-dark">Proses Aging (' + diffDays + '/8 Hari)</span>';
+
+                    tbody.innerHTML += '<tr>' +
                         '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
                         '<td class="text-start fw-semibold">' + item.name + '</td>' +
+                        '<td>' + (item.arrivalDate || '-') + '</td>' +
+                        '<td class="fw-bold">' + diffDays + ' Hari</td>' +
                         '<td>' + item.rack + '</td>' +
-                        '<td class="fw-bold">' + (Number.isInteger(qtySAP) ? qtySAP : qtySAP.toFixed(2)) + '</td>' +
-                        '<td class="fw-bold">' + (Number.isInteger(qtyFisik) ? qtyFisik : qtyFisik.toFixed(2)) + '</td>' +
-                        '<td class="fw-bold ' + (variance !== 0 ? (variance < 0 ? 'text-danger':'text-success') : '') + '">' + (Number.isInteger(variance) ? variance : variance.toFixed(2)) + '</td>' +
+                        '<td class="fw-bold text-primary">' + item.pallets.toFixed(2) + ' Plt</td>' +
                         '<td>' + badge + '</td>' +
                         '</tr>';
                 }
             }
         }
 
-        let transChartInstance = null;
-        function renderTransactionReport() {
-            let totInProd = 0, totInPlant = 0, totOutTotal = 0, totHold = 0;
-            for (let sku in stockData) {
-                let it = stockData[sku];
-                totInProd += it.inProd;
-                totInPlant += it.inPlant;
-                totOutTotal += it.out;
-                totHold += it.holdQty;
-            }
-
-            document.getElementById('summaryInProd').innerText = totInProd.toFixed(2) + ' Pallet';
-            document.getElementById('summaryInPlant').innerText = totInPlant.toFixed(2) + ' Pallet';
-            document.getElementById('summaryOutTotal').innerText = totOutTotal.toFixed(2) + ' Pallet';
-            document.getElementById('summaryHold').innerText = totHold.toFixed(2) + ' Pallet';
-
-            let ctx = document.getElementById('transChart').getContext('2d');
-            if (transChartInstance) transChartInstance.destroy();
-
-            transChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Penerimaan Produksi', 'Penerimaan Plant Lain', 'Total Pengiriman', 'QC Hold'],
-                    datasets: [{
-                        label: 'Volume (Pallet)',
-                        data: [totInProd, totInPlant, totOutTotal, totHold],
-                        backgroundColor: ['#198754', '#20c997', '#dc3545', '#ffc107']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        let topProductsChartInstance = null;
-        function renderTopProductsChart() {
-            let sortedProducts = Object.values(stockData).map(item => {
-                return { name: item.name, sku: item.sku, qty: getSisaFisik(item) };
-            }).sort((a, b) => b.qty - a.qty).slice(0, 10);
-
-            let labels = sortedProducts.map(p => p.sku + ' - ' + p.name);
-            let data = sortedProducts.map(p => p.qty);
-
-            let ctx = document.getElementById('topProductsChart').getContext('2d');
-            if (topProductsChartInstance) topProductsChartInstance.destroy();
-
-            topProductsChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Pallet di Gudang',
-                        data: data,
-                        backgroundColor: '#0f172a',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { font: { size: 10 } } },
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        function exportTransExcel() {
-            let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n" +
-                "Penerimaan Produksi," + document.getElementById('summaryInProd').innerText + "\n" +
-                "Penerimaan Plant Lain," + document.getElementById('summaryInPlant').innerText + "\n" +
-                "Total Pengiriman," + document.getElementById('summaryOutTotal').innerText + "\n" +
-                "QC Hold," + document.getElementById('summaryHold').innerText + "\n";
-
-            let encodedUri = encodeURI(csvContent);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_transaksi_monitoring_fg.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        let blockModal = null;
-        let rowModal = null;
-        
-        function showBlockDetail(blockName) {
-            if (!blockModal) blockModal = new bootstrap.Modal(document.getElementById('modalBlockDetail'));
-            document.getElementById('blockDetailTitle').innerText = 'Denah Lorong di ' + blockName;
-            let grid = document.getElementById('blockRowGrid');
-            grid.innerHTML = '';
-            
-            let rData = masterRacking[blockName];
-            if(!rData) return;
-
-            for(let i = 1; i <= rData.rows; i++) {
-                let rowNum = i < 10 ? '0' + i : i;
-                let rowName = rData.prefix + rowNum;
-                let max = rData.perRow;
-                let current = getGlobalRackLoad(blockName, rowName);
-                let percent = (current / max) * 100;
-                
-                let bg = 'bg-white';
-                if(current > 0 && percent < 80) bg = 'bg-success-subtle';
-                else if(percent >= 80 && percent < 100) bg = 'bg-warning-subtle';
-                else if(percent >= 100) bg = 'bg-danger-subtle';
-                
-                grid.innerHTML += '<div class="col-4 col-md-3">' +
-                    '<div class="card row-card h-100 border-1 shadow-sm ' + bg + '" onclick="showRowItems(\'' + blockName + '\', \'' + rowName + '\')">' +
-                    '<div class="card-body p-2 text-center">' +
-                    '<h6 class="fw-bold mb-0 text-dark">' + rowName + '</h6>' +
-                    '<small class="text-muted d-block" style="font-size: 10px;">' + (Number.isInteger(current)?current:current.toFixed(1)) + ' / ' + max + ' PLT</small>' +
-                    '</div></div></div>';
-            }
-            blockModal.show();
-        }
-
-        function showRowItems(blockName, rowName) {
-            if (!rowModal) rowModal = new bootstrap.Modal(document.getElementById('modalRowDetail'));
-            document.getElementById('rowDetailTitle').innerText = 'Barang di ' + rowName;
-            let tbody = document.getElementById('rowDetailBody');
-            tbody.innerHTML = '';
-            let locString = blockName + ' | ' + rowName;
-            let found = false;
-
-            for(let sku in stockData) {
-                if(stockData[sku].rack.includes(locString)) {
-                    let fisik = getSisaFisik(stockData[sku]);
-                    if(fisik > 0) {
-                        found = true;
-                        tbody.innerHTML += '<tr>' +
-                            '<td class="fw-bold">' + sku + '</td>' +
-                            '<td class="text-start small lh-sm">' + stockData[sku].name + '</td>' +
-                            '<td class="fw-bold text-primary">' + (Number.isInteger(fisik)?fisik:fisik.toFixed(2)) + '</td>' +
-                            '</tr>';
-                    }
-                }
-            }
-            if(!found) tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Lokasi Kosong</td></tr>';
-            rowModal.show();
-        }
-
-        let expModal = null;
-        function showExportDetails(sku) {
-            if(!expModal) expModal = new bootstrap.Modal(document.getElementById('modalExportDetail'));
-            let ul = document.getElementById('exportDetailList');
-            ul.innerHTML = '';
-            let logs = stockData[sku].exportLog || [];
-            if(logs.length === 0) return;
-
-            logs.forEach(l => {
-                let detailText = '';
-                if(l.type === 'HOLD QC') {
-                    detailText = '<strong class="text-danger">Alasan Hold:</strong> ' + l.reason;
-                } else if(l.type === 'RELEASE QC') {
-                    detailText = '<strong class="text-success">Status:</strong> ' + l.reason;
-                } else if(l.type === 'Daily Opname') {
-                    detailText = '<strong class="text-primary">' + l.code + '</strong> | Keterangan: ' + l.reason;
-                } else {
-                    detailText = 'Info: ' + l.code + ' | Keterangan: ' + (l.reason || '-');
-                }
-
-                ul.innerHTML += '<li class="list-group-item">' +
-                    '<div class="d-flex w-100 justify-content-between"><h6 class="mb-1 fw-bold">[' + l.type + ']</h6><small>Tanggal: ' + l.date + '</small></div>' +
-                    '<p class="mb-1 small">' + detailText + '</p>' +
-                    '<small class="text-success fw-bold">Jumlah: ' + l.qtyIn + ' Pallet</small>' +
-                    '</li>';
-            });
-            expModal.show();
-        }
-
-        function getRackCardHTML(blockName) {
-            let rData = masterRacking[blockName];
-            if(!rData) return '';
-            let max = rData.rows * rData.perRow;
-            let current = getGlobalRackLoad(blockName);
-            let percent = (current / max) * 100;
-
-            let bgColor = 'bg-white', text = 'text-dark', prog = 'bg-secondary', borderClass = 'border-secondary';
-            if (current > 0 && percent < 80) { prog = 'bg-success'; borderClass = 'border-success'; }
-            else if (percent >= 80 && percent < 100) { prog = 'bg-warning text-dark'; bgColor = 'bg-warning-subtle'; borderClass = 'border-warning'; }
-            else if (percent >= 100) { prog = 'bg-danger'; bgColor = 'bg-danger-subtle'; text = 'text-danger'; borderClass = 'border-danger'; }
-
-            let showC = Number.isInteger(current) ? current : current.toFixed(1);
-
-            return '<div class="card bin-card shadow-sm w-100 ' + bgColor + ' border ' + borderClass + '" onclick="showBlockDetail(\'' + blockName + '\')">' +
-                '<div class="card-body p-2 d-flex flex-column justify-content-center align-items-center position-relative">' +
-                '<h6 class="fw-bold mb-0" style="font-size: 0.95rem;">' + blockName + '</h6>' +
-                '<small class="text-muted" style="font-size: 0.75rem;">' + (blockName === "LANTAI / FLOOR" ? "Penyimpanan Lantai" : rData.rows + " Lorong") + '</small>' +
-                '<div class="mt-2"><span class="fw-bold fs-4 ' + text + '">' + showC + '</span></div>' +
-                '<div class="progress w-100 mt-2" style="height: 5px;"><div class="progress-bar ' + prog + '" style="width: ' + percent + '%;"></div></div>' +
-                '</div></div>';
-        }
-
         function renderAll() {
-            const tbody = document.getElementById('stockTableBody');
-            const datalist = document.getElementById('datalistSkus');
-            
+            let tbody = document.getElementById('stockTableBody');
+            let datalist = document.getElementById('datalistSkus');
             tbody.innerHTML = ''; datalist.innerHTML = '';
 
-            let totalPallet = 0, totalMax = 0, totalHold = 0;
-            for (let r in masterRacking) {
-                if(r !== "LANTAI / FLOOR") totalMax += (masterRacking[r].rows * masterRacking[r].perRow);
-            }
+            let totInduk = 0, totAging = 0, totSku = 0, totHold = 0;
 
-            let no = 1;
-            let totalSkuCount = Object.keys(stockData).length;
-
-            for (let sku in stockData) {
+            for(let sku in stockData) {
                 let item = stockData[sku];
-                let fisik = getSisaFisik(item);
-                let avail = getAvailableStock(item);
-                
-                totalPallet += fisik; totalHold += item.holdQty;
+                totSku++;
+                if(item.warehouse === 'INDUK') totInduk += item.pallets;
+                if(item.warehouse === 'AGING') totAging += item.pallets;
+                totHold += item.hold || 0;
+
                 datalist.innerHTML += '<option value="' + item.sku + ' | ' + item.name + '"></option>';
 
-                let btnLog = item.exportLog && item.exportLog.length > 0 ? 
-                    '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Riwayat</button>' : 
-                    '<span class="badge bg-secondary">-</span>';
-
-                let showF = Number.isInteger(fisik) ? fisik : fisik.toFixed(2);
-                let showA = Number.isInteger(avail) ? avail : avail.toFixed(2);
-                let showH = Number.isInteger(item.holdQty) ? item.holdQty : item.holdQty.toFixed(2);
+                let statusBadge = item.warehouse === 'AGING' ? '<span class="badge bg-warning text-dark">Gudang Aging</span>' : '<span class="badge bg-success">Gudang Induk</span>';
 
                 tbody.innerHTML += '<tr>' +
-                    '<td>' + (no++) + '</td>' +
+                    '<td>' + totSku + '</td>' +
                     '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
                     '<td class="text-start name-col fw-semibold">' + item.name + '</td>' +
-                    '<td>' + btnLog + '</td>' +
-                    '<td><span class="badge bg-info text-dark" style="font-size:10px;">' + item.rack + '</span></td>' +
-                    '<td class="text-success">+' + (Number.isInteger(item.inProd)?item.inProd:item.inProd.toFixed(2)) + '</td>' +
-                    '<td class="text-success">+' + (Number.isInteger(item.inPlant)?item.inPlant:item.inPlant.toFixed(2)) + '</td>' +
-                    '<td class="text-danger">-' + (Number.isInteger(item.out)?item.out:item.out.toFixed(2)) + '</td>' +
-                    '<td class="fw-bold fs-6">' + showF + '</td>' +
-                    '<td class="fw-bold text-warning bg-dark">' + showH + '</td>' +
-                    '<td class="fw-bold text-success fs-6">' + showA + '</td>' +
+                    '<td>' + statusBadge + '</td>' +
+                    '<td><span class="badge bg-info text-dark">' + item.rack + '</span></td>' +
+                    '<td>' + (item.arrivalDate || '-') + '</td>' +
+                    '<td class="fw-bold">' + item.pallets.toFixed(2) + '</td>' +
+                    '<td>Aktif</td>' +
                     '</tr>';
             }
 
-            for (let colId in layoutMap) {
-                let colContainer = document.getElementById(colId);
-                if(colContainer) {
-                    colContainer.innerHTML = '';
-                    layoutMap[colId].forEach(blockName => {
-                        colContainer.innerHTML += getRackCardHTML(blockName);
-                    });
-                }
-            }
-
-            document.getElementById('statTotalPallet').innerText = Number.isInteger(totalPallet) ? totalPallet.toLocaleString() : totalPallet.toFixed(2);
-            document.getElementById('statMaxCapacity').innerText = totalMax.toLocaleString();
-            document.getElementById('statHoldQty').innerText = Number.isInteger(totalHold) ? totalHold.toLocaleString() : totalHold.toFixed(2);
-            document.getElementById('statPercentage').innerText = (totalMax > 0 ? (totalPallet/totalMax)*100 : 0).toFixed(2) + '%';
-            document.getElementById('statTotalSku').innerText = totalSkuCount;
-
-            renderTopProductsChart();
+            document.getElementById('statTotalPalletInduk').innerText = totInduk.toFixed(2);
+            document.getElementById('statTotalPalletAging').innerText = totAging.toFixed(2);
+            document.getElementById('statHoldQty').innerText = totHold.toFixed(2);
+            document.getElementById('statTotalSku').innerText = totSku;
         }
 
         checkLoginStatus();
