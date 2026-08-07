@@ -4,43 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Finished Goods - PT. Mayora Indah Tbk</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f1f5f9; }
         .navbar-custom { background-color: #0f172a; }
         .card-stat { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; }
-        
         .app-page { display: none; }
         .app-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .table th, .table td { vertical-align: middle; white-space: nowrap; }
         .name-col { white-space: normal; min-width: 200px; }
-        
-        /* Layout Bin Location Styles */
         .bin-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-width: 2px !important; }
         .bin-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
         .warehouse-map-container { overflow-x: auto; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; }
         .warehouse-map-inner { min-width: 900px; }
-        
         .row-card { cursor: pointer; transition: background 0.2s; }
         .row-card:hover { background-color: #e2e8f0 !important; }
-        
-        .dynamic-fields { display: none; } 
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN SCREEN OVERLAY -->
+    <!-- LOGIN SCREEN -->
     <div id="loginOverlay">
         <div class="card shadow-lg p-4" style="width: 380px; border-radius: 12px;">
             <div class="text-center mb-4">
                 <h3 class="fw-bold text-dark">Login Monitoring FG</h3>
-                <p class="text-muted small">Masukkan akun Anda untuk mengakses sistem</p>
+                <p class="text-muted small">PT. Mayora Indah Tbk, Jayanti 3</p>
             </div>
             <form onsubmit="handleLogin(event)">
                 <div class="mb-3">
@@ -56,16 +47,14 @@
         </div>
     </div>
 
-    <!-- NAVBAR ATAS -->
+    <!-- NAVBAR -->
     <nav class="navbar navbar-dark navbar-custom shadow-sm py-3 sticky-top">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-                    Menu
-                </button>
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">Menu</button>
                 <div class="d-flex flex-column">
                     <span class="navbar-brand h1 fw-bold mb-0" style="font-size: 1.25rem;">Monitoring Finished Goods</span>
-                    <span class="text-white-50 small" style="font-size: 0.75rem; letter-spacing: 0.5px;">PT. Mayora Indah Tbk, Jayanti 3</span>
+                    <span class="text-white-50 small" style="font-size: 0.75rem;">PT. Mayora Indah Tbk, Jayanti 3</span>
                 </div>
             </div>
             <div>
@@ -75,14 +64,14 @@
         </div>
     </nav>
 
-    <!-- OFFCANVAS SIDEBAR -->
+    <!-- SIDEBAR -->
     <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title fw-bold">Navigasi Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard Utams</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard Utama</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc (2 Gudang)</button>
             <button class="btn btn-warning w-100 text-start py-2 text-dark fw-bold" onclick="switchPage('page-aging-control')">Monitoring Gudang Aging (8 Hari)</button>
             
@@ -93,14 +82,14 @@
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">Laporan & Grafik Transaksi</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">Penerimaan Produksi</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">Pengiriman (Linked)</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">Pengiriman Barang</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">Status QC (Hold/Release)</button>
                 </div>
             </div>
 
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-opname')">Stock Opname Harian</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-rekon')">Rekonsiliasi SAP</button>
-            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">Laporan Breakdown</button>
+            <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-report')">Laporan Breakdown Stok</button>
             
             <hr class="border-secondary my-2">
             <div>
@@ -128,7 +117,7 @@
                         <div class="card-body">
                             <small class="text-uppercase text-white-50 fw-bold">Total Pallet Gudang Induk</small>
                             <h2 class="fw-bold mt-1 mb-0" id="statTotalPallet">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Dari <span id="statMaxCapacity">0</span> Pallet (Induk)</p>
+                            <p class="small text-white-50 mt-2 mb-0">Dari <span id="statMaxCapacityInduk">0</span> Pallet (Induk)</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +126,7 @@
                         <div class="card-body">
                             <small class="text-uppercase text-warning fw-bold">Total Pallet Gudang Aging</small>
                             <h2 class="fw-bold mt-1 mb-0 text-warning" id="statAgingPallet">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Dalam Masa Penyetopan</p>
+                            <p class="small text-white-50 mt-2 mb-0">Dari <span id="statMaxCapacityAging">0</span> Pallet (Aging)</p>
                         </div>
                     </div>
                 </div>
@@ -183,14 +172,11 @@
                 <button class="btn btn-outline-dark fw-bold" id="btnWhAging" onclick="switchWarehouseMap('AGING')">Gudang Aging (Cokelat Setting)</button>
             </div>
             <div class="alert alert-info shadow-sm small border-0 mb-3">
-                <strong>Panduan:</strong> Klik pada blok rak untuk melihat detail isi barang per lorong.
+                <strong>Panduan:</strong> Klik pada blok rak untuk melihat detail isi barang per lorong secara real-time.
             </div>
-            
             <div class="warehouse-map-container shadow-sm">
                 <div class="warehouse-map-inner">
-                    <div class="row gx-4 text-center" id="layoutGridContainer">
-                        <!-- Rendered by JS -->
-                    </div>
+                    <div class="row gx-4 text-center" id="layoutGridContainer"></div>
                 </div>
             </div>
         </div>
@@ -199,7 +185,7 @@
         <div id="page-aging-control" class="app-page">
             <h4 class="fw-bold mb-3">Monitoring Proses Aging Cokelat (Wajib 8 Hari)</h4>
             <div class="alert alert-warning small border-0 shadow-sm">
-                Sistem otomatis memantau masa aging produk sejak tanggal masuk (Arrival Date). Jika mencapai 8 hari, status akan berubah menjadi <strong>Ready</strong> dan siap dipindahkan ke Gudang Induk.
+                Sistem otomatis memantau masa aging produk sejak tanggal masuk. Jika mencapai 8 hari, status akan berubah menjadi <strong>Ready</strong> dan siap dipindahkan ke Gudang Induk.
             </div>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
@@ -210,7 +196,7 @@
                                 <th class="text-start name-col">Nama Produk</th>
                                 <th>Tanggal Masuk</th>
                                 <th>Lama Aging</th>
-                                <th>Lokasi di Gudang Aging</th>
+                                <th>Lokasi Gudang Aging</th>
                                 <th>Jumlah Pallet</th>
                                 <th>Status Readiness</th>
                             </tr>
@@ -226,9 +212,8 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold mb-0">Laporan & Grafik Transaksi Harian</h4>
                 <div class="d-flex gap-2">
-                    <select class="form-select form-select-sm" id="transFilterType" onchange="renderTransactionReport()">
-                        <option value="bulanan" selected>Bulanan</option>
-                    </select>
+                    <button class="btn btn-sm btn-success fw-bold" onclick="exportTransExcel()">Export Data ke Excel</button>
+                    <button class="btn btn-sm btn-outline-dark fw-bold" onclick="window.print()">Cetak PDF</button>
                 </div>
             </div>
             <div class="row g-4 mb-4">
@@ -243,11 +228,12 @@
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0 h-100 bg-light">
                         <div class="card-body">
-                            <h6 class="fw-bold text-secondary mb-3">Ringkasan Aktivitas</h6>
+                            <h6 class="fw-bold text-secondary mb-3">Ringkasan Aktivitas Gudang</h6>
                             <ul class="list-group list-group-flush bg-transparent small">
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Prod:</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Produksi:</span> <strong class="text-success" id="summaryInProd">0 Pallet</strong></li>
                                 <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Penerimaan Plant Lain:</span> <strong class="text-success" id="summaryInPlant">0 Pallet</strong></li>
-                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Pengiriman:</span> <strong class="text-danger" id="summaryOutTotal">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Pengiriman Out:</span> <strong class="text-danger" id="summaryOutTotal">0 Pallet</strong></li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Total Di-Hold QC:</span> <strong class="text-warning text-dark" id="summaryHoldTotal">0 Pallet</strong></li>
                             </ul>
                         </div>
                     </div>
@@ -255,9 +241,9 @@
             </div>
         </div>
 
-        <!-- 5. PENERIMAAN BARANG JADI (DENGAN PILIHAN GUDANG) -->
+        <!-- 5. PENERIMAAN BARANG JADI -->
         <div id="page-trans-in" class="app-page">
-            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
+            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi (Inbound)</h4>
             <div class="card shadow-sm border-success col-md-8 mx-auto">
                 <div class="card-header bg-success text-white fw-bold">Form Masuk Barang</div>
                 <div class="card-body">
@@ -271,44 +257,35 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold">Tanggal Masuk (Untuk Aging FIFO)</label>
+                                <label class="form-label small fw-bold">Tanggal Masuk (Untuk FIFO & Aging)</label>
                                 <input type="date" class="form-control form-control-sm border-primary" id="inDate" required>
                             </div>
                         </div>
-
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Asal Masuk & Jenis</label>
-                            <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="inSource" required>
-                                    <option value="Produksi">Produksi</option>
-                                    <option value="PlantLain">Plant Lain</option>
-                                </select>
-                                <select class="form-select form-select-sm" id="inKategori" required>
-                                    <option value="Lokal">Lokal</option>
-                                    <option value="Ekspor">Ekspor</option>
-                                </select>
-                            </div>
+                            <label class="form-label small fw-bold">Asal Masuk</label>
+                            <select class="form-select form-select-sm" id="inSource" required>
+                                <option value="Produksi">Dari Produksi Lokal</option>
+                                <option value="PlantLain">Dari Plant Lain / Eksternal</option>
+                            </select>
                         </div>
-
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Ketik & Cari SKU Produk</label>
+                            <label class="form-label small fw-bold">Cari & Pilih SKU Produk</label>
                             <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="updateInboundHint()">
                             <small class="text-muted" id="inSkuHint">Standar: 0 Carton / Pallet</small>
                         </div>
-
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak</label>
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Lain</button>
+                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak (Bisa Multi-Lokasi)</label>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Rak</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle">
                                     <thead class="table-success text-center">
                                         <tr>
                                             <th>Blok Rak</th>
-                                            <th>Lorong</th>
-                                            <th>Karton</th>
-                                            <th>Pallet</th>
+                                            <th>Lorong / Row</th>
+                                            <th>Jumlah Karton</th>
+                                            <th>Konversi Pallet</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -324,9 +301,9 @@
 
         <!-- 6. PENGIRIMAN -->
         <div id="page-trans-out" class="app-page">
-            <h4 class="fw-bold mb-3">Form Pengiriman (Terhubung Lokasi Rak)</h4>
+            <h4 class="fw-bold mb-3">Form Pengiriman & Outbound</h4>
             <div class="card shadow-sm border-danger col-md-8 mx-auto">
-                <div class="card-header bg-danger text-white fw-bold">Pengiriman & Distribusi</div>
+                <div class="card-header bg-danger text-white fw-bold">Pengiriman Distribusi</div>
                 <div class="card-body">
                     <form id="formOut" onsubmit="saveOutbound(event)">
                         <div class="mb-3">
@@ -338,19 +315,19 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Cari SKU Produk</label>
+                            <label class="form-label small fw-bold">Cari SKU Produk yang akan dikirim</label>
                             <input type="text" class="form-control" id="outSku" list="datalistSkus" required autocomplete="off" onchange="detectProductLocationsForOutbound()">
-                            <small class="text-muted" id="outSkuHint">Pilih SKU untuk mendeteksi lokasi.</small>
+                            <small class="text-muted" id="outSkuHint">Pilih SKU untuk mendeteksi ketersediaan lokasi.</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-primary">Lokasi Penyimpanan Aktual</label>
+                            <label class="form-label small fw-bold text-primary">Ketersediaan Stok Aktual & Pengambilan Karton</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle text-center">
                                     <thead class="table-secondary">
                                         <tr>
-                                            <th>Lokasi (Rak)</th>
-                                            <th>Stok Tersedia</th>
-                                            <th>Karton Diambil</th>
+                                            <th>Lokasi (Rak / Floor)</th>
+                                            <th>Sisa Stok Tersedia</th>
+                                            <th>Karton yang Diambil</th>
                                         </tr>
                                     </thead>
                                     <tbody id="outboundLinkedLocBody">
@@ -358,7 +335,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa dikirim.</small>
+                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa diproses keluar.</small>
                         </div>
                         <button type="submit" class="btn btn-danger w-100 fw-bold">Proses Pengiriman Barang</button>
                     </form>
@@ -370,7 +347,7 @@
         <div id="page-trans-hold" class="app-page">
             <h4 class="fw-bold mb-3">Status Karantina QC (Hold / Release)</h4>
             <div class="card shadow-sm border-warning col-md-6 mx-auto">
-                <div class="card-header bg-warning text-dark fw-bold">Karantina QC</div>
+                <div class="card-header bg-warning text-dark fw-bold">Form Karantina QC</div>
                 <div class="card-body">
                     <form id="formHold" onsubmit="saveHoldStatus(event)">
                         <div class="mb-3">
@@ -383,6 +360,10 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Pilih SKU Produk</label>
                             <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Keterangan / Alasan QC</label>
+                            <input type="text" class="form-control form-control-sm" id="qcReason" required placeholder="Misal: Out of spec, kemasan rusak...">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Jumlah KARTON diproses</label>
@@ -400,13 +381,13 @@
 
         <!-- 8. STOCK OPNAME -->
         <div id="page-opname" class="app-page">
-            <h4 class="fw-bold mb-3">Stock Opname Harian</h4>
+            <h4 class="fw-bold mb-3">Stock Opname Harian (Audit Fisik)</h4>
             <div class="card shadow-sm border-primary mb-3">
                 <div class="card-body">
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold">Gudang Opname</label>
+                                <label class="form-label small fw-bold">Pilih Area Gudang Opname</label>
                                 <select class="form-select" id="opDestWarehouse" required onchange="clearOpnameRows()">
                                     <option value="INDUK">Gudang Induk</option>
                                     <option value="AGING">Gudang Aging</option>
@@ -421,7 +402,7 @@
                             <h6 class="fw-bold mb-0">Daftar Item yang Dihitung Fisik</h6>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">Tambah Baris</button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Ulang</button>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -429,16 +410,16 @@
                                 <thead class="table-primary text-center">
                                     <tr>
                                         <th>Blok Rak</th>
-                                        <th>Lorong</th>
+                                        <th>Lorong / Row</th>
                                         <th>Cari SKU</th>
                                         <th>Fisik (Karton)</th>
-                                        <th>Pallet</th>
+                                        <th>Konversi Pallet</th>
                                     </tr>
                                 </thead>
                                 <tbody id="multiOpnameBody"></tbody>
                             </table>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-3">Simpan Hasil Opname</button>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-3">Simpan Hasil Opname (Override Stok)</button>
                     </form>
                 </div>
             </div>
@@ -449,13 +430,13 @@
             <h4 class="fw-bold mb-3">Rekonsiliasi (SAP vs Fisik Aktual)</h4>
             <div class="card shadow-sm border-0 mb-4 bg-light">
                 <div class="card-body">
-                    <label class="form-label fw-bold small text-primary">Tarik Data Sistem SAP (Paste 2 Kolom: SKU & Qty)</label>
+                    <label class="form-label fw-bold small text-primary">Tarik Data Sistem SAP (Paste 2 Kolom dari Excel: SKU & Qty Pallet)</label>
                     <div class="row g-2">
                         <div class="col-md-10">
-                            <textarea class="form-control font-monospace" id="pasteSAPArea" rows="2"></textarea>
+                            <textarea class="form-control font-monospace" id="pasteSAPArea" rows="2" placeholder="Contoh Paste:&#10;312743    15.5&#10;312744    20"></textarea>
                         </div>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-primary w-100 h-100" onclick="processPasteSAP()">Compare</button>
+                            <button type="button" class="btn btn-primary w-100 h-100 fw-bold" onclick="processPasteSAP()">Bandingkan</button>
                         </div>
                     </div>
                 </div>
@@ -470,7 +451,7 @@
                                 <th class="bg-primary text-white">Stok SAP (Pallet)</th>
                                 <th class="bg-success text-white">Total Fisik (Pallet)</th>
                                 <th>Selisih Variance</th>
-                                <th>Status</th>
+                                <th>Status Balance</th>
                             </tr>
                         </thead>
                         <tbody id="rekonTableBody"></tbody>
@@ -481,7 +462,7 @@
 
         <!-- 10. LAPORAN BREAKDOWN -->
         <div id="page-report" class="app-page">
-            <h4 class="fw-bold mb-3">Laporan Breakdown Stok PWA</h4>
+            <h4 class="fw-bold mb-3">Laporan Breakdown Stok Keseluruhan</h4>
             <div class="card shadow-sm border-0">
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">
@@ -490,14 +471,14 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Log</th>
-                                <th>Lokasi Penyimpanan</th>
+                                <th>Log Histori</th>
+                                <th>Lokasi Gudang & Rak</th>
                                 <th>Tanggal Masuk</th>
-                                <th>In</th>
-                                <th>Out</th>
-                                <th>Fisik Pallet</th>
-                                <th class="bg-warning text-dark">Di-Hold</th>
-                                <th class="bg-success text-white">Available</th>
+                                <th>Total Masuk</th>
+                                <th>Total Keluar</th>
+                                <th>Fisik Aktual (Plt)</th>
+                                <th class="bg-warning text-dark">Di-Hold (Plt)</th>
+                                <th class="bg-success text-white">Available (Plt)</th>
                             </tr>
                         </thead>
                         <tbody id="stockTableBody"></tbody>
@@ -512,23 +493,23 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <div class="alert alert-secondary small">
-                        <strong>Format 6 Kolom:</strong> ID | NAME | JUMLAH | SAT | <b>JML CAR/PALLET</b> | SAT<br>
+                        <strong>Format Paste dari Excel (6 Kolom):</strong> ID | NAME | JUMLAH | SAT | <b>JML KARTON/PALLET</b> | SAT<br>
                     </div>
                     <textarea class="form-control font-monospace text-nowrap mb-3" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR CHOCO    1    PALLET    60    CAR"></textarea>
-                    <button type="button" class="btn btn-dark px-4" onclick="processPasteData()">Simpan Data Master</button>
+                    <button type="button" class="btn btn-dark px-4 fw-bold" onclick="processPasteData()">Simpan Data Master Database</button>
                 </div>
             </div>
         </div>
 
         <!-- 12. ACCOUNTS -->
         <div id="page-accounts" class="app-page">
-            <h4 class="fw-bold mb-3">Manajemen Akun</h4>
+            <h4 class="fw-bold mb-3">Manajemen Akun Sistem</h4>
             <div class="card shadow-sm border-0 col-md-6 mx-auto">
                 <div class="card-body">
                     <form onsubmit="addNewAccount(event)">
                         <div class="mb-3"><label class="form-label small fw-bold">Username Baru</label><input type="text" class="form-control" id="newUsername" required></div>
                         <div class="mb-4"><label class="form-label small fw-bold">Password</label><input type="password" class="form-control" id="newPassword" required></div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan Akun</button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan Akun Baru</button>
                     </form>
                 </div>
             </div>
@@ -563,7 +544,7 @@
                     <div class="table-responsive">
                         <table class="table table-striped align-middle text-center mb-0">
                             <thead class="table-secondary sticky-top">
-                                <tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Pallet</th></tr>
+                                <tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Pallet Tersedia</th></tr>
                             </thead>
                             <tbody id="rowDetailBody"></tbody>
                         </table>
@@ -578,7 +559,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6">Log Riwayat Transaksi</h5>
+                    <h5 class="modal-title fs-6">Log Riwayat Transaksi & Historis Barang</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -590,7 +571,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // MASTER RACKING 2 GUDANG
+        // MASTER RACKING INDUK (Sama Seperti Versi Awal)
         const masterRackingInduk = {
             "LANTAI / FLOOR": { prefix: "FLOOR", rows: 1, perRow: 9999 },
             "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 },
@@ -619,7 +600,7 @@
             "BLOK A FG": { prefix: "A", rows: 11, perRow: 36 }
         };
 
-        // Konfigurasi Spesifik Gudang Aging Berdasarkan Blueprint Mayora Jayanti 3
+        // MASTER RACKING AGING (Berdasarkan Blueprint PT Mayora)
         const masterRackingAging = {
             "AGING - BLOK A FG": { prefix: "A", rows: 29, perRow: 36 },
             "AGING - BLOK B FG": { prefix: "B", rows: 32, perRow: 36 },
@@ -640,8 +621,9 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_v30')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_Final')) || {};
 
+        /* --- AUTH & NAVIGATION --- */
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
             if (loggedInUser) {
@@ -651,7 +633,6 @@
                 document.getElementById('loginOverlay').style.display = 'flex';
             }
         }
-
         function handleLogin(e) {
             e.preventDefault();
             let u = document.getElementById('loginUser').value.trim();
@@ -662,6 +643,18 @@
             } else { alert('Username atau Password salah!'); }
         }
         function handleLogout() { localStorage.removeItem('wms_logged_user'); checkLoginStatus(); }
+        
+        function addNewAccount(e) {
+            e.preventDefault();
+            let newU = document.getElementById('newUsername').value.trim();
+            let newP = document.getElementById('newPassword').value.trim();
+            if(registeredUsers[newU]) { alert('Username sudah terdaftar!'); return; }
+            registeredUsers[newU] = newP;
+            localStorage.setItem('wms_accounts', JSON.stringify(registeredUsers));
+            alert('Akun berhasil ditambahkan!');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+        }
 
         function switchPage(pageId) {
             document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active'));
@@ -683,30 +676,97 @@
             }
         }
 
-        function saveData() {
-            localStorage.setItem('stockDataGDFG_v30', JSON.stringify(stockData));
-            renderAll();
-        }
-
+        function saveData() { localStorage.setItem('stockDataGDFG_Final', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
-        function getAvailableStock(item) { return getSisaFisik(item) - item.holdQty; }
+        function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
 
-        function getGlobalRackLoad(blockName, rowName = null, isAging = false) {
+        /* --- DASHBOARD CHARTS --- */
+        let topProductsChartInstance = null;
+        let transChartInstance = null;
+
+        function renderTopProductsChart() {
+            let sortedProducts = Object.values(stockData).map(item => {
+                return { name: item.name, sku: item.sku, qty: getSisaFisik(item) };
+            }).sort((a, b) => b.qty - a.qty).slice(0, 10);
+
+            let labels = sortedProducts.map(p => p.sku + ' - ' + p.name);
+            let data = sortedProducts.map(p => p.qty);
+
+            let ctx = document.getElementById('topProductsChart').getContext('2d');
+            if (topProductsChartInstance) topProductsChartInstance.destroy();
+
+            topProductsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Total Pallet (Gudang Induk & Aging)', data: data, backgroundColor: '#0f172a', borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderTransactionReport() {
+            let totInProd = 0, totInPlant = 0, totOutTotal = 0, totHold = 0;
+            for (let sku in stockData) {
+                let it = stockData[sku];
+                totInProd += it.inProd; totInPlant += it.inPlant;
+                totOutTotal += it.out; totHold += (it.holdQty || 0);
+            }
+
+            document.getElementById('summaryInProd').innerText = totInProd.toFixed(2) + ' Pallet';
+            document.getElementById('summaryInPlant').innerText = totInPlant.toFixed(2) + ' Pallet';
+            document.getElementById('summaryOutTotal').innerText = totOutTotal.toFixed(2) + ' Pallet';
+            document.getElementById('summaryHoldTotal').innerText = totHold.toFixed(2) + ' Pallet';
+
+            let ctx = document.getElementById('transChart').getContext('2d');
+            if (transChartInstance) transChartInstance.destroy();
+
+            transChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Masuk (Produksi)', 'Masuk (Plant Lain)', 'Keluar (Distribusi)', 'Karantina (QC)'],
+                    datasets: [{
+                        label: 'Volume (Pallet)',
+                        data: [totInProd, totInPlant, totOutTotal, totHold],
+                        backgroundColor: ['#198754', '#20c997', '#dc3545', '#ffc107']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function exportTransExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,Kategori,Volume Pallet\n" +
+                "Penerimaan Produksi," + document.getElementById('summaryInProd').innerText.replace(' Pallet','') + "\n" +
+                "Penerimaan Plant Lain," + document.getElementById('summaryInPlant').innerText.replace(' Pallet','') + "\n" +
+                "Total Pengiriman," + document.getElementById('summaryOutTotal').innerText.replace(' Pallet','') + "\n" +
+                "QC Hold," + document.getElementById('summaryHoldTotal').innerText.replace(' Pallet','') + "\n";
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_transaksi_fg.csv");
+            document.body.appendChild(link);
+            link.click(); document.body.removeChild(link);
+        }
+
+        /* --- MAP & BIN LOC LOGIC --- */
+        function getGlobalRackLoad(blockName, rowName = null) {
             let total = 0;
             let targetLoc = rowName ? blockName + ' | ' + rowName : blockName;
             for (let s in stockData) {
-                if(stockData[s].rack) {
-                    if ((rowName && stockData[s].rack.includes(targetLoc)) || (!rowName && stockData[s].rack.includes(blockName))) {
-                        let fisik = getSisaFisik(stockData[s]);
-                        if (fisik > 0) total += fisik;
-                    }
+                if(stockData[s].rack && stockData[s].rack.includes(targetLoc)) {
+                    let fisik = getSisaFisik(stockData[s]);
+                    if (fisik > 0) total += fisik;
                 }
             }
             return total;
         }
 
-        /* --- MAP & BIN LOC LOGIC --- */
         function switchWarehouseMap(wh) {
             currentActiveWhMap = wh;
             document.getElementById('btnWhInduk').className = wh === 'INDUK' ? 'btn btn-dark fw-bold' : 'btn btn-outline-dark fw-bold';
@@ -720,7 +780,7 @@
             for(let bName in configDict) {
                 let rData = configDict[bName];
                 let max = rData.rows * rData.perRow;
-                let current = getGlobalRackLoad(bName, null, wh==='AGING');
+                let current = getGlobalRackLoad(bName);
                 let percent = (current / max) * 100;
 
                 let bgColor = 'bg-white', text = 'text-dark', prog = 'bg-secondary', borderClass = 'border-secondary';
@@ -794,16 +854,13 @@
                     }
                 }
             }
-            if(!found) tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Kosong</td></tr>';
+            if(!found) tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Rak Kosong</td></tr>';
             rowModal.show();
         }
 
-        /* --- INBOUND & OPNAME DYNAMIC ROWS --- */
+        /* --- DYNAMIC ROWS (INBOUND & OPNAME) --- */
         let inboundRowIdx = 0;
-        function resetInboundLocRows() {
-            document.getElementById('inboundLocBody').innerHTML = '';
-            addInboundLocRow();
-        }
+        function resetInboundLocRows() { document.getElementById('inboundLocBody').innerHTML = ''; addInboundLocRow(); }
 
         function getBlockOptions(wh) {
             let config = wh === 'INDUK' ? masterRackingInduk : masterRackingAging;
@@ -816,13 +873,11 @@
             inboundRowIdx++;
             let wh = document.getElementById('inDestWarehouse').value;
             let tbody = document.getElementById('inboundLocBody');
-            let blockOptions = getBlockOptions(wh);
-
             let tr = document.createElement('tr');
             tr.id = 'inRow_' + inboundRowIdx;
-            tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ', \'' + wh + '\')">' + blockOptions + '</select></td>' +
+            tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
                            '<td><select class="form-select form-select-sm" id="inRackRow_' + inboundRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
-                           '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" placeholder="Karton" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
+                           '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
                            '<td class="text-center fw-bold text-success" id="inPalletDisplay_' + inboundRowIdx + '">0 Plt</td>' +
                            '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(' + inboundRowIdx + ')">x</button></td>';
             tbody.appendChild(tr);
@@ -833,19 +888,15 @@
         }
 
         let opnameRowIdx = 0;
-        function clearOpnameRows() {
-            document.getElementById('multiOpnameBody').innerHTML = '';
-            addOpnameRow();
-        }
+        function clearOpnameRows() { document.getElementById('multiOpnameBody').innerHTML = ''; addOpnameRow(); }
+        
         function addOpnameRow() {
             opnameRowIdx++;
             let wh = document.getElementById('opDestWarehouse').value;
             let tbody = document.getElementById('multiOpnameBody');
-            let blockOptions = getBlockOptions(wh);
-
             let tr = document.createElement('tr');
             tr.id = 'opRow_' + opnameRowIdx;
-            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ', \'' + wh + '\')">' + blockOptions + '</select></td>' +
+            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
                            '<td><select class="form-select form-select-sm" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
                            '<td><input type="text" class="form-control form-control-sm" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
                            '<td><input type="number" class="form-control form-control-sm" id="opCarton_' + opnameRowIdx + '" required min="0" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
@@ -857,7 +908,6 @@
             const blockSelect = document.getElementById(type + 'RackBlock' + rowId);
             const rowSelect = document.getElementById(type + 'RackRow' + rowId);
             if(!blockSelect || !rowSelect) return;
-            
             rowSelect.innerHTML = '<option value="">- Lorong -</option>';
             let blockName = blockSelect.value;
             if(blockName === "LANTAI / FLOOR") { rowSelect.innerHTML = '<option value="FLOOR-AREA">Area Lantai Umum</option>'; return; }
@@ -866,16 +916,15 @@
             if(config[blockName]) {
                 let rData = config[blockName];
                 for(let i = 1; i <= rData.rows; i++) {
-                    let rowNum = i < 10 ? '0' + i : i;
-                    let rowName = rData.prefix + rowNum;
-                    rowSelect.innerHTML += '<option value="' + rowName + '">' + rowName + ' (Max: ' + rData.perRow + ')</option>';
+                    let rNum = i < 10 ? '0' + i : i;
+                    let rName = rData.prefix + rNum;
+                    rowSelect.innerHTML += '<option value="' + rName + '">' + rName + ' (Max: ' + rData.perRow + ')</option>';
                 }
             }
         }
 
         function updateInboundHint() {
-            const skuInput = document.getElementById('inSku').value;
-            const sku = extractSku(skuInput);
+            let sku = extractSku(document.getElementById('inSku').value);
             let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 1 : 1;
             document.getElementById('inSkuHint').innerText = 'Standar: ' + jmlCar + ' Carton / Pallet';
             let rows = document.getElementById('inboundLocBody').children;
@@ -902,7 +951,7 @@
         function saveInbound(e) {
             e.preventDefault();
             const sku = extractSku(document.getElementById('inSku').value);
-            if (!stockData[sku]) { alert('SKU tidak valid!'); return; }
+            if (!stockData[sku]) { alert('SKU tidak terdaftar di Master Data!'); return; }
 
             const wh = document.getElementById('inDestWarehouse').value;
             const dateStr = document.getElementById('inDate').value;
@@ -910,7 +959,7 @@
 
             let tbody = document.getElementById('inboundLocBody');
             let rows = tbody.children;
-            if(rows.length === 0) { alert('Harap masukkan lokasi!'); return; }
+            if(rows.length === 0) { alert('Harap masukkan minimal 1 lokasi rak!'); return; }
 
             let totalPalletIn = 0;
             let locListStr = [];
@@ -929,19 +978,17 @@
 
             let item = stockData[sku];
             item.rack = (item.rack && item.rack !== '-') ? item.rack + ', ' + locListStr.join(', ') : locListStr.join(', ');
-            item.arrivalDate = dateStr; // Catat tanggal untuk fungsi Aging
+            item.arrivalDate = dateStr; // Menentukan start FIFO & Aging
             
             if (source === 'Produksi') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({
-                date: new Date().toLocaleDateString('id-ID'), type: 'IN ('+wh+')', reason: 'Lokasi: ' + locListStr.join(', '), qtyIn: totalPalletIn.toFixed(2)
-            });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+')', reason: 'Lokasi: ' + locListStr.join(', '), qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
             saveData();
-            alert('Penerimaan Berhasil: ' + totalPalletIn.toFixed(2) + ' Pallet!');
+            alert('Berhasil! Barang masuk: ' + totalPalletIn.toFixed(2) + ' Pallet.');
             switchPage('page-trans-report');
         }
 
@@ -952,9 +999,9 @@
             if(!stockData[sku]) { tbody.innerHTML = '<tr><td colspan="3" class="text-danger small">SKU tidak terdaftar.</td></tr>'; return; }
             
             let item = stockData[sku];
-            document.getElementById('outSkuHint').innerText = 'Standar: ' + item.jmlCar + ' Carton/Pallet | Available: ' + getAvailableStock(item).toFixed(2) + ' Pallet';
+            document.getElementById('outSkuHint').innerText = 'Standar: ' + item.jmlCar + ' Carton/Pallet | Available (Gudang): ' + getAvailableStock(item).toFixed(2) + ' Pallet';
 
-            if(!item.rack || item.rack === '-') { tbody.innerHTML = '<tr><td colspan="3" class="text-muted small">Barang tidak punya catatan rak.</td></tr>'; return; }
+            if(!item.rack || item.rack === '-') { tbody.innerHTML = '<tr><td colspan="3" class="text-muted small">Barang belum punya lokasi rak.</td></tr>'; return; }
 
             tbody.innerHTML += '<tr>' +
                 '<td class="fw-bold"><span class="badge bg-info text-dark">' + item.rack + '</span></td>' +
@@ -969,23 +1016,22 @@
             if (!stockData[sku]) return;
             let item = stockData[sku];
             let avail = getAvailableStock(item);
+            let target = document.getElementById('outTarget').value;
 
             let cartonInput = document.querySelector('.out-loc-carton');
             if(!cartonInput) { alert('Lokasi rak tidak terdeteksi!'); return; }
 
             let palletsOut = (parseFloat(cartonInput.value) || 0) / (parseInt(item.jmlCar) || 1);
-            if(palletsOut <= 0) { alert('Masukkan jumlah karton!'); return; }
+            if(palletsOut <= 0) { alert('Karton diambil tidak boleh kosong!'); return; }
             if (palletsOut > avail) { alert('GAGAL! Pengeluaran melebihi sisa Available (' + avail.toFixed(2) + ' pallet).'); return; }
 
             item.out += palletsOut;
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'OUT', reason: 'Kirim via sistem', qtyIn: -palletsOut.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'OUTBOUND', reason: 'Tujuan: ' + target, qtyIn: -palletsOut.toFixed(2) });
 
             document.getElementById('formOut').reset();
             document.getElementById('outboundLinkedLocBody').innerHTML = '<tr><td colspan="3" class="text-muted small">Pilih SKU.</td></tr>';
-            saveData();
-            alert('Pengiriman berhasil dicatat!');
-            switchPage('page-trans-report');
+            saveData(); alert('Pengiriman berhasil dicatat!'); switchPage('page-trans-report');
         }
 
         function autoConvertPallet(type) {
@@ -1002,32 +1048,31 @@
             const action = document.getElementById('qcAction').value;
             const sku = extractSku(document.getElementById('qcSku').value);
             const qtyPallet = parseFloat(document.getElementById('qcQtyPallet').value);
+            const reason = document.getElementById('qcReason').value;
             
             if (!stockData[sku]) return;
             let item = stockData[sku];
 
             if (action === 'Hold') {
                 if(qtyPallet > getAvailableStock(item)) { alert('Gagal! Stok available tidak cukup.'); return; }
-                item.holdQty += qtyPallet;
+                item.holdQty = (item.holdQty || 0) + qtyPallet;
             } else {
-                if(qtyPallet > item.holdQty) { alert('Gagal! Jumlah melebihi barang di-Hold.'); return; }
+                if(qtyPallet > (item.holdQty || 0)) { alert('Gagal! Jumlah rilis melebihi barang di-Hold.'); return; }
                 item.holdQty -= qtyPallet;
             }
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD' : 'RELEASE', reason: 'QC Check', qtyIn: qtyPallet.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD QC' : 'RELEASE QC', reason: reason, qtyIn: qtyPallet.toFixed(2) });
 
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
-            saveData();
-            alert('Status QC berhasil diupdate!');
-            switchPage('page-trans-report');
+            saveData(); alert('Status Karantina QC terupdate!'); switchPage('page-trans-report');
         }
 
         function saveBulkOpname(e) {
             e.preventDefault();
             let opDate = document.getElementById('opGlobalDate').value;
             let rows = document.getElementById('multiOpnameBody').children;
-            if(rows.length === 0) { alert('Belum ada data opname!'); return; }
+            if(rows.length === 0) { alert('Tabel opname kosong!'); return; }
 
             for(let i = 0; i < rows.length; i++) {
                 let idx = rows[i].id.split('_')[1];
@@ -1043,16 +1088,55 @@
                     st.opname = pallets; 
                     st.inProd = 0; st.inPlant = 0; st.out = 0; st.holdQty = 0;
                     if(!st.exportLog) st.exportLog = [];
-                    st.exportLog.push({ date: opDate, type: 'OPNAME', reason: 'Audit fisik: ' + st.rack, qtyIn: pallets.toFixed(2) });
+                    st.exportLog.push({ date: opDate, type: 'OPNAME FISIK', reason: 'Audit rak: ' + st.rack, qtyIn: pallets.toFixed(2) });
                 }
             }
-            saveData();
-            alert('Opname Berhasil disimpan!');
-            clearOpnameRows();
-            switchPage('page-rekon');
+            saveData(); alert('Opname sukses meng-override stok database!');
+            clearOpnameRows(); switchPage('page-rekon');
         }
 
-        /* --- AGING TABLE LOGIC --- */
+        /* --- REKONSILIASI SAP --- */
+        function processPasteSAP() {
+            const text = document.getElementById('pasteSAPArea').value.trim();
+            if (!text) return;
+            for(let key in stockData) stockData[key].sapQty = 0;
+            text.split('\n').forEach(line => {
+                const cols = line.split('\t');
+                if (cols.length >= 2) {
+                    const sku = cols[0].trim();
+                    if (stockData[sku]) stockData[sku].sapQty = parseFloat(cols[1].replace(/,/g, '')) || 0;
+                }
+            });
+            document.getElementById('pasteSAPArea').value = '';
+            saveData(); renderRekonsiliasi();
+        }
+
+        function renderRekonsiliasi() {
+            const tbody = document.getElementById('rekonTableBody');
+            tbody.innerHTML = '';
+            for (let sku in stockData) {
+                let item = stockData[sku];
+                let qtyFisik = getSisaFisik(item);
+                let qtySAP = item.sapQty || 0;
+                
+                if(qtyFisik > 0 || qtySAP > 0) {
+                    let variance = qtyFisik - qtySAP;
+                    let badge = variance === 0 ? '<span class="badge bg-success">Balance</span>' : variance < 0 ? '<span class="badge bg-danger">Minus (Hilang)</span>' : '<span class="badge bg-warning text-dark">Plus (Lebih)</span>';
+                    let cls = variance < 0 ? 'table-danger' : variance > 0 ? 'table-warning' : '';
+
+                    tbody.innerHTML += '<tr class="' + cls + '">' +
+                        '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
+                        '<td class="text-start fw-semibold">' + item.name + '</td>' +
+                        '<td class="fw-bold">' + qtySAP.toFixed(2) + '</td>' +
+                        '<td class="fw-bold">' + qtyFisik.toFixed(2) + '</td>' +
+                        '<td class="fw-bold ' + (variance !== 0 ? (variance < 0 ? 'text-danger':'text-success') : '') + '">' + variance.toFixed(2) + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '</tr>';
+                }
+            }
+        }
+
+        /* --- AGING TABLE LOGIC (8 HARI) --- */
         function renderAgingTable() {
             let tbody = document.getElementById('agingTableBody');
             tbody.innerHTML = '';
@@ -1060,7 +1144,6 @@
 
             for(let sku in stockData) {
                 let item = stockData[sku];
-                // Cek apakah produk ada di Blok Gudang Aging
                 let isAgingLoc = item.rack && item.rack.includes("AGING -");
                 let fisik = getSisaFisik(item);
 
@@ -1070,7 +1153,7 @@
                     let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
                     let isReady = diffDays >= 8;
-                    let badge = isReady ? '<span class="badge bg-success">Ready (Selesai Set)</span>' : '<span class="badge bg-warning text-dark">Proses Aging (' + diffDays + '/8)</span>';
+                    let badge = isReady ? '<span class="badge bg-success">Ready (Selesai Set)</span>' : '<span class="badge bg-warning text-dark">Proses Aging (' + diffDays + '/8 Hari)</span>';
 
                     tbody.innerHTML += '<tr>' +
                         '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
@@ -1085,7 +1168,7 @@
             }
         }
 
-        /* --- DATA PROCESSING --- */
+        /* --- MASTER DATA PROCESSING --- */
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
             if(!text) return;
@@ -1102,7 +1185,7 @@
                 }
             });
             document.getElementById('pasteArea').value = '';
-            saveData(); alert('Data Master Diperbarui!'); switchPage('page-report');
+            saveData(); alert('Data Master Berhasil Ditambahkan/Diperbarui!'); switchPage('page-report');
         }
 
         let expModal = null;
@@ -1120,12 +1203,18 @@
             expModal.show();
         }
 
+        /* --- MAIN RENDER (Breakdown & Stats) --- */
         function renderAll() {
             const tbody = document.getElementById('stockTableBody');
             const datalist = document.getElementById('datalistSkus');
             tbody.innerHTML = ''; datalist.innerHTML = '';
 
             let totalInduk = 0, totalAging = 0, totalHold = 0, skuCount = 0;
+            
+            // Hitung Kapasitas Maksimal
+            let maxInduk = 0, maxAging = 0;
+            for(let r in masterRackingInduk) if(r !== "LANTAI / FLOOR") maxInduk += (masterRackingInduk[r].rows * masterRackingInduk[r].perRow);
+            for(let r in masterRackingAging) maxAging += (masterRackingAging[r].rows * masterRackingAging[r].perRow);
 
             for (let sku in stockData) {
                 skuCount++;
@@ -1136,7 +1225,7 @@
                 let isAgingLoc = item.rack && item.rack.includes("AGING -");
                 if (isAgingLoc) totalAging += fisik; else totalInduk += fisik;
                 
-                totalHold += item.holdQty || 0;
+                totalHold += (item.holdQty || 0);
                 datalist.innerHTML += '<option value="' + item.sku + ' | ' + item.name + '"></option>';
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Log</button>' : '-';
@@ -1150,22 +1239,20 @@
                     '<td>' + (item.arrivalDate || '-') + '</td>' +
                     '<td class="text-success">+' + (item.inProd + item.inPlant).toFixed(2) + '</td>' +
                     '<td class="text-danger">-' + item.out.toFixed(2) + '</td>' +
-                    '<td class="fw-bold">' + fisik.toFixed(2) + '</td>' +
+                    '<td class="fw-bold fs-6">' + fisik.toFixed(2) + '</td>' +
                     '<td class="fw-bold text-warning bg-dark">' + (item.holdQty || 0).toFixed(2) + '</td>' +
-                    '<td class="fw-bold text-success">' + avail.toFixed(2) + '</td>' +
+                    '<td class="fw-bold text-success fs-6">' + avail.toFixed(2) + '</td>' +
                     '</tr>';
             }
 
             document.getElementById('statTotalPallet').innerText = totalInduk.toFixed(2);
+            document.getElementById('statMaxCapacityInduk').innerText = maxInduk.toLocaleString();
             document.getElementById('statAgingPallet').innerText = totalAging.toFixed(2);
+            document.getElementById('statMaxCapacityAging').innerText = maxAging.toLocaleString();
             document.getElementById('statHoldQty').innerText = totalHold.toFixed(2);
             document.getElementById('statTotalSku').innerText = skuCount;
 
-            // Render Chart Dummy Function
-            let ctx = document.getElementById('topProductsChart');
-            if(ctx) {
-                // Code to render Chart from V27 is safely assumed integrated or can be called here
-            }
+            renderTopProductsChart();
         }
 
         checkLoginStatus();
