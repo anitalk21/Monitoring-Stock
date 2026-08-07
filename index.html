@@ -433,16 +433,20 @@
                 <div class="card-body">
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label small fw-bold">Pilih Area Gudang Opname</label>
                                 <select class="form-select" id="opDestWarehouse" required onchange="clearOpnameRows()">
                                     <option value="INDUK">Gudang Induk</option>
                                     <option value="AGING">Gudang Aging</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label small fw-bold text-primary">Tanggal Opname</label>
                                 <input type="date" class="form-control" id="opGlobalDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-primary">Nama Stock Keeper (Petugas Audit)</label>
+                                <input type="text" class="form-control" id="opStockKeeper" required placeholder="Nama lengkap petugas">
                             </div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -468,6 +472,28 @@
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-3">Simpan Hasil Opname (Override Stok)</button>
                     </form>
+                </div>
+            </div>
+            
+            <!-- RIWAYAT STOCK OPNAME TERAKHIR -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-dark text-white fw-bold">Riwayat / Log Audit Stock Keeper Terakhir</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Tanggal Audit</th>
+                                <th>Stock Keeper (Petugas)</th>
+                                <th>SKU</th>
+                                <th class="text-start name-col">Nama Produk</th>
+                                <th>Rak</th>
+                                <th>Hasil Opname (Plt)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="opnameHistoryBody">
+                            <tr><td colspan="6" class="text-muted small">Belum ada data riwayat opname.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -666,7 +692,7 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_CompleteFinal')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_KeeperFinal')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -714,6 +740,7 @@
             if (pageId === 'page-opname') {
                 document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
+                renderOpnameHistory();
             }
             if (pageId === 'page-trans-in') {
                 document.getElementById('inDate').value = new Date().toISOString().split('T')[0];
@@ -721,7 +748,7 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_CompleteFinal', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_KeeperFinal', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
@@ -1112,6 +1139,7 @@
         function saveBulkOpname(e) {
             e.preventDefault();
             let opDate = document.getElementById('opGlobalDate').value;
+            let stockKeeper = document.getElementById('opStockKeeper').value.trim();
             let rows = document.getElementById('multiOpnameBody').children;
             if(rows.length === 0) { alert('Tabel opname kosong!'); return; }
 
@@ -1128,12 +1156,42 @@
                     st.rack = block + ' | ' + row;
                     st.opname = pallets; 
                     st.inProd = 0; st.inPlant = 0; st.out = 0; st.holdQty = 0;
+                    
+                    if(!st.opnameHistory) st.opnameHistory = [];
+                    st.opnameHistory.push({ date: opDate, keeper: stockKeeper, rack: st.rack, qty: pallets.toFixed(2) });
+
                     if(!st.exportLog) st.exportLog = [];
-                    st.exportLog.push({ date: opDate, type: 'OPNAME FISIK', reason: 'Audit rak: ' + st.rack, qtyIn: pallets.toFixed(2) });
+                    st.exportLog.push({ date: opDate, type: 'OPNAME FISIK ('+stockKeeper+')', reason: 'Audit rak: ' + st.rack, qtyIn: pallets.toFixed(2) });
                 }
             }
-            saveData(); alert('Opname sukses meng-override stok database!');
+            saveData(); alert('Opname sukses disimpan dengan Stock Keeper: ' + stockKeeper + '!');
             clearOpnameRows(); switchPage('page-rekon');
+        }
+
+        function renderOpnameHistory() {
+            let tbody = document.getElementById('opnameHistoryBody');
+            tbody.innerHTML = '';
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.opnameHistory && item.opnameHistory.length > 0) {
+                    item.opnameHistory.forEach(hist => {
+                        found = true;
+                        tbody.innerHTML += `<tr>
+                            <td>${hist.date}</td>
+                            <td><span class="badge bg-primary">${hist.keeper}</span></td>
+                            <td><span class="badge bg-secondary">${sku}</span></td>
+                            <td class="text-start fw-semibold">${item.name}</td>
+                            <td>${hist.rack}</td>
+                            <td class="fw-bold text-success">${hist.qty} Plt</td>
+                        </tr>`;
+                    });
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data riwayat opname.</td></tr>';
+            }
         }
 
         function processPasteSAP() {
@@ -1271,7 +1329,7 @@
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
                             sku: sku, name: cols[1].trim(), jmlCar: cols[4].trim(),
-                            rack: '-', arrivalDate: '', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: []
+                            rack: '-', arrivalDate: '', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
                         };
                     }
                 }
