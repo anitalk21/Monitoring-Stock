@@ -83,7 +83,7 @@
                 </button>
                 <div class="collapse show ps-3 mt-1 d-flex flex-column gap-1" id="subTransaksiMenu">
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-report')">Laporan & Grafik Transaksi</button>
-                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">Penerimaan Produksi</button>
+                    <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-in')">Penerimaan Barang Jadi</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-out')">Pengiriman Barang</button>
                     <button class="btn btn-sm btn-dark w-100 text-start py-1 text-light" onclick="switchPage('page-trans-hold')">Status QC (Hold/Release)</button>
                 </div>
@@ -133,20 +133,20 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card card-stat shadow-sm h-100">
+                    <div class="card card-stat shadow-sm h-100 border border-info">
                         <div class="card-body">
-                            <small class="text-uppercase text-white-50 fw-bold">Total Barang di-Hold (QC)</small>
-                            <h2 class="fw-bold mt-1 mb-0 text-danger" id="statHoldQty">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Pallet Tidak Bisa Dikirim</p>
+                            <small class="text-uppercase text-info fw-bold">Total Kapasitas Gabungan</small>
+                            <h2 class="fw-bold mt-1 mb-0 text-info" id="statTotalCombined">0</h2>
+                            <p class="small text-white-50 mt-2 mb-0">Dari <span id="statMaxCapacityCombined">0</span> Pallet Total</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card card-stat shadow-sm h-100">
                         <div class="card-body">
-                            <small class="text-uppercase text-white-50 fw-bold">Total SKU Aktif</small>
-                            <h2 class="fw-bold mt-1 mb-0" id="statTotalSku">0</h2>
-                            <p class="small text-white-50 mt-2 mb-0">Produk Terdaftar</p>
+                            <small class="text-uppercase text-white-50 fw-bold">Total Barang di-Hold (QC)</small>
+                            <h2 class="fw-bold mt-1 mb-0 text-danger" id="statHoldQty">0</h2>
+                            <p class="small text-white-50 mt-2 mb-0">Pallet Tidak Bisa Dikirim</p>
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,7 @@
 
         <!-- 5. PENERIMAAN BARANG JADI -->
         <div id="page-trans-in" class="app-page">
-            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi (Inbound)</h4>
+            <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
             <div class="card shadow-sm border-success col-md-8 mx-auto">
                 <div class="card-header bg-success text-white fw-bold">Form Masuk Barang</div>
                 <div class="card-body">
@@ -313,6 +313,7 @@
                             <select class="form-select form-select-sm" id="inSource" required>
                                 <option value="Produksi">Dari Produksi Lokal</option>
                                 <option value="PlantLain">Dari Plant Lain / Eksternal</option>
+                                <option value="Ekspor">Dari Produk Jadi Ekspor</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1051,7 +1052,7 @@
             if (source === 'Produksi') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+')', reason: 'Lokasi: ' + locListStr.join(', '), qtyIn: totalPalletIn.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Lokasi: ' + locListStr.join(', '), qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
@@ -1364,6 +1365,9 @@
             for(let r in masterRackingInduk) if(r !== "LANTAI / FLOOR") maxInduk += (masterRackingInduk[r].rows * masterRackingInduk[r].perRow);
             for(let r in masterRackingAging) maxAging += (masterRackingAging[r].rows * masterRackingAging[r].perRow);
 
+            let totalCombinedCurrent = 0;
+            let totalCombinedMax = maxInduk + maxAging;
+
             for (let sku in stockData) {
                 skuCount++;
                 let item = stockData[sku];
@@ -1393,10 +1397,14 @@
                     '</tr>';
             }
 
+            totalCombinedCurrent = totalInduk + totalAging;
+
             document.getElementById('statTotalPallet').innerText = totalInduk.toFixed(2);
             document.getElementById('statMaxCapacityInduk').innerText = maxInduk.toLocaleString();
             document.getElementById('statAgingPallet').innerText = totalAging.toFixed(2);
             document.getElementById('statMaxCapacityAging').innerText = maxAging.toLocaleString();
+            document.getElementById('statTotalCombined').innerText = totalCombinedCurrent.toFixed(2);
+            document.getElementById('statMaxCapacityCombined').innerText = totalCombinedMax.toLocaleString();
             document.getElementById('statHoldQty').innerText = totalHold.toFixed(2);
             document.getElementById('statTotalSku').innerText = skuCount;
 
