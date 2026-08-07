@@ -196,7 +196,6 @@
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Nomor Batch</th>
                                 <th>Tanggal Masuk (FIFO)</th>
                                 <th>Lama Aging</th>
                                 <th>Lokasi Gudang Aging</th>
@@ -244,7 +243,6 @@
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Nomor Batch</th>
                                 <th>Umur (Hari)</th>
                                 <th>Lokasi Rak</th>
                                 <th>Jumlah Pallet</th>
@@ -294,7 +292,7 @@
         <div id="page-trans-in" class="app-page">
             <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
             <div class="card shadow-sm border-success col-md-8 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Termasuk QT / Ekspor & Batch)</div>
+                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi Info Ekspor & QT)</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="row mb-3">
@@ -310,20 +308,38 @@
                                 <input type="date" class="form-control form-control-sm border-primary" id="inDate" required>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Asal Masuk / Tipe Kategori</label>
-                                <select class="form-select form-select-sm" id="inSource" required>
-                                    <option value="Produksi">Dari Produksi Lokal</option>
-                                    <option value="PlantLain">Dari Plant Lain / Eksternal</option>
-                                    <option value="Ekspor">Dari Produk Jadi Ekspor</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Nomor Batch / QT (Quality Test)</label>
-                                <input type="text" class="form-control form-control-sm" id="inBatch" required placeholder="Contoh: BATCH-2026-QT01">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Asal Masuk / Tipe Kategori</label>
+                            <select class="form-select form-select-sm" id="inSource" required onchange="toggleExportFields()">
+                                <option value="Produksi">Dari Produksi Lokal</option>
+                                <option value="PlantLain">Dari Plant Lain / Eksternal</option>
+                                <option value="Ekspor">Khusus Produk Ekspor</option>
+                            </select>
+                        </div>
+
+                        <!-- KELENGKAPAN KHUSUS EKSPOR -->
+                        <div id="exportFieldsContainer" class="p-3 bg-light border rounded mb-3" style="display: none;">
+                            <h6 class="fw-bold text-success small text-uppercase mb-2">Informasi Tambahan Produk Ekspor</h6>
+                            <div class="row g-2">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label small fw-bold">Nomor QT (Quality Test)</label>
+                                    <input type="text" class="form-control form-control-sm" id="inQtNo" placeholder="No QT...">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label small fw-bold">Prodate (Tanggal Produksi)</label>
+                                    <input type="date" class="form-control form-control-sm" id="inProdate">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Exp Date (Tanggal Kedaluwarsa)</label>
+                                    <input type="date" class="form-control form-control-sm" id="inExpDate">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Buyer & Nama Negara Tujuan</label>
+                                    <input type="text" class="form-control form-control-sm" id="inBuyerCountry" placeholder="Contoh: Buyer X / Amerika Serikat">
+                                </div>
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Cari & Pilih SKU Produk</label>
                             <input type="text" class="form-control" id="inSku" list="datalistSkus" required autocomplete="off" onchange="updateInboundHint()">
@@ -553,7 +569,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Nomor Batch / QT</th>
+                                <th>Detail Ekspor (QT / Prodate / Exp / Buyer)</th>
                                 <th>Log Histori</th>
                                 <th>Lokasi Gudang & Rak</th>
                                 <th>Tanggal Masuk (FIFO)</th>
@@ -702,7 +718,7 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_BatchFinal')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_ExportFull')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -755,16 +771,35 @@
             if (pageId === 'page-trans-in') {
                 document.getElementById('inDate').value = new Date().toISOString().split('T')[0];
                 if (document.getElementById('inboundLocBody').children.length === 0) addInboundLocRow();
+                toggleExportFields();
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_BatchFinal', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_ExportFull', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
 
         let topProductsChartInstance = null;
         let transChartInstance = null;
+
+        function toggleExportFields() {
+            let source = document.getElementById('inSource').value;
+            let container = document.getElementById('exportFieldsContainer');
+            if (source === 'Ekspor') {
+                container.style.display = 'block';
+                document.getElementById('inQtNo').required = true;
+                document.getElementById('inProdate').required = true;
+                document.getElementById('inExpDate').required = true;
+                document.getElementById('inBuyerCountry').required = true;
+            } else {
+                container.style.display = 'none';
+                document.getElementById('inQtNo').required = false;
+                document.getElementById('inProdate').required = false;
+                document.getElementById('inExpDate').required = false;
+                document.getElementById('inBuyerCountry').required = false;
+            }
+        }
 
         function renderTopProductsChart() {
             let sortedProducts = Object.values(stockData).map(item => {
@@ -1034,7 +1069,15 @@
             const wh = document.getElementById('inDestWarehouse').value;
             const dateStr = document.getElementById('inDate').value;
             const source = document.getElementById('inSource').value;
-            const batchNo = document.getElementById('inBatch').value.trim();
+            
+            let exportDetails = "-";
+            if (source === 'Ekspor') {
+                let qt = document.getElementById('inQtNo').value.trim();
+                let prodate = document.getElementById('inProdate').value;
+                let exp = document.getElementById('inExpDate').value;
+                let bc = document.getElementById('inBuyerCountry').value.trim();
+                exportDetails = `QT: ${qt} | Prodate: ${prodate} | Exp: ${exp} | Buyer/Negara: ${bc}`;
+            }
 
             let tbody = document.getElementById('inboundLocBody');
             let rows = tbody.children;
@@ -1058,17 +1101,18 @@
             let item = stockData[sku];
             item.rack = (item.rack && item.rack !== '-') ? item.rack + ', ' + locListStr.join(', ') : locListStr.join(', ');
             item.arrivalDate = dateStr; 
-            item.batch = batchNo;
+            item.exportDetails = exportDetails;
             
             if (source === 'Produksi' || source === 'Ekspor') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Batch: '+batchNo+' | Lokasi: ' + locListStr.join(', '), qtyIn: totalPalletIn.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
+            toggleExportFields();
             saveData();
-            alert('Berhasil! Barang masuk: ' + totalPalletIn.toFixed(2) + ' Pallet (Batch: '+batchNo.toUpperCase()+').');
+            alert('Berhasil! Barang masuk: ' + totalPalletIn.toFixed(2) + ' Pallet.');
             switchPage('page-trans-report');
         }
 
@@ -1267,7 +1311,6 @@
                     tbody.innerHTML += '<tr>' +
                         '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
                         '<td class="text-start fw-semibold">' + item.name + '</td>' +
-                        '<td><span class="badge bg-dark">' + (item.batch || '-') + '</span></td>' +
                         '<td>' + (item.arrivalDate || '-') + '</td>' +
                         '<td class="fw-bold">' + diffDays + ' Hari</td>' +
                         '<td>' + item.rack + '</td>' +
@@ -1320,7 +1363,6 @@
                         tbody.innerHTML += `<tr>
                             <td><span class="badge bg-secondary">${sku}</span></td>
                             <td class="text-start fw-semibold">${item.name}</td>
-                            <td><span class="badge bg-dark">${item.batch || '-'}</span></td>
                             <td class="text-danger fw-bold">${diffDays} Hari</td>
                             <td><span class="badge bg-info text-dark">${item.rack}</span></td>
                             <td class="fw-bold">${fisik.toFixed(2)} Plt</td>
@@ -1329,7 +1371,7 @@
                 }
             }
             if(!found) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Tidak ada produk stagnan (>30 hari).</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada produk stagnan (>30 hari).</td></tr>';
             }
         }
 
@@ -1343,7 +1385,7 @@
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
                             sku: sku, name: cols[1].trim(), jmlCar: cols[4].trim(),
-                            rack: '-', arrivalDate: '', batch: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
+                            rack: '-', arrivalDate: '', exportDetails: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
                         };
                     }
                 }
@@ -1399,7 +1441,7 @@
                     '<td>' + skuCount + '</td>' +
                     '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
                     '<td class="text-start name-col fw-semibold">' + item.name + '</td>' +
-                    '<td><span class="badge bg-dark">' + (item.batch || '-') + '</span></td>' +
+                    '<td class="small text-muted">' + (item.exportDetails || '-') + '</td>' +
                     '<td>' + btnLog + '</td>' +
                     '<td><span class="badge bg-info text-dark" style="font-size:10px;">' + item.rack + '</span></td>' +
                     '<td>' + (item.arrivalDate || '-') + '</td>' +
