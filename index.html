@@ -292,7 +292,7 @@
         <div id="page-trans-in" class="app-page">
             <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
             <div class="card shadow-sm border-success col-md-9 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi Shift, No. Pallet, Info Ekspor & QT)</div>
+                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Mendukung Range No. Pallet & Info Ekspor)</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="row mb-3">
@@ -355,7 +355,7 @@
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak & Nomor Pallet Fisik</label>
+                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak & No. Pallet (Bisa Range: Cth PLT-01 s/d PLT-10)</label>
                                 <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Rak</button>
                             </div>
                             <div class="table-responsive">
@@ -364,7 +364,7 @@
                                         <tr>
                                             <th>Blok Rak</th>
                                             <th>Lorong / Row</th>
-                                            <th>No. Pallet Fisik</th>
+                                            <th>No. Pallet Fisik (Atau Range)</th>
                                             <th>Jumlah Karton</th>
                                             <th>Konversi Pallet</th>
                                             <th>Aksi</th>
@@ -382,7 +382,7 @@
 
         <!-- 6. PENGIRIMAN -->
         <div id="page-trans-out" class="app-page">
-            <h4 class="fw-bold mb-3">Form Pengiriman & Outbound</h4>
+            <h4 class="fw-bold mb-3">Form Pengiriman & Outbound (Mendukung Pengiriman Parsial / Receh)</h4>
             <div class="card shadow-sm border-danger col-md-8 mx-auto">
                 <div class="card-header bg-danger text-white fw-bold">Pengiriman Distribusi</div>
                 <div class="card-body">
@@ -401,7 +401,7 @@
                             <small class="text-muted" id="outSkuHint">Pilih SKU untuk mendeteksi ketersediaan lokasi.</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-primary">Ketersediaan Stok Aktual & Pengambilan Karton</label>
+                            <label class="form-label small fw-bold text-primary">Ketersediaan Stok Aktual & Pengambilan Karton (Parsial/Receh)</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered align-middle text-center">
                                     <thead class="table-secondary">
@@ -416,7 +416,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa diproses keluar. Prioritaskan stok dengan Tanggal Masuk (FIFO) terlama.</small>
+                            <small class="text-danger mt-1 d-block" style="font-size: 11px;">*Barang di-HOLD tidak bisa diproses keluar. Pengambilan parsial otomatis memperbarui sisa stok di rak (mencatat sub-pallet/turunan).</small>
                         </div>
                         <button type="submit" class="btn btn-danger w-100 fw-bold">Proses Pengiriman Barang</button>
                     </form>
@@ -444,7 +444,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-danger">Nomor Pallet Fisik yang Diproses</label>
-                            <input type="text" class="form-control form-control-sm border-danger fw-bold" id="qcPalletNo" required placeholder="Masukkan No. Pallet / Passed...">
+                            <input type="text" class="form-control form-control-sm border-danger fw-bold" id="qcPalletNo" required placeholder="Masukkan No. Pallet / Range...">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Keterangan / Alasan QC</label>
@@ -582,7 +582,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Shift & No. Pallet / Detail Ekspor</th>
+                                <th>Shift & No. Pallet / Range / Detail Ekspor</th>
                                 <th>Log Histori</th>
                                 <th>Lokasi Gudang & Rak</th>
                                 <th>Tanggal Masuk (FIFO)</th>
@@ -731,7 +731,7 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_ShiftFull')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -788,7 +788,7 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_ShiftFull', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
@@ -1004,7 +1004,7 @@
             tr.id = 'inRow_' + inboundRowIdx;
             tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
                            '<td><select class="form-select form-select-sm" id="inRackRow_' + inboundRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
-                           '<td><input type="text" class="form-control form-control-sm border-success" id="inPalletNo_' + inboundRowIdx + '" required placeholder="No. Pallet..."></td>' +
+                           '<td><input type="text" class="form-control form-control-sm border-success" id="inPalletNo_' + inboundRowIdx + '" required placeholder="Cth: PLT-01 s/d PLT-25"></td>' +
                            '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
                            '<td class="text-center fw-bold text-success" id="inPalletDisplay_' + inboundRowIdx + '">0 Plt</td>' +
                            '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(' + inboundRowIdx + ')">x</button></td>';
@@ -1126,7 +1126,7 @@
             if (source === 'Produksi' || source === 'Ekspor') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Shift: '+shiftVal+' | No. Pallet: [' + palletNoList.join(', ') + '] | Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Shift: '+shiftVal+' | Range/No. Pallet: [' + palletNoList.join(', ') + '] | Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
@@ -1165,17 +1165,18 @@
             let cartonInput = document.querySelector('.out-loc-carton');
             if(!cartonInput) { alert('Lokasi rak tidak terdeteksi!'); return; }
 
-            let palletsOut = (parseFloat(cartonInput.value) || 0) / (parseInt(item.jmlCar) || 1);
-            if(palletsOut <= 0) { alert('Karton diambil tidak boleh kosong!'); return; }
+            let cartonsOut = parseFloat(cartonInput.value) || 0;
+            let palletsOut = cartonsOut / (parseInt(item.jmlCar) || 1);
+            if(cartonsOut <= 0) { alert('Karton diambil tidak boleh kosong!'); return; }
             if (palletsOut > avail) { alert('GAGAL! Pengeluaran melebihi sisa Available (' + avail.toFixed(2) + ' pallet).'); return; }
 
             item.out += palletsOut;
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'OUTBOUND', reason: 'Tujuan: ' + target, qtyIn: -palletsOut.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'OUTBOUND (Parsial/Receh)', reason: 'Tujuan: ' + target + ' | Karton Keluar: ' + cartonsOut + ' Car (Sisa Pallet Tercatat Turunan)', qtyIn: -palletsOut.toFixed(2) });
 
             document.getElementById('formOut').reset();
             document.getElementById('outboundLinkedLocBody').innerHTML = '<tr><td colspan="3" class="text-muted small">Pilih SKU.</td></tr>';
-            saveData(); alert('Pengiriman berhasil dicatat!'); switchPage('page-trans-report');
+            saveData(); alert('Pengiriman parsial / receh berhasil dicatat!'); switchPage('page-trans-report');
         }
 
         function autoConvertPallet(type) {
@@ -1206,7 +1207,7 @@
                 item.holdQty -= qtyPallet;
             }
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD QC' : 'RELEASE QC', reason: 'No. Pallet: '+palletNo+' | Alasan: '+reason, qtyIn: qtyPallet.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD QC' : 'RELEASE QC', reason: 'No. Pallet/Range: '+palletNo+' | Alasan: '+reason, qtyIn: qtyPallet.toFixed(2) });
 
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
@@ -1458,7 +1459,7 @@
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Log</button>' : '-';
 
-                let infoDetails = `<strong>Shift:</strong> <span class="badge bg-dark">${item.shift || '-'}</span> | <strong>No. Pallet:</strong> ${item.palletNo || '-'}<br><small class="text-muted">${item.exportDetails || '-'}</small>`;
+                let infoDetails = `<strong>Shift:</strong> <span class="badge bg-dark">${item.shift || '-'}</span> | <strong>No. Pallet / Range:</strong> ${item.palletNo || '-'}<br><small class="text-muted">${item.exportDetails || '-'}</small>`;
 
                 tbody.innerHTML += '<tr>' +
                     '<td>' + skuCount + '</td>' +
