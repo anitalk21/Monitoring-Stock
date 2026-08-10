@@ -292,20 +292,28 @@
         <div id="page-trans-in" class="app-page">
             <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
             <div class="card shadow-sm border-success col-md-9 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi No. Pallet, Info Ekspor & QT)</div>
+                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi Shift, No. Pallet, Info Ekspor & QT)</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label small fw-bold text-primary">Tujuan Gudang</label>
                                 <select class="form-select form-select-sm border-primary fw-bold" id="inDestWarehouse" required onchange="resetInboundLocRows()">
                                     <option value="INDUK">Gudang Induk</option>
                                     <option value="AGING">Gudang Aging</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Tanggal Masuk (Untuk FIFO & Aging)</label>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Tanggal Masuk (FIFO & Aging)</label>
                                 <input type="date" class="form-control form-control-sm border-primary" id="inDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-success">Shift Kerja</label>
+                                <select class="form-select form-select-sm border-success fw-bold" id="inShift" required>
+                                    <option value="Shift 1">Shift 1</option>
+                                    <option value="Shift 2">Shift 2</option>
+                                    <option value="Shift 3">Shift 3</option>
+                                </select>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -574,7 +582,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>No. Pallet / Detail Ekspor</th>
+                                <th>Shift & No. Pallet / Detail Ekspor</th>
                                 <th>Log Histori</th>
                                 <th>Lokasi Gudang & Rak</th>
                                 <th>Tanggal Masuk (FIFO)</th>
@@ -723,7 +731,7 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_PalletNoFull')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_ShiftFull')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -780,7 +788,7 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_PalletNoFull', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_ShiftFull', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
@@ -1074,9 +1082,10 @@
 
             const wh = document.getElementById('inDestWarehouse').value;
             const dateStr = document.getElementById('inDate').value;
+            const shiftVal = document.getElementById('inShift').value;
             const source = document.getElementById('inSource').value;
             
-            let exportDetails = "-";
+            let exportDetails = `-`;
             if (source === 'Ekspor') {
                 let qt = document.getElementById('inQtNo').value.trim();
                 let prodate = document.getElementById('inProdate').value;
@@ -1111,18 +1120,19 @@
             item.rack = (item.rack && item.rack !== '-') ? item.rack + ', ' + locListStr.join(', ') : locListStr.join(', ');
             item.palletNo = (item.palletNo && item.palletNo !== '-') ? item.palletNo + ', ' + palletNoList.join(', ') : palletNoList.join(', ');
             item.arrivalDate = dateStr; 
+            item.shift = shiftVal;
             item.exportDetails = exportDetails;
             
             if (source === 'Produksi' || source === 'Ekspor') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'No. Pallet: [' + palletNoList.join(', ') + '] | Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Shift: '+shiftVal+' | No. Pallet: [' + palletNoList.join(', ') + '] | Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
             toggleExportFields();
             saveData();
-            alert('Berhasil! Barang masuk: ' + totalPalletIn.toFixed(2) + ' Pallet.');
+            alert('Berhasil! Barang masuk: ' + totalPalletIn.toFixed(2) + ' Pallet ('+shiftVal+').');
             switchPage('page-trans-report');
         }
 
@@ -1396,7 +1406,7 @@
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
                             sku: sku, name: cols[1].trim(), jmlCar: cols[4].trim(),
-                            rack: '-', palletNo: '-', arrivalDate: '', exportDetails: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
+                            rack: '-', palletNo: '-', arrivalDate: '', shift: '-', exportDetails: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
                         };
                     }
                 }
@@ -1448,7 +1458,7 @@
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Log</button>' : '-';
 
-                let infoDetails = `<strong>No. Pallet:</strong> ${item.palletNo || '-'}<br><small class="text-muted">${item.exportDetails || '-'}</small>`;
+                let infoDetails = `<strong>Shift:</strong> <span class="badge bg-dark">${item.shift || '-'}</span> | <strong>No. Pallet:</strong> ${item.palletNo || '-'}<br><small class="text-muted">${item.exportDetails || '-'}</small>`;
 
                 tbody.innerHTML += '<tr>' +
                     '<td>' + skuCount + '</td>' +
