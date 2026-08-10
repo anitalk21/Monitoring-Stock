@@ -291,8 +291,8 @@
         <!-- 5. PENERIMAAN BARANG JADI -->
         <div id="page-trans-in" class="app-page">
             <h4 class="fw-bold mb-3">Penerimaan Barang Jadi</h4>
-            <div class="card shadow-sm border-success col-md-8 mx-auto">
-                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi Info Ekspor & QT)</div>
+            <div class="card shadow-sm border-success col-md-9 mx-auto">
+                <div class="card-header bg-success text-white fw-bold">Form Masuk Barang (Dilengkapi No. Pallet, Info Ekspor & QT)</div>
                 <div class="card-body">
                     <form id="formIn" onsubmit="saveInbound(event)">
                         <div class="row mb-3">
@@ -347,7 +347,7 @@
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak (Bisa Multi-Lokasi)</label>
+                                <label class="form-label small fw-bold mb-0">Distribusi Penempatan Rak & Nomor Pallet Fisik</label>
                                 <button type="button" class="btn btn-sm btn-outline-success" onclick="addInboundLocRow()">Tambah Lokasi Rak</button>
                             </div>
                             <div class="table-responsive">
@@ -356,6 +356,7 @@
                                         <tr>
                                             <th>Blok Rak</th>
                                             <th>Lorong / Row</th>
+                                            <th>No. Pallet Fisik</th>
                                             <th>Jumlah Karton</th>
                                             <th>Konversi Pallet</th>
                                             <th>Aksi</th>
@@ -419,7 +420,7 @@
         <div id="page-trans-hold" class="app-page">
             <h4 class="fw-bold mb-3">Status Karantina QC (Hold / Release)</h4>
             <div class="card shadow-sm border-warning col-md-6 mx-auto">
-                <div class="card-header bg-warning text-dark fw-bold">Form Karantina QC</div>
+                <div class="card-header bg-warning text-dark fw-bold">Form Karantina QC (Berdasarkan No. Pallet)</div>
                 <div class="card-body">
                     <form id="formHold" onsubmit="saveHoldStatus(event)">
                         <div class="mb-3">
@@ -432,6 +433,10 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Pilih SKU Produk</label>
                             <input type="text" class="form-control" id="qcSku" list="datalistSkus" required autocomplete="off" onchange="autoConvertPallet('qc')">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-danger">Nomor Pallet Fisik yang Diproses</label>
+                            <input type="text" class="form-control form-control-sm border-danger fw-bold" id="qcPalletNo" required placeholder="Masukkan No. Pallet / Passed...">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Keterangan / Alasan QC</label>
@@ -569,7 +574,7 @@
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start name-col">Nama Produk</th>
-                                <th>Detail Ekspor (QT / Prodate / Exp / Buyer)</th>
+                                <th>No. Pallet / Detail Ekspor</th>
                                 <th>Log Histori</th>
                                 <th>Lokasi Gudang & Rak</th>
                                 <th>Tanggal Masuk (FIFO)</th>
@@ -718,7 +723,7 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_ExportFull')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_PalletNoFull')) || {};
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -775,7 +780,7 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_ExportFull', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { localStorage.setItem('stockDataGDFG_PalletNoFull', JSON.stringify(stockData)); renderAll(); }
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
@@ -991,6 +996,7 @@
             tr.id = 'inRow_' + inboundRowIdx;
             tr.innerHTML = '<td><select class="form-select form-select-sm" id="inRackBlock_' + inboundRowIdx + '" required onchange="populateRows(\'in\', \'_\' + ' + inboundRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
                            '<td><select class="form-select form-select-sm" id="inRackRow_' + inboundRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
+                           '<td><input type="text" class="form-control form-control-sm border-success" id="inPalletNo_' + inboundRowIdx + '" required placeholder="No. Pallet..."></td>' +
                            '<td><input type="number" class="form-control form-control-sm" id="inCarton_' + inboundRowIdx + '" required min="1" oninput="calcInboundRow(' + inboundRowIdx + ')"></td>' +
                            '<td class="text-center fw-bold text-success" id="inPalletDisplay_' + inboundRowIdx + '">0 Plt</td>' +
                            '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeInboundLocRow(' + inboundRowIdx + ')">x</button></td>';
@@ -1085,28 +1091,32 @@
 
             let totalPalletIn = 0;
             let locListStr = [];
+            let palletNoList = [];
 
             for(let i = 0; i < rows.length; i++) {
                 let idx = rows[i].id.split('_')[1];
                 let block = document.getElementById('inRackBlock_' + idx).value;
                 let row = document.getElementById('inRackRow_' + idx).value;
+                let pNo = document.getElementById('inPalletNo_' + idx).value.trim();
                 let carton = parseFloat(document.getElementById('inCarton_' + idx).value) || 0;
                 let jmlCar = parseInt(stockData[sku].jmlCar) || 1;
                 let pallets = carton / jmlCar;
 
                 totalPalletIn += pallets;
                 locListStr.push(block + ' | ' + row);
+                palletNoList.push(pNo);
             }
 
             let item = stockData[sku];
             item.rack = (item.rack && item.rack !== '-') ? item.rack + ', ' + locListStr.join(', ') : locListStr.join(', ');
+            item.palletNo = (item.palletNo && item.palletNo !== '-') ? item.palletNo + ', ' + palletNoList.join(', ') : palletNoList.join(', ');
             item.arrivalDate = dateStr; 
             item.exportDetails = exportDetails;
             
             if (source === 'Produksi' || source === 'Ekspor') item.inProd += totalPalletIn; else item.inPlant += totalPalletIn;
 
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: 'INBOUND ('+wh+') - '+source, reason: 'No. Pallet: [' + palletNoList.join(', ') + '] | Lokasi: ' + locListStr.join(', ') + ' | ' + exportDetails, qtyIn: totalPalletIn.toFixed(2) });
             
             document.getElementById('formIn').reset();
             resetInboundLocRows();
@@ -1171,6 +1181,7 @@
             e.preventDefault();
             const action = document.getElementById('qcAction').value;
             const sku = extractSku(document.getElementById('qcSku').value);
+            const palletNo = document.getElementById('qcPalletNo').value.trim();
             const qtyPallet = parseFloat(document.getElementById('qcQtyPallet').value);
             const reason = document.getElementById('qcReason').value;
             
@@ -1185,11 +1196,11 @@
                 item.holdQty -= qtyPallet;
             }
             if(!item.exportLog) item.exportLog = [];
-            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD QC' : 'RELEASE QC', reason: reason, qtyIn: qtyPallet.toFixed(2) });
+            item.exportLog.push({ date: new Date().toLocaleDateString('id-ID'), type: action === 'Hold' ? 'HOLD QC' : 'RELEASE QC', reason: 'No. Pallet: '+palletNo+' | Alasan: '+reason, qtyIn: qtyPallet.toFixed(2) });
 
             document.getElementById('formHold').reset();
             document.getElementById('qcQtyPalletDisplay').innerText = '0 Pallet';
-            saveData(); alert('Status Karantina QC terupdate!'); switchPage('page-trans-report');
+            saveData(); alert('Status Karantina QC No. Pallet ['+palletNo+'] terupdate!'); switchPage('page-trans-report');
         }
 
         function saveBulkOpname(e) {
@@ -1385,7 +1396,7 @@
                     if (sku && !stockData[sku]) {
                         stockData[sku] = {
                             sku: sku, name: cols[1].trim(), jmlCar: cols[4].trim(),
-                            rack: '-', arrivalDate: '', exportDetails: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
+                            rack: '-', palletNo: '-', arrivalDate: '', exportDetails: '-', opname: 0, inProd: 0, inPlant: 0, out: 0, holdQty: 0, sapQty: 0, exportLog: [], opnameHistory: []
                         };
                     }
                 }
@@ -1437,11 +1448,13 @@
 
                 let btnLog = item.exportLog && item.exportLog.length > 0 ? '<button class="btn btn-sm btn-outline-dark py-0 px-1" onclick="showExportDetails(\'' + item.sku + '\')">Log</button>' : '-';
 
+                let infoDetails = `<strong>No. Pallet:</strong> ${item.palletNo || '-'}<br><small class="text-muted">${item.exportDetails || '-'}</small>`;
+
                 tbody.innerHTML += '<tr>' +
                     '<td>' + skuCount + '</td>' +
                     '<td><span class="badge bg-secondary">' + item.sku + '</span></td>' +
                     '<td class="text-start name-col fw-semibold">' + item.name + '</td>' +
-                    '<td class="small text-muted">' + (item.exportDetails || '-') + '</td>' +
+                    '<td class="text-start small">' + infoDetails + '</td>' +
                     '<td>' + btnLog + '</td>' +
                     '<td><span class="badge bg-info text-dark" style="font-size:10px;">' + item.rack + '</span></td>' +
                     '<td>' + (item.arrivalDate || '-') + '</td>' +
