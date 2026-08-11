@@ -72,6 +72,7 @@
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3">
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-dashboard')">Dashboard Utama</button>
+            <button class="btn btn-info w-100 text-start py-2 text-dark fw-bold" onclick="switchPage('page-queue')">Antrian Truk / Loading</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-binloc')">Layout & Bin Loc (2 Gudang)</button>
             <button class="btn btn-warning w-100 text-start py-2 text-dark fw-bold" onclick="switchPage('page-aging-control')">Monitoring Gudang Aging</button>
             <button class="btn btn-dark w-100 text-start py-2" onclick="switchPage('page-move-rack')">Pindah Lokasi Rak</button>
@@ -160,6 +161,65 @@
                             <div style="position: relative; height: 320px;">
                                 <canvas id="topProductsChart"></canvas>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1.1 HALAMAN ANTRIAN TRUK / LOADING (ANTRIAN.HTML GABUNGAN) -->
+        <div id="page-queue" class="app-page">
+            <h4 class="fw-bold mb-3">Manajemen Antrian Truk & Loading Dock</h4>
+            <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">Tambah Antrian Truk Baru</div>
+                        <div class="card-body">
+                            <form onsubmit="addQueueItem(event)">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Nomor Polisi Truk</label>
+                                    <input type="text" class="form-control form-control-sm" id="qPolice" required placeholder="Cth: B 1234 XYZ">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Nama Driver</label>
+                                    <input type="text" class="form-control form-control-sm" id="qDriver" required placeholder="Nama driver...">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Tujuan / Keperluan</label>
+                                    <select class="form-select form-select-sm" id="qPurpose" required>
+                                        <option value="Muat Barang (Outbound)">Muat Barang (Outbound)</option>
+                                        <option value="Bongkar Produksi / Inbound">Bongkar Produksi / Inbound</option>
+                                        <option value="Ekspor">Ekspor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Nomor Dock / Pintu</label>
+                                    <input type="text" class="form-control form-control-sm" id="qDock" required placeholder="Cth: Dock 01 / Area Buffer">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold btn-sm">Daftarkan Antrian</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-dark text-white fw-bold">Daftar Antrian Aktif Hari Ini</div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-bordered table-hover align-middle text-center mb-0">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>No. Polisi</th>
+                                        <th>Driver</th>
+                                        <th>Keperluan</th>
+                                        <th>Dock</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queueTableBody">
+                                    <tr><td colspan="6" class="text-muted small">Belum ada antrian.</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -731,7 +791,8 @@
 
         let currentActiveWhMap = "INDUK";
         let registeredUsers = JSON.parse(localStorage.getItem('wms_accounts')) || { "admin": "admin123" };
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_WithQueueFull')) || {};
+        let queueData = JSON.parse(localStorage.getItem('queueDataGDFG')) || [];
 
         function checkLoginStatus() {
             let loggedInUser = localStorage.getItem('wms_logged_user');
@@ -776,6 +837,7 @@
             if (pageId === 'page-binloc') switchWarehouseMap('INDUK');
             if (pageId === 'page-aging-control') renderAgingTable();
             if (pageId === 'page-stagnant') renderStagnantReport();
+            if (pageId === 'page-queue') renderQueueTable();
             if (pageId === 'page-opname') {
                 document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
@@ -788,7 +850,70 @@
             }
         }
 
-        function saveData() { localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData)); renderAll(); }
+        function saveData() { 
+            localStorage.setItem('stockDataGDFG_WithQueueFull', JSON.stringify(stockData)); 
+            localStorage.setItem('queueDataGDFG', JSON.stringify(queueData));
+            renderAll(); 
+        }
+
+        // --- MANAJEMEN ANTRIAN TRUK ---
+        function addQueueItem(e) {
+            e.preventDefault();
+            let police = document.getElementById('qPolice').value.trim().toUpperCase();
+            let driver = document.getElementById('qDriver').value.trim();
+            let purpose = document.getElementById('qPurpose').value;
+            let dock = document.getElementById('qDock').value.trim();
+
+            queueData.push({ id: Date.now(), police, driver, purpose, dock, status: 'Menunggu' });
+            saveData();
+            renderQueueTable();
+            document.getElementById('qPolice').value = '';
+            document.getElementById('qDriver').value = '';
+            document.getElementById('qDock').value = '';
+            alert('Antrian truk berhasil didaftarkan!');
+        }
+
+        function updateQueueStatus(id, newStatus) {
+            let item = queueData.find(q => q.id === id);
+            if(item) {
+                item.status = newStatus;
+                saveData();
+                renderQueueTable();
+            }
+        }
+
+        function deleteQueue(id) {
+            queueData = queueData.filter(q => q.id !== id);
+            saveData();
+            renderQueueTable();
+        }
+
+        function renderQueueTable() {
+            let tbody = document.getElementById('queueTableBody');
+            tbody.innerHTML = '';
+            if(queueData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada antrian.</td></tr>';
+                return;
+            }
+            queueData.forEach(q => {
+                let badge = q.status === 'Menunggu' ? 'bg-warning text-dark' : q.status === 'Proses Loading' ? 'bg-primary' : 'bg-success';
+                tbody.innerHTML += `<tr>
+                    <td class="fw-bold">${q.police}</td>
+                    <td>${q.driver}</td>
+                    <td class="small text-start">${q.purpose}</td>
+                    <td><span class="badge bg-secondary">${q.dock}</span></td>
+                    <td><span class="badge ${badge}">${q.status}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary py-0 px-1" title="Proses" onclick="updateQueueStatus(${q.id}, 'Proses Loading')">Proses</button>
+                            <button class="btn btn-outline-success py-0 px-1" title="Selesai" onclick="updateQueueStatus(${q.id}, 'Selesai')">Selesai</button>
+                            <button class="btn btn-outline-danger py-0 px-1" title="Hapus" onclick="deleteQueue(${q.id})">x</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        }
+
         function extractSku(val) { return val.split(' | ')[0].trim(); }
         function getSisaFisik(item) { return (item.opname + item.inProd + item.inPlant) - item.out; }
         function getAvailableStock(item) { return getSisaFisik(item) - (item.holdQty || 0); }
